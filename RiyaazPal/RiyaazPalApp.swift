@@ -11,7 +11,7 @@ import SwiftUI
 struct RiyaazPalApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            PracticeTimelineView()
         }
     }
 }

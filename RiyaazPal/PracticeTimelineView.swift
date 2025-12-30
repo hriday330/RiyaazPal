@@ -7,18 +7,18 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct PracticeTimelineView: View {
     var body: some View {
         VStack {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("Hello, world this is Hriday!")
         }
         .padding()
     }
 }
 
 #Preview {
-    ContentView()
+    PracticeTimelineView()
 }
