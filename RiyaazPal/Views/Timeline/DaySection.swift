@@ -60,5 +60,4 @@ private extension DaySection {
         
     )
     .padding()
-    .background(Color(.systemGroupedBackground))
 }

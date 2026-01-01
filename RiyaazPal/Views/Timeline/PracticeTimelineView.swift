@@ -10,18 +10,35 @@ import SwiftUI
 struct PracticeTimelineView: View {
     @StateObject private var viewModel = PracticeTimelineViewModel()
     var body: some View {
-        VStack {
-            ForEach(viewModel.sessionsGroupedByDay, id: \.date) { group in
-                DaySection(
-                    date: group.date,
-                    sessions: group.sessions
-                )
+            ZStack {
+                // App-wide background
+                Color("AppBackground")
+                    .ignoresSafeArea()
+
+                ScrollView {
+                    LazyVStack(spacing: 24) {
+                        ForEach(viewModel.sessionsGroupedByDay, id: \.date) { group in
+                            DaySection(
+                                date: group.date,
+                                sessions: group.sessions
+                            )
+                        }
+                    }
+                    .padding()
+                }
             }
+            .navigationTitle("RiyaazPal")
         }
-        .padding()
-    }
 }
 
-#Preview {
+#Preview("Light Mode") {
     PracticeTimelineView()
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark Mode") {
+    NavigationStack {
+            PracticeTimelineView()
+        }
+        .preferredColorScheme(.dark)
 }
