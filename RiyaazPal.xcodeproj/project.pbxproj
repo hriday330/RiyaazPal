@@ -13,7 +13,9 @@
 		C0A430C42F03494400C2401C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0A430C32F03494400C2401C /* Preview Assets.xcassets */; };
 		C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430CE2F05993400C2401C /* PracticeSession.swift */; };
 		C0A430D52F0599CD00C2401C /* PracticeSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430D42F0599CD00C2401C /* PracticeSessionViewModel.swift */; };
-		C0A430DB2F059A0600C2401C /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430DA2F059A0600C2401C /* SessionRow.swift */; };
+		C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430DA2F059A0600C2401C /* DaySection.swift */; };
+		C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430DC2F059CB600C2401C /* SessionCard.swift */; };
+		C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430DE2F060DD300C2401C /* PracticeTimelineViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,7 +26,9 @@
 		C0A430C32F03494400C2401C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C0A430CE2F05993400C2401C /* PracticeSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSession.swift; sourceTree = "<group>"; };
 		C0A430D42F0599CD00C2401C /* PracticeSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSessionViewModel.swift; sourceTree = "<group>"; };
-		C0A430DA2F059A0600C2401C /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
+		C0A430DA2F059A0600C2401C /* DaySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySection.swift; sourceTree = "<group>"; };
+		C0A430DC2F059CB600C2401C /* SessionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCard.swift; sourceTree = "<group>"; };
+		C0A430DE2F060DD300C2401C /* PracticeTimelineViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				C0A430D42F0599CD00C2401C /* PracticeSessionViewModel.swift */,
+				C0A430DE2F060DD300C2401C /* PracticeTimelineViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -103,7 +108,8 @@
 			isa = PBXGroup;
 			children = (
 				C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */,
-				C0A430DA2F059A0600C2401C /* SessionRow.swift */,
+				C0A430DA2F059A0600C2401C /* DaySection.swift */,
+				C0A430DC2F059CB600C2401C /* SessionCard.swift */,
 			);
 			path = Timeline;
 			sourceTree = "<group>";
@@ -178,10 +184,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */,
 				C0A430D52F0599CD00C2401C /* PracticeSessionViewModel.swift in Sources */,
-				C0A430DB2F059A0600C2401C /* SessionRow.swift in Sources */,
+				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
 				C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */,
+				C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */,
 				C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

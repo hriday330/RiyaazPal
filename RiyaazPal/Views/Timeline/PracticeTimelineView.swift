@@ -8,12 +8,15 @@
 import SwiftUI
 
 struct PracticeTimelineView: View {
+    @StateObject private var viewModel = PracticeTimelineViewModel()
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world this is Hriday!")
+            ForEach(viewModel.sessionsGroupedByDay, id: \.date) { group in
+                DaySection(
+                    date: group.date,
+                    sessions: group.sessions
+                )
+            }
         }
         .padding()
     }

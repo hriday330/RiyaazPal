@@ -6,3 +6,26 @@
 //
 
 import Foundation
+
+struct PracticeSession: Identifiable, Codable {
+    let id: UUID
+    let startTime: Date
+    let duration: TimeInterval
+    let notes: String
+    let tags: [String]
+
+    init(
+        id: UUID = UUID(),
+        startTime: Date,
+        duration: TimeInterval,
+        notes: String,
+        tags: [String] = []
+    ) {
+        self.id = id
+        self.startTime = startTime
+        self.duration = duration
+        self.notes = notes
+        self.tags = tags
+    }
+}
+
