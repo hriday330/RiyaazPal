@@ -24,31 +24,27 @@ struct EditSessionView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Edit Session")
-                        .font(.largeTitle)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(Color("PrimaryText"))
-                        .multilineTextAlignment(.center)
-                    
+                VStack(spacing: 8) {
+                    TextField(
+                        "Practice Session",
+                        text: $draft.notes
+                    )
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("PrimaryText"))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        // dismiss keyboard on return
+                    }
+
                     Divider()
                 }
+                .padding(.top, 12)
                 .padding(.horizontal)
-                .padding(.top, 8)
                 .background(Color("AppBackground"))
-                // MARK: - Notes Editor
-                Form {
-                    Section {
-                        TextEditor(text: $draft.notes)
-                            .font(.title3)
-                            .foregroundStyle(Color("PrimaryText"))
-                            .frame(minHeight: 220)
-                            .scrollContentBackground(.hidden)
-                            .padding(.vertical, 12)
-                    }
-                }
-                .scrollContentBackground(.hidden)
-                .background(Color("AppBackground"))
+                Spacer()
                 // MARK: - Bottom Actions
                 VStack(spacing: 12) {
                     Button {
@@ -79,7 +75,7 @@ struct EditSessionView: View {
                     Color("AppBackground")
                         .ignoresSafeArea(edges: .bottom)
                 )
-            }
+            }.background(Color("AppBackground"))
         }
     }
 }
