@@ -43,7 +43,7 @@ final class PracticeSessionViewModel: ObservableObject {
         let session = PracticeSession(
             startTime: startTime,
             duration: elapsedTime,
-            notes: notes,
+            notes: notes.isEmpty ? defaultTitle(for: startTime) : notes,
             tags: tags
         )
 
@@ -80,4 +80,11 @@ final class PracticeSessionViewModel: ObservableObject {
         notes = ""
         tags = []
     }
+    
+    private func defaultTitle(for startTime: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, h:mm:ss a"
+        return "Practice – \(formatter.string(from: startTime))"
+    }
+
 }
