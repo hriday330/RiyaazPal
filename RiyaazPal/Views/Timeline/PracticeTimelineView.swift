@@ -17,7 +17,7 @@ struct PracticeTimelineView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 24) {
-                        ForEach(viewModel.sessionsGroupedByDay, id: \.date) { group in
+                        ForEach(viewModels.sessionsGroupedByDay, id: \.date) { group in
                             DaySection(
                                 date: group.date,
                                 sessions: group.sessions
