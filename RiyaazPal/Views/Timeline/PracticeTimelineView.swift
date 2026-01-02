@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct PracticeTimelineView: View {
-    @StateObject private var viewModel = PracticeTimelineViewModel()
+    @StateObject private var timelineViewModel = PracticeTimelineViewModel()
+    
+    @StateObject private var sessionViewModel = PracticeSessionViewModel()
+    
+    
     var body: some View {
             ZStack {
                 // App-wide background
@@ -17,7 +21,7 @@ struct PracticeTimelineView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 24) {
-                        ForEach(viewModel.sessionsGroupedByDay, id: \.date) { group in
+                        ForEach(timelineViewModel.sessionsGroupedByDay, id: \.date) { group in
                             DaySection(
                                 date: group.date,
                                 sessions: group.sessions
@@ -26,11 +30,50 @@ struct PracticeTimelineView: View {
                     }
                     .padding()
                 }
+                floatingSessionButton
             }
             .navigationTitle("RiyaazPal")
         }
 }
 
+private extension PracticeTimelineView {
+    func handleSessionAction() {
+            if sessionViewModel.isSessionActive {
+                if let session = sessionViewModel.endSession() {
+                    timelineViewModel.addSession(session)
+                }
+            } else {
+                sessionViewModel.startSession()
+            }
+        }
+    
+    var floatingSessionButton: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button {
+                    handleSessionAction()
+                } label : {
+                    Label(
+                        sessionViewModel.isSessionActive ? "End Session" : "Start Session",
+                        systemImage: sessionViewModel.isSessionActive ? "stop.fill" : "play.fil"
+                    )
+                    .font(.headline)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 14)
+                    
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color("AccentColor"))
+                .clipShape(Capsule())
+                .shadow(radius: 8)
+                .padding()
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: sessionViewModel.isSessionActive)
+            }
+        }
+    }
+}
 #Preview("Light Mode") {
     PracticeTimelineView()
         .preferredColorScheme(.light)
