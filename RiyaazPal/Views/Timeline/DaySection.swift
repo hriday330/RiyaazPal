@@ -12,6 +12,7 @@ import SwiftUI
 struct DaySection: View {
     let date: Date
     let sessions: [PracticeSession]
+    let onSessionTap: (PracticeSession) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -19,7 +20,10 @@ struct DaySection: View {
 
             VStack(spacing: 12) {
                 ForEach(sessions) { session in
-                    SessionCard(session: session)
+                    SessionCard(session: session).contentShape(Rectangle()).onTapGesture {
+                        
+                            onSessionTap(session)
+                    }
                 }
             }
         }
@@ -56,7 +60,8 @@ private extension DaySection {
                 notes: "Jod practice",
                 tags: ["Raga Puriya", "Jod", "Ragadari"]
             )
-        ]
+        ],
+        onSessionTap: {_ in }
         
     )
     .padding()

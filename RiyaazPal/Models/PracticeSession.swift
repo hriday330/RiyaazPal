@@ -11,8 +11,8 @@ struct PracticeSession: Identifiable, Codable {
     let id: UUID
     let startTime: Date
     let duration: TimeInterval
-    let notes: String
-    let tags: [String]
+    var notes: String
+    var tags: [String]
 
     init(
         id: UUID = UUID(),

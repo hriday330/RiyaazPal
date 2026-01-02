@@ -12,6 +12,8 @@ struct PracticeTimelineView: View {
     
     @StateObject private var sessionViewModel = PracticeSessionViewModel()
     
+    @State private var selectedSession: PracticeSession?
+
     
     var body: some View {
             ZStack {
@@ -24,7 +26,10 @@ struct PracticeTimelineView: View {
                         ForEach(timelineViewModel.sessionsGroupedByDay, id: \.date) { group in
                             DaySection(
                                 date: group.date,
-                                sessions: group.sessions
+                                sessions: group.sessions,
+                                onSessionTap: { session in
+                                    selectedSession = session
+                                }
                             )
                         }
                     }
@@ -33,6 +38,14 @@ struct PracticeTimelineView: View {
                 sessionControl
             }
             .navigationTitle("RiyaazPal")
+            .sheet(item: $selectedSession) { session in
+                EditSessionView(
+                    session: session,
+                    onSave: { updated in
+                        timelineViewModel.updateSession(updated)
+                    }
+                )
+            }
         }
 }
 
