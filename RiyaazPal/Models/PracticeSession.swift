@@ -6,12 +6,15 @@
 //
 
 import Foundation
+import SwiftData
 
-struct PracticeSession: Identifiable, Codable {
+@Model
+final class PracticeSession {
     let id: UUID
     let startTime: Date
     let duration: TimeInterval
     var notes: String
+    
     var tags: [String]
 
     init(
