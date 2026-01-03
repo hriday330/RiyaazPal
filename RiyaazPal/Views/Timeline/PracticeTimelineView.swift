@@ -37,8 +37,8 @@ struct PracticeTimelineView: View {
                                             Label("Delete", systemImage: "trash")
                                         }
                                     }
-                                    .listRowInsets(.init())           // full-width card
-                                    .listRowBackground(Color.clear)   // your background shows
+                                    .listRowInsets(.init())
+                                    .listRowBackground(Color.clear)
                             }
                         } header: {
                             Text(group.date.formatted(date: .abbreviated, time: .omitted))
