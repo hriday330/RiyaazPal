@@ -16,6 +16,10 @@ final class PracticeTimelineViewModel: ObservableObject {
         sessions.insert(session, at: 0)
     }
     
+    func deleteSession(_ session: PracticeSession) {
+        sessions.removeAll { $0.id == session.id }
+    }
+    
     func updateSession(_ updated: PracticeSession) {
         guard let index = sessions.firstIndex(where: { $0.id == updated.id }) else {
             return

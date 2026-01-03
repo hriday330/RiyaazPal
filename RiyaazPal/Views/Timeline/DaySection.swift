@@ -13,6 +13,7 @@ struct DaySection: View {
     let date: Date
     let sessions: [PracticeSession]
     let onSessionTap: (PracticeSession) -> Void
+    let onSessionDelete: (PracticeSession) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -20,10 +21,18 @@ struct DaySection: View {
 
             VStack(spacing: 12) {
                 ForEach(sessions) { session in
-                    SessionCard(session: session).contentShape(Rectangle()).onTapGesture {
-                        
+                    SessionCard(session: session)
+                        .contentShape(Rectangle())
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                onSessionDelete(session)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                        .onTapGesture {
                             onSessionTap(session)
-                    }
+                        }
                 }
             }
         }
@@ -61,7 +70,8 @@ private extension DaySection {
                 tags: ["Raga Puriya", "Jod", "Ragadari"]
             )
         ],
-        onSessionTap: {_ in }
+        onSessionTap: {_ in },
+        onSessionDelete: {_ in}
         
     )
     .padding()

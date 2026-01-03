@@ -21,20 +21,35 @@ struct PracticeTimelineView: View {
                 Color("AppBackground")
                     .ignoresSafeArea()
 
-                ScrollView {
-                    LazyVStack(spacing: 24) {
-                        ForEach(timelineViewModel.sessionsGroupedByDay, id: \.date) { group in
-                            DaySection(
-                                date: group.date,
-                                sessions: group.sessions,
-                                onSessionTap: { session in
-                                    selectedSession = session
-                                }
-                            )
+                List {
+                    ForEach(timelineViewModel.sessionsGroupedByDay, id: \.date) { group in
+                        Section {
+                            ForEach(group.sessions) { session in
+                                SessionCard(session: session)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        selectedSession = session
+                                    }
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            timelineViewModel.deleteSession(session)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                                    .listRowInsets(.init())           // full-width card
+                                    .listRowBackground(Color.clear)   // your background shows
+                            }
+                        } header: {
+                            Text(group.date.formatted(date: .abbreviated, time: .omitted))
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
                         }
                     }
-                    .padding()
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+
                 sessionControl
             }
             .navigationTitle("RiyaazPal")

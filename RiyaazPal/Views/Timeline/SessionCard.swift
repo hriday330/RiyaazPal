@@ -55,7 +55,6 @@ private extension SessionCard {
     }
 
     var tagRow: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(session.tags, id: \.self) { tag in
                     Text(tag)
@@ -67,7 +66,7 @@ private extension SessionCard {
                         .clipShape(Capsule())
                 }
             }
-        }
+        
     }
 
     var formattedDuration: String {
