@@ -16,6 +16,9 @@
 		C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430DA2F059A0600C2401C /* DaySection.swift */; };
 		C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430DC2F059CB600C2401C /* SessionCard.swift */; };
 		C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430DE2F060DD300C2401C /* PracticeTimelineViewModel.swift */; };
+		C0A430E32F083A2700C2401C /* EditSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430E22F083A2700C2401C /* EditSessionView.swift */; };
+		C0A430E82F08A25C00C2401C /* TagChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430E72F08A25C00C2401C /* TagChip.swift */; };
+		C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430E92F08A9CC00C2401C /* FlowLayout.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +32,9 @@
 		C0A430DA2F059A0600C2401C /* DaySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySection.swift; sourceTree = "<group>"; };
 		C0A430DC2F059CB600C2401C /* SessionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCard.swift; sourceTree = "<group>"; };
 		C0A430DE2F060DD300C2401C /* PracticeTimelineViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineViewModel.swift; sourceTree = "<group>"; };
+		C0A430E22F083A2700C2401C /* EditSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionView.swift; sourceTree = "<group>"; };
+		C0A430E72F08A25C00C2401C /* TagChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagChip.swift; sourceTree = "<group>"; };
+		C0A430E92F08A9CC00C2401C /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +105,8 @@
 		C0A430CD2F05991100C2401C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C0A430E42F0841F000C2401C /* Components */,
+				C0A430E12F083A1E00C2401C /* Session */,
 				C0A430D62F0599D300C2401C /* Timeline */,
 			);
 			path = Views;
@@ -112,6 +120,23 @@
 				C0A430DC2F059CB600C2401C /* SessionCard.swift */,
 			);
 			path = Timeline;
+			sourceTree = "<group>";
+		};
+		C0A430E12F083A1E00C2401C /* Session */ = {
+			isa = PBXGroup;
+			children = (
+				C0A430E22F083A2700C2401C /* EditSessionView.swift */,
+			);
+			path = Session;
+			sourceTree = "<group>";
+		};
+		C0A430E42F0841F000C2401C /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				C0A430E72F08A25C00C2401C /* TagChip.swift */,
+				C0A430E92F08A9CC00C2401C /* FlowLayout.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -186,9 +211,12 @@
 			files = (
 				C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */,
 				C0A430D52F0599CD00C2401C /* PracticeSessionViewModel.swift in Sources */,
+				C0A430E82F08A25C00C2401C /* TagChip.swift in Sources */,
 				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
 				C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */,
+				C0A430E32F083A2700C2401C /* EditSessionView.swift in Sources */,
+				C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */,
 				C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */,
 				C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */,
 			);

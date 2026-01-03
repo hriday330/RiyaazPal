@@ -12,6 +12,8 @@ struct PracticeTimelineView: View {
     
     @StateObject private var sessionViewModel = PracticeSessionViewModel()
     
+    @State private var selectedSession: PracticeSession?
+
     
     var body: some View {
             ZStack {
@@ -19,20 +21,50 @@ struct PracticeTimelineView: View {
                 Color("AppBackground")
                     .ignoresSafeArea()
 
-                ScrollView {
-                    LazyVStack(spacing: 24) {
-                        ForEach(timelineViewModel.sessionsGroupedByDay, id: \.date) { group in
-                            DaySection(
-                                date: group.date,
-                                sessions: group.sessions
-                            )
+                List {
+                    ForEach(timelineViewModel.sessionsGroupedByDay, id: \.date) { group in
+                        Section {
+                            ForEach(group.sessions) { session in
+                                SessionCard(session: session)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        selectedSession = session
+                                    }
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            timelineViewModel.deleteSession(session)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                                    .listRowInsets(.init())
+                                    .listRowBackground(Color.clear)
+                            }
+                        } header: {
+                            Text(group.date.formatted(date: .abbreviated, time: .omitted))
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
                         }
                     }
-                    .padding()
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+
                 sessionControl
             }
             .navigationTitle("RiyaazPal")
+            .sheet(item: $selectedSession) { session in
+                EditSessionView(
+                    session: session,
+                    onSave: { updated in
+                        timelineViewModel.updateSession(updated)
+                    }
+                )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+            }
+            
+            
         }
 }
 
@@ -122,6 +154,7 @@ private extension PracticeTimelineView {
                 .shadow(radius: 6)
                 .padding(.horizontal)
                 .padding(.bottom, 12)
+                .ignoresSafeArea()
             }
         }.transition(.move(edge: .bottom).combined(with: .opacity))
     }
@@ -133,8 +166,5 @@ private extension PracticeTimelineView {
 }
 
 #Preview("Dark Mode") {
-    NavigationStack {
-            PracticeTimelineView()
-        }
-        .preferredColorScheme(.dark)
+            PracticeTimelineView().preferredColorScheme(.dark)
 }
