@@ -15,12 +15,11 @@ struct EditSessionView: View {
     @State private var draft: PracticeSession
     @State private var newTag: String = ""
 
-    let onSave: (PracticeSession) -> Void
     
-    init(session: PracticeSession, onSave: @escaping (PracticeSession) -> Void) {
+    init(session: PracticeSession) {
         _draft = State(initialValue: session)
-        self.onSave = onSave
     }
+    
     
     
     
@@ -113,7 +112,6 @@ struct EditSessionView: View {
                 // MARK: - Bottom Actions
                 VStack(spacing: 12) {
                     Button {
-                        onSave(draft)
                         dismiss()
                     } label: {
                         Text("Save Changes")
@@ -174,30 +172,37 @@ private extension EditSessionView {
 
 }
 #Preview("Edit Session – Light") {
-    EditSessionView(
-        session: PracticeSession(
-            id: UUID(),
-            startTime: Date(),
-            duration: 900,
-            notes: "Alap practice focusing on slow meend and tone clarity.",
-            tags: []
-        ),
-        onSave: { _ in }
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
+
+    let session = PracticeSession(
+        startTime: Date(),
+        duration: 900,
+        notes: "Alap practice focusing on slow meend and tone clarity.",
+        tags: []
     )
-    .preferredColorScheme(.light)
+
+    context.insert(session)
+
+    return EditSessionView(session: session)
+        .modelContainer(container)
+        .preferredColorScheme(.light)
 }
 
 #Preview("Edit Session – Dark") {
-    EditSessionView(
-        session: PracticeSession(
-            id: UUID(),
-            startTime: Date(),
-            duration: 900,
-            notes: "Alap practice focusing on slow meend and tone clarity.",
-            tags: []
-        ),
-        onSave: { _ in }
-    )
-    .preferredColorScheme(.dark)
-}
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
 
+    let session = PracticeSession(
+        startTime: Date(),
+        duration: 900,
+        notes: "Alap practice focusing on slow meend and tone clarity.",
+        tags: []
+    )
+
+    context.insert(session)
+
+    return EditSessionView(session: session)
+        .modelContainer(container)
+        .preferredColorScheme(.dark)
+}
