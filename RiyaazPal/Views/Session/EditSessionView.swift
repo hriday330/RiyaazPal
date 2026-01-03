@@ -73,8 +73,7 @@ struct EditSessionView: View {
                         .foregroundStyle(Color("PrimaryText"))
                         .padding(.horizontal)
 
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
+                    FlowLayout(spacing: 8) {
                             ForEach(draft.tags, id: \.self) { tag in
                                 TagChip(
                                     tag: tag,
@@ -85,7 +84,6 @@ struct EditSessionView: View {
                             }
                         }
                         .padding(.horizontal)
-                    }
                 }
                 .padding(.top, 16)
 
