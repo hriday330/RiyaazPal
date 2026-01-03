@@ -45,7 +45,11 @@ struct PracticeTimelineView: View {
                         timelineViewModel.updateSession(updated)
                     }
                 )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
             }
+            
+            
         }
 }
 
@@ -135,6 +139,7 @@ private extension PracticeTimelineView {
                 .shadow(radius: 6)
                 .padding(.horizontal)
                 .padding(.bottom, 12)
+                .ignoresSafeArea()
             }
         }.transition(.move(edge: .bottom).combined(with: .opacity))
     }
@@ -146,8 +151,5 @@ private extension PracticeTimelineView {
 }
 
 #Preview("Dark Mode") {
-    NavigationStack {
-            PracticeTimelineView()
-        }
-        .preferredColorScheme(.dark)
+            PracticeTimelineView().preferredColorScheme(.dark)
 }

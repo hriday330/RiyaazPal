@@ -26,7 +26,7 @@ struct EditSessionView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            VStack(spacing: 8) {
                 
                 VStack(spacing: 8) {
                     TextField(
@@ -49,7 +49,7 @@ struct EditSessionView: View {
                 .padding(.horizontal)
                 .background(Color("AppBackground"))
                 
-                VStack(spacing: 6) {
+                VStack(spacing: 12) {
                     HStack {
                         Text("Started")
                         Spacer()
