@@ -6,27 +6,32 @@
 //
 
 import Foundation
-
 import SwiftUI
 
 struct EditSessionView: View {
     @Environment(\.dismiss) private var dismiss
-    
-    @State private var draft: PracticeSession
+
+    private let session: PracticeSession
+    @State private var draft: PracticeSessionDraft
     @State private var newTag: String = ""
 
-    
     init(session: PracticeSession) {
-        _draft = State(initialValue: session)
+        self.session = session
+        _draft = State(
+            initialValue: PracticeSessionDraft(
+                id: session.id,
+                startTime: session.startTime,
+                duration: session.duration,
+                notes: session.notes,
+                tags: session.tags
+            )
+        )
     }
-    
-    
-    
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 8) {
-                
+
                 VStack(spacing: 8) {
                     TextField(
                         "Practice Session",
@@ -38,16 +43,13 @@ struct EditSessionView: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
                     .submitLabel(.done)
-                    .onSubmit {
-                        // dismiss keyboard on return
-                    }
 
                     Divider()
                 }
                 .padding(.top, 12)
                 .padding(.horizontal)
                 .background(Color("AppBackground"))
-                
+
                 VStack(spacing: 12) {
                     HStack {
                         Text("Started")
@@ -65,7 +67,7 @@ struct EditSessionView: View {
                 .foregroundStyle(Color("SecondaryText"))
                 .padding(.horizontal)
                 .padding(.top, 8)
-                
+
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Tags")
                         .font(.headline)
@@ -73,16 +75,16 @@ struct EditSessionView: View {
                         .padding(.horizontal)
 
                     FlowLayout(spacing: 8) {
-                            ForEach(draft.tags, id: \.self) { tag in
-                                TagChip(
-                                    tag: tag,
-                                    onDelete: {
-                                        draft.tags.removeAll { $0 == tag }
-                                    }
-                                )
-                            }
+                        ForEach(draft.tags, id: \.self) { tag in
+                            TagChip(
+                                tag: tag,
+                                onDelete: {
+                                    draft.tags.removeAll { $0 == tag }
+                                }
+                            )
                         }
-                        .padding(.horizontal)
+                    }
+                    .padding(.horizontal)
                 }
                 .padding(.top, 16)
 
@@ -90,28 +92,23 @@ struct EditSessionView: View {
                     TextField("Add tag", text: $newTag)
                         .textFieldStyle(.roundedBorder)
                         .submitLabel(.done)
-                        .onSubmit {
-                            addTag()
-                        }
+                        .onSubmit(addTag)
 
-                    Button {
-                            addTag()
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title3)
-                                .foregroundStyle(Color("AccentColor"))
-                        }
-                    
+                    Button(action: addTag) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(Color("AccentColor"))
+                    }
                     .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
                 .padding(.horizontal)
                 .padding(.top, 8)
 
-                
                 Spacer()
-                // MARK: - Bottom Actions
+
                 VStack(spacing: 12) {
                     Button {
+                        commit()
                         dismiss()
                     } label: {
                         Text("Save Changes")
@@ -124,7 +121,7 @@ struct EditSessionView: View {
                             )
                             .foregroundStyle(.white)
                     }
-                    
+
                     Button {
                         dismiss()
                     } label: {
@@ -138,27 +135,34 @@ struct EditSessionView: View {
                     Color("AppBackground")
                         .ignoresSafeArea(edges: .bottom)
                 )
-            }.background(Color("AppBackground"))
+            }
+            .background(Color("AppBackground"))
         }
+    }
+
+    private func commit() {
+        session.notes = draft.notes
+        session.tags = draft.tags
     }
 }
 
 private extension EditSessionView {
-    private var formattedStartTime: String {
+
+    var formattedStartTime: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: draft.startTime)
     }
 
-    private var formattedDuration: String {
+    var formattedDuration: String {
         let totalSeconds = Int(draft.duration)
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
         return String(format: "%d:%02d", minutes, seconds)
     }
-    
-    private func addTag() {
+
+    func addTag() {
         let trimmed = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         guard !draft.tags.contains(trimmed) else {
@@ -169,8 +173,16 @@ private extension EditSessionView {
         draft.tags.append(trimmed)
         newTag = ""
     }
-
 }
+
+struct PracticeSessionDraft {
+    let id: UUID
+    let startTime: Date
+    let duration: TimeInterval
+    var notes: String
+    var tags: [String]
+}
+
 #Preview("Edit Session – Light") {
     let container = PreviewModelContainer.make()
     let context = container.mainContext
