@@ -111,25 +111,31 @@ private extension PracticeTimelineView {
     }
     
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Image(systemName: "music.note.list")
-                .font(.system(size: 44, weight: .regular))
+                .font(.system(size: 44))
                 .foregroundStyle(.secondary)
+                .opacity(0.7)
 
-            Text("No practice sessions yet")
-                .font(.headline)
-                .foregroundStyle(Color("PrimaryText"))
+            VStack(spacing: 6) {
+                Text("No practice sessions yet")
+                    .font(.headline)
+                    .foregroundStyle(Color("PrimaryText"))
 
-            Text("Start a session to track your riyaaz and see your progress over time.")
-                .font(.subheadline)
-                .foregroundStyle(Color("SecondaryText"))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+                Text("Start a session to track your riyaaz and build a consistent practice habit.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+
             Group {
                 if sessionViewModel.isSessionActive {
                     activeSessionBar
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                 } else {
                     Button {
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         handleSessionAction()
                     } label: {
                         Label("Start Practice", systemImage: "play.fill")
@@ -140,14 +146,14 @@ private extension PracticeTimelineView {
                     .buttonStyle(.borderedProminent)
                     .tint(Color("AccentColor"))
                     .clipShape(Capsule())
-                    .padding(.top, 8)
+                    .transition(.opacity)
                 }
             }
             .animation(.spring(response: 0.35, dampingFraction: 0.85),
                        value: sessionViewModel.isSessionActive)
-            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.bottom, 60)
     }
 
     var floatingSessionButton: some View {
