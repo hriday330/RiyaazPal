@@ -28,36 +28,15 @@ struct PracticeTimelineView: View {
                 // App-wide background
                 Color("AppBackground")
                     .ignoresSafeArea()
-                List {
-                    ForEach(timelineViewModel.groupedByDay(from: sessions), id: \.date) { group in
-                        Section {
-                            ForEach(group.sessions) { session in
-                                SessionCard(session: session)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        selectedSession = session
-                                    }
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            context.delete(session)
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    }
-                                    .listRowInsets(.init())
-                                    .listRowBackground(Color.clear)
-                            }
-                        } header: {
-                            Text(group.date.formatted(date: .abbreviated, time: .omitted))
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                if(sessions.isEmpty) {
+                    emptyState
+                } else {
+                    timelineList
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        sessionControl
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-
-                sessionControl
+                
             }
             .navigationTitle("RiyaazPal")
             .sheet(item: $selectedSession) { session in
@@ -102,6 +81,75 @@ private extension PracticeTimelineView {
                    value: sessionViewModel.isSessionActive)
     }
     
+    var timelineList: some View {
+        List {
+            ForEach(timelineViewModel.groupedByDay(from: sessions), id: \.date) { group in
+                Section {
+                    ForEach(group.sessions) { session in
+                        SessionCard(session: session)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                selectedSession = session
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    context.delete(session)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .listRowInsets(.init())
+                            .listRowBackground(Color.clear)
+                    }
+                } header: {
+                    Text(group.date.formatted(date: .abbreviated, time: .omitted))
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+    
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "music.note.list")
+                .font(.system(size: 44, weight: .regular))
+                .foregroundStyle(.secondary)
+
+            Text("No practice sessions yet")
+                .font(.headline)
+                .foregroundStyle(Color("PrimaryText"))
+
+            Text("Start a session to track your riyaaz and see your progress over time.")
+                .font(.subheadline)
+                .foregroundStyle(Color("SecondaryText"))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            Group {
+                if sessionViewModel.isSessionActive {
+                    activeSessionBar
+                } else {
+                    Button {
+                        handleSessionAction()
+                    } label: {
+                        Label("Start Practice", systemImage: "play.fill")
+                            .font(.headline)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color("AccentColor"))
+                    .clipShape(Capsule())
+                    .padding(.top, 8)
+                }
+            }
+            .animation(.spring(response: 0.35, dampingFraction: 0.85),
+                       value: sessionViewModel.isSessionActive)
+            
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
     var floatingSessionButton: some View {
         VStack {
             Spacer()
@@ -164,6 +212,8 @@ private extension PracticeTimelineView {
     }
 
 }
+
+
 #Preview("Practice Timeline – Light") {
     let container = PreviewModelContainer.make()
     let context = container.mainContext
