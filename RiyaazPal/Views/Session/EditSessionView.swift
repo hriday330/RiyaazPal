@@ -14,6 +14,7 @@ struct EditSessionView: View {
     private let session: PracticeSession
     @State private var draft: PracticeSessionDraft
     @State private var newTag: String = ""
+    
 
     init(session: PracticeSession) {
         self.session = session
@@ -23,7 +24,8 @@ struct EditSessionView: View {
                 startTime: session.startTime,
                 duration: session.duration,
                 notes: session.notes,
-                tags: session.tags
+                tags: session.tags,
+                detailedNotes: session.detailedNotes
             )
         )
     }
@@ -93,6 +95,10 @@ struct EditSessionView: View {
                         .textFieldStyle(.roundedBorder)
                         .submitLabel(.done)
                         .onSubmit(addTag)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color("EditorBorder"), lineWidth: 1)
+                        )
 
                     Button(action: addTag) {
                         Image(systemName: "plus.circle.fill")
@@ -103,7 +109,8 @@ struct EditSessionView: View {
                 }
                 .padding(.horizontal)
                 .padding(.top, 8)
-
+                
+                detailedNotesInput
                 Spacer()
 
                 VStack(spacing: 12) {
@@ -143,10 +150,47 @@ struct EditSessionView: View {
     private func commit() {
         session.notes = draft.notes
         session.tags = draft.tags
+        session.detailedNotes = draft.detailedNotes
     }
 }
 
 private extension EditSessionView {
+    
+    var detailedNotesInput: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Notes")
+                .font(.headline)
+                .foregroundStyle(Color("PrimaryText"))
+                .padding(.horizontal)
+            
+            ZStack(alignment: .topLeading) {
+                if draft.detailedNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text("What felt good? What needs work?")
+                        .foregroundStyle(Color("SecondaryText"))
+                        .padding(.top, 20)
+                        .padding(.leading, 18)
+                }
+
+                TextEditor(text: $draft.detailedNotes)
+                    .font(.body)
+                    .foregroundStyle(Color("PrimaryText"))
+                    .scrollContentBackground(.hidden)
+                    .padding(12)
+            }
+            .frame(minHeight: 160)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("EditorBackground"))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color("EditorBorder"), lineWidth: 1)
+            )
+            .padding(.horizontal)
+        }
+        .padding(.top, 20)
+
+    }
 
     var formattedStartTime: String {
         let formatter = DateFormatter()
@@ -181,6 +225,7 @@ struct PracticeSessionDraft {
     let duration: TimeInterval
     var notes: String
     var tags: [String]
+    var detailedNotes: String
 }
 
 #Preview("Edit Session – Light") {
