@@ -6,9 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PracticeTimelineView: View {
+    
+    @Query(sort: \PracticeSession.startTime, order: .reverse)
+        private var sessions: [PracticeSession]
+    
     @StateObject private var timelineViewModel = PracticeTimelineViewModel()
+    
+    @Environment(\.modelContext)
+    private var context
     
     @StateObject private var sessionViewModel = PracticeSessionViewModel()
     
@@ -20,9 +28,8 @@ struct PracticeTimelineView: View {
                 // App-wide background
                 Color("AppBackground")
                     .ignoresSafeArea()
-
                 List {
-                    ForEach(timelineViewModel.sessionsGroupedByDay, id: \.date) { group in
+                    ForEach(timelineViewModel.groupedByDay(from: sessions), id: \.date) { group in
                         Section {
                             ForEach(group.sessions) { session in
                                 SessionCard(session: session)
@@ -32,7 +39,7 @@ struct PracticeTimelineView: View {
                                     }
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         Button(role: .destructive) {
-                                            timelineViewModel.deleteSession(session)
+                                            context.delete(session)
                                         } label: {
                                             Label("Delete", systemImage: "trash")
                                         }
@@ -55,10 +62,7 @@ struct PracticeTimelineView: View {
             .navigationTitle("RiyaazPal")
             .sheet(item: $selectedSession) { session in
                 EditSessionView(
-                    session: session,
-                    onSave: { updated in
-                        timelineViewModel.updateSession(updated)
-                    }
+                    session: session
                 )
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
@@ -72,7 +76,7 @@ private extension PracticeTimelineView {
     func handleSessionAction() {
             if sessionViewModel.isSessionActive {
                 if let session = sessionViewModel.endSession() {
-                    timelineViewModel.addSession(session)
+                    context.insert(session)
                 }
             } else {
                 sessionViewModel.startSession()
@@ -160,11 +164,78 @@ private extension PracticeTimelineView {
     }
 
 }
-#Preview("Light Mode") {
-    PracticeTimelineView()
-        .preferredColorScheme(.light)
+#Preview("Practice Timeline – Light") {
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
+
+    context.insert(
+        PracticeSession(
+            startTime: Date(),
+            duration: 45 * 60,
+            notes: "Alap practice – slow tempo",
+            tags: ["Raga Yaman", "Alap"]
+        )
+    )
+
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-3600),
+            duration: 30 * 60,
+            notes: "Meend exercises",
+            tags: ["Technique"]
+        )
+    )
+
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-86_400),
+            duration: 60 * 60,
+            notes: "Full riyaaz session with tanpura",
+            tags: ["Raga Bhairav"]
+        )
+    )
+
+    return NavigationStack {
+        PracticeTimelineView()
+    }
+    .modelContainer(container)
+    .preferredColorScheme(.light)
 }
 
-#Preview("Dark Mode") {
-            PracticeTimelineView().preferredColorScheme(.dark)
+#Preview("Practice Timeline – Dark") {
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
+
+    context.insert(
+        PracticeSession(
+            startTime: Date(),
+            duration: 45 * 60,
+            notes: "Alap practice – slow tempo",
+            tags: ["Raga Yaman", "Alap"]
+        )
+    )
+
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-3600),
+            duration: 30 * 60,
+            notes: "Meend exercises",
+            tags: ["Technique"]
+        )
+    )
+
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-86_400),
+            duration: 60 * 60,
+            notes: "Full riyaaz session with tanpura",
+            tags: ["Raga Bhairav"]
+        )
+    )
+
+    return NavigationStack {
+        PracticeTimelineView()
+    }
+    .modelContainer(container)
+    .preferredColorScheme(.dark)
 }
