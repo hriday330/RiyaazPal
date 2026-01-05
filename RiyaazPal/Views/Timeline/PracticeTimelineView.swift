@@ -55,20 +55,20 @@ struct PracticeTimelineView: View {
 
 private extension PracticeTimelineView {
     func handleSessionAction() {
-            if sessionViewModel.isSessionActive {
-                if let session = sessionViewModel.endSession() {
-                    context.insert(session)
-                    do {
-                        try context.save()
-                    } catch {
-                        // TODO: alert if failed to save
-                        print("Failed to save session: \(error.localizedDescription)")
-                    }
+        if sessionViewModel.isSessionActive {
+            if let session = sessionViewModel.endSession() {
+                context.insert(session)
+                do {
+                    try context.save()
+                } catch {
+                    // TODO: alert if failed to save
+                    print("Failed to save session: \(error.localizedDescription)")
                 }
-            } else {
-                sessionViewModel.startSession()
             }
+        } else {
+            sessionViewModel.startSession()
         }
+    }
     
     var formattedElapsedTime: String {
         let minutes = Int(sessionViewModel.elapsedTime) / 60
