@@ -15,8 +15,7 @@ enum PreviewData {
             PracticeSession(
                 startTime: Date(),
                 duration: 1800,
-                notes: "Alap practice",
-                tags: ["sarod"]
+                notes: "Alap practice"
             )
         )
 

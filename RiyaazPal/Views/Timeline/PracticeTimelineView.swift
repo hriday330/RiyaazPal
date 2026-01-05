@@ -34,7 +34,7 @@ struct PracticeTimelineView: View {
                     timelineList
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
-                        sessionControl
+                    sessionControl
                 }
                 
             }

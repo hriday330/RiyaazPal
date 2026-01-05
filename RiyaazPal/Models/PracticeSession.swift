@@ -14,21 +14,23 @@ final class PracticeSession {
     let startTime: Date
     let duration: TimeInterval
     var notes: String
-    
     var tags: [String]
+    var detailedNotes: String
 
     init(
         id: UUID = UUID(),
         startTime: Date,
         duration: TimeInterval,
         notes: String,
-        tags: [String] = []
+        tags: [String] = [],
+        detailedNotes: String = ""
     ) {
         self.id = id
         self.startTime = startTime
         self.duration = duration
         self.notes = notes
         self.tags = tags
+        self.detailedNotes = detailedNotes
     }
 }
 
