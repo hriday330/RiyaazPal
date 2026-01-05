@@ -21,6 +21,7 @@
 		C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430E92F08A9CC00C2401C /* FlowLayout.swift */; };
 		C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */; };
 		C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EE2F098F9000C2401C /* PreviewData.swift */; };
+		C0F161762F0C4AF800C5ECCA /* SearchQueryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F161752F0C4AF800C5ECCA /* SearchQueryParser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +40,7 @@
 		C0A430E92F08A9CC00C2401C /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModelContainer.swift; sourceTree = "<group>"; };
 		C0A430EE2F098F9000C2401C /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		C0F161752F0C4AF800C5ECCA /* SearchQueryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchQueryParser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 		C0A430BB2F03494200C2401C /* RiyaazPal */ = {
 			isa = PBXGroup;
 			children = (
+				C0F161742F0C4AE600C5ECCA /* Utils */,
 				C0A430CD2F05991100C2401C /* Views */,
 				C0A430CC2F05990B00C2401C /* ViewModels */,
 				C0A430CB2F05990000C2401C /* Models */,
@@ -153,6 +156,14 @@
 			path = Preview;
 			sourceTree = "<group>";
 		};
+		C0F161742F0C4AE600C5ECCA /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				C0F161752F0C4AF800C5ECCA /* SearchQueryParser.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -229,6 +240,7 @@
 				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
 				C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */,
+				C0F161762F0C4AF800C5ECCA /* SearchQueryParser.swift in Sources */,
 				C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */,
 				C0A430E32F083A2700C2401C /* EditSessionView.swift in Sources */,
 				C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */,

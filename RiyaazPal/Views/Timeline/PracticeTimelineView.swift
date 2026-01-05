@@ -23,6 +23,8 @@ struct PracticeTimelineView: View {
     @State private var selectedSession: PracticeSession?
     
     @State private var sessionIsInserting: Bool = false
+    
+    @State private var searchText = ""
 
     
     var body: some View {
