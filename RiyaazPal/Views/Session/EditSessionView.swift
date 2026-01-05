@@ -214,16 +214,30 @@ private extension EditSessionView {
     }
 
     func addTag() {
-        let trimmed = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        guard !draft.tags.contains(trimmed) else {
-            newTag = ""
+        let normalized = normalizeTag(newTag)
+        guard !normalized.isEmpty else { return }
+        let existing = draft.tags
+                .map(normalizeTag)
+                .contains(normalized)
+        guard !existing else {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
             return
         }
+        
+        let trimmed = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
 
         draft.tags.append(trimmed)
         newTag = ""
     }
+    
+    func normalizeTag(_ tag: String) -> String {
+        tag
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+    }
+
+    
+   
 }
 
 struct PracticeSessionDraft {
