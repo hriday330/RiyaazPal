@@ -34,6 +34,8 @@ struct PracticeTimelineView: View {
                     .ignoresSafeArea()
                 if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     emptyState
+                } else if filteredSessions.isEmpty {
+                    filteredEmptyState
                 } else {
                     timelineList
                         .listStyle(.plain)
@@ -43,6 +45,7 @@ struct PracticeTimelineView: View {
                 
             }
             .navigationTitle("RiyaazPal")
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .sheet(item: $selectedSession) { session in
                 EditSessionView(
                     session: session
@@ -93,7 +96,7 @@ private extension PracticeTimelineView {
     
     var timelineList: some View {
         List {
-            ForEach(timelineViewModel.groupedByDay(from: sessions), id: \.date) { group in
+            ForEach(timelineViewModel.groupedByDay(from: filteredSessions), id: \.date) { group in
                 Section {
                     ForEach(group.sessions) { session in
                         SessionCard(session: session)
@@ -230,6 +233,46 @@ private extension PracticeTimelineView {
                 .ignoresSafeArea()
             }
         }.transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+    
+    var filteredEmptyState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
+
+            Text("No matching sessions")
+                .font(.headline)
+
+            Text("Try a different tag or search term.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var filteredSessions: [PracticeSession] {
+        let query = SearchQueryParser.parse(searchText)
+        return sessions.filter { session in
+            if let tag = query.tag {
+                let hasTag = session.tags.contains {
+                    $0.lowercased() == tag
+                }
+                if !hasTag { return false }
+            }
+            
+            if !query.text.isEmpty {
+                let text = query.text
+                
+                let matchesNotes =
+                session.notes.lowercased().contains(text) ||
+                session.detailedNotes.lowercased().contains(text)
+                
+                if !matchesNotes { return false }
+            }
+            
+            return true
+        }
     }
 
 }
