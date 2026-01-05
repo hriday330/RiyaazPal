@@ -21,6 +21,8 @@ struct PracticeTimelineView: View {
     @StateObject private var sessionViewModel = PracticeSessionViewModel()
     
     @State private var selectedSession: PracticeSession?
+    
+    @State private var sessionIsInserting: Bool = false
 
     
     var body: some View {
@@ -28,7 +30,7 @@ struct PracticeTimelineView: View {
                 // App-wide background
                 Color("AppBackground")
                     .ignoresSafeArea()
-                if(sessions.isEmpty) {
+                if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     emptyState
                 } else {
                     timelineList
@@ -56,6 +58,12 @@ private extension PracticeTimelineView {
             if sessionViewModel.isSessionActive {
                 if let session = sessionViewModel.endSession() {
                     context.insert(session)
+                    do {
+                        try context.save()
+                    } catch {
+                        // TODO: alert if failed to save
+                        print("Failed to save session: \(error.localizedDescription)")
+                    }
                 }
             } else {
                 sessionViewModel.startSession()
@@ -94,6 +102,11 @@ private extension PracticeTimelineView {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     context.delete(session)
+                                    do {
+                                        try context.save()
+                                    } catch {
+                                        print("Failed to save session: \(error.localizedDescription)")
+                                    }
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }

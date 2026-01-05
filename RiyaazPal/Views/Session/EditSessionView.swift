@@ -1,12 +1,13 @@
 //
-//  EditSessionView.swift
-//  RiyaazPal
+// EditSessionView.swift
+// RiyaazPal
 //
-//  Created by Hriday Buddhdev on 2026-01-02.
+// Created by Hriday Buddhdev on 2026-01-02.
 //
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 struct EditSessionView: View {
     @Environment(\.dismiss) private var dismiss
@@ -14,7 +15,6 @@ struct EditSessionView: View {
     private let session: PracticeSession
     @State private var draft: PracticeSessionDraft
     @State private var newTag: String = ""
-    
 
     init(session: PracticeSession) {
         self.session = session
@@ -32,118 +32,60 @@ struct EditSessionView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 8) {
-
-                VStack(spacing: 8) {
-                    TextField(
-                        "Practice Session",
-                        text: $draft.notes
-                    )
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color("PrimaryText"))
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .submitLabel(.done)
-
-                    Divider()
-                }
-                .padding(.top, 12)
-                .padding(.horizontal)
-                .background(Color("AppBackground"))
-
-                VStack(spacing: 12) {
-                    HStack {
-                        Text("Started")
-                        Spacer()
-                        Text(formattedStartTime)
-                    }
-
-                    HStack {
-                        Text("Duration")
-                        Spacer()
-                        Text(formattedDuration)
-                    }
-                }
-                .font(.subheadline)
-                .foregroundStyle(Color("SecondaryText"))
-                .padding(.horizontal)
-                .padding(.top, 8)
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Tags")
-                        .font(.headline)
-                        .foregroundStyle(Color("PrimaryText"))
-                        .padding(.horizontal)
-
-                    FlowLayout(spacing: 8) {
-                        ForEach(draft.tags, id: \.self) { tag in
-                            TagChip(
-                                tag: tag,
-                                onDelete: {
-                                    draft.tags.removeAll { $0 == tag }
-                                }
-                            )
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                .padding(.top, 16)
-
-                HStack(spacing: 8) {
-                    TextField("Add tag", text: $newTag)
-                        .textFieldStyle(.roundedBorder)
-                        .submitLabel(.done)
-                        .onSubmit(addTag)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color("EditorBorder"), lineWidth: 1)
-                        )
-
-                    Button(action: addTag) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title3)
-                            .foregroundStyle(Color("AccentColor"))
-                    }
-                    .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                }
-                .padding(.horizontal)
-                .padding(.top, 8)
+            VStack(spacing: 0) {
                 
-                detailedNotesInput
-
-                VStack(spacing: 12) {
-                    Button {
-                        commit()
-                        dismiss()
-                    } label: {
-                        Text("Save Changes")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                Capsule()
-                                    .fill(Color("AccentColor"))
+                ScrollView {
+                    VStack(spacing: 8) {
+                    
+                        VStack(spacing: 8) {
+                            TextField(
+                                "Practice Session",
+                                text: $draft.notes
                             )
-                            .foregroundStyle(.white)
-                    }
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color("PrimaryText"))
+                            .multilineTextAlignment(.center)
+                            .lineLimit(1)
+                            .submitLabel(.done)
 
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Cancel")
-                            .font(.subheadline)
-                            .foregroundStyle(Color("SecondaryText"))
+                            Divider()
+                        }
+                        .padding(.top, 20)
+                        .padding(.horizontal)
+                        VStack(spacing: 12) {
+                            HStack {
+                                Text("Started")
+                                Spacer()
+                                Text(formattedStartTime)
+                            }
+                            HStack {
+                                Text("Duration")
+                                Spacer()
+                                Text(formattedDuration)
+                            }
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(Color("SecondaryText"))
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                        tagsSection
+                            .padding(.top, 16)
+                        detailedNotesInput
+                            .padding(.top, 20)
+                            .padding(.bottom, 20)
                     }
                 }
-                .padding()
-                .background(
-                    Color("AppBackground")
-                        
-                )
+                
+                saveAndCancelButtons
+                    .padding()
+                    .background(
+                        Color("AppBackground")
+                            .shadow(.drop(radius: 1, y: -1))
+                    )
             }
-            .padding(.top, 30)
             .background(Color("AppBackground"))
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 
@@ -156,6 +98,46 @@ struct EditSessionView: View {
 
 private extension EditSessionView {
     
+    var tagsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Tags")
+                .font(.headline)
+                .foregroundStyle(Color("PrimaryText"))
+                .padding(.horizontal)
+
+            FlowLayout(spacing: 8) {
+                ForEach(draft.tags, id: \.self) { tag in
+                    TagChip(
+                        tag: tag,
+                        onDelete: {
+                            draft.tags.removeAll { $0 == tag }
+                        }
+                    )
+                }
+            }
+            .padding(.horizontal)
+            
+            HStack(spacing: 8) {
+                TextField("Add tag", text: $newTag)
+                    .textFieldStyle(.roundedBorder)
+                    .submitLabel(.done)
+                    .onSubmit(addTag)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("EditorBorder"), lineWidth: 1)
+                    )
+
+                Button(action: addTag) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(Color("AccentColor"))
+                }
+                .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            .padding(.horizontal)
+        }
+    }
+
     var detailedNotesInput: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Notes")
@@ -188,8 +170,33 @@ private extension EditSessionView {
             )
             .padding(.horizontal)
         }
-        .padding(.top, 20)
+    }
+    
+    var saveAndCancelButtons: some View {
+        VStack(spacing: 12) {
+            Button {
+                commit()
+                dismiss()
+            } label: {
+                Text("Save Changes")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        Capsule()
+                            .fill(Color("AccentColor"))
+                    )
+                    .foregroundStyle(.white)
+            }
 
+            Button {
+                dismiss()
+            } label: {
+                Text("Cancel")
+                    .font(.subheadline)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
+        }
     }
 
     var formattedStartTime: String {
@@ -236,7 +243,7 @@ struct PracticeSessionDraft {
         startTime: Date(),
         duration: 900,
         notes: "Alap practice focusing on slow meend and tone clarity.",
-        tags: []
+        tags: ["Raga Yaman", "Alap"]
     )
 
     context.insert(session)
@@ -254,7 +261,7 @@ struct PracticeSessionDraft {
         startTime: Date(),
         duration: 900,
         notes: "Alap practice focusing on slow meend and tone clarity.",
-        tags: []
+        tags: ["Raga Yaman", "Alap", "Technique", "Tarana", "Sargam"]
     )
 
     context.insert(session)
