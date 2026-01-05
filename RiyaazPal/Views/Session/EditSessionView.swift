@@ -111,7 +111,6 @@ struct EditSessionView: View {
                 .padding(.top, 8)
                 
                 detailedNotesInput
-                Spacer()
 
                 VStack(spacing: 12) {
                     Button {
@@ -140,9 +139,10 @@ struct EditSessionView: View {
                 .padding()
                 .background(
                     Color("AppBackground")
-                        .ignoresSafeArea(edges: .bottom)
+                        
                 )
             }
+            .padding(.top, 30)
             .background(Color("AppBackground"))
         }
     }
