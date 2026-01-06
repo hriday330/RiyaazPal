@@ -29,6 +29,9 @@ struct PracticeTimelineView: View {
     
     @State private var selectedTags: [TagToken] = []
     
+    @State private var highlightedTag: String?
+
+    
 
     var body: some View {
             ZStack {
@@ -57,7 +60,22 @@ struct PracticeTimelineView: View {
                 token: { token in
                     Text(token.name)
                 }
-            )
+            ).onSubmit(of: .search) {
+                let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { return }
+
+                if !selectedTags.contains(where: { $0.name.caseInsensitiveCompare(trimmed) == .orderedSame }) {
+                    selectedTags.append(TagToken(name: trimmed))
+                } else {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        highlightedTag = trimmed
+                    }
+                }
+                
+                UISelectionFeedbackGenerator().selectionChanged()
+
+                searchText = ""
+            }
             .sheet(item: $selectedSession) { session in
                 EditSessionView(
                     session: session
@@ -286,9 +304,10 @@ private extension PracticeTimelineView {
                 let selected = Set(selectedTags.map { $0.name.lowercased() })
                 let sessionTags = session.tags.map { $0.lowercased() }
 
-                if selected.isDisjoint(with: sessionTags) {
+                if !selected.isSubset(of: sessionTags) {
                     return false
                 }
+
             }
             
             if !searchText.isEmpty {
