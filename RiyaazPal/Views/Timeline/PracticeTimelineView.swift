@@ -25,6 +25,11 @@ struct PracticeTimelineView: View {
     @State private var sessionIsInserting: Bool = false
     
     @State private var searchText = ""
+    
+    @State private var selectedTags: [TagToken] = []
+    
+    @State private var suggestedTags: [TagToken] = []
+
 
     
     var body: some View {
@@ -45,7 +50,20 @@ struct PracticeTimelineView: View {
                 
             }
             .navigationTitle("RiyaazPal")
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+            .searchable(
+                text: $searchText,
+                tokens: $selectedTags,
+                suggestedTokens: $suggestedTags,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search notes or filter by tag",
+                token: { token in
+                    Text(token.name)
+                }
+            )
+            .onAppear {
+                suggestedTags = allTags.map { TagToken(name: $0) }
+            }
+
             .sheet(item: $selectedSession) { session in
                 EditSessionView(
                     session: session
@@ -75,9 +93,15 @@ private extension PracticeTimelineView {
         }
     }
     
-    
+    private var allTags: [String] {
+        Array(
+            Set(sessions.flatMap { $0.tags.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } })
+        )
+        .sorted()
+    }
+
     private var isSearching: Bool {
-        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !selectedTags.isEmpty
     }
     
     var formattedElapsedTime: String {
@@ -257,23 +281,23 @@ private extension PracticeTimelineView {
     }
 
     private var filteredSessions: [PracticeSession] {
-        let query = SearchQueryParser.parse(searchText)
         return sessions.filter { session in
-            if let tag = query.tag {
-                let hasTag = session.tags.contains {
-                    $0.lowercased() == tag
+            if !selectedTags.isEmpty {
+                let selected = Set(selectedTags.map { $0.name.lowercased() })
+                let sessionTags = session.tags.map { $0.lowercased() }
+
+                if selected.isDisjoint(with: sessionTags) {
+                    return false
                 }
-                if !hasTag { return false }
             }
             
-            if !query.text.isEmpty {
-                let text = query.text
-                
-                let matchesNotes =
-                session.notes.lowercased().contains(text) ||
-                session.detailedNotes.lowercased().contains(text)
-                
-                if !matchesNotes { return false }
+            if !searchText.isEmpty {
+                let text = searchText.lowercased()
+                let matches =
+                    session.notes.lowercased().contains(text) ||
+                    session.detailedNotes.lowercased().contains(text)
+
+                if !matches { return false }
             }
             
             return true
@@ -282,6 +306,10 @@ private extension PracticeTimelineView {
 
 }
 
+struct TagToken: Identifiable, Hashable {
+    var id: String { name }
+    let name: String
+}
 
 #Preview("Practice Timeline – Light") {
     let container = PreviewModelContainer.make()
