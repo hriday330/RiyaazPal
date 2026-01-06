@@ -28,10 +28,7 @@ struct PracticeTimelineView: View {
     
     @State private var selectedTags: [TagToken] = []
     
-    @State private var suggestedTags: [TagToken] = []
 
-
-    
     var body: some View {
             ZStack {
                 // App-wide background
@@ -53,17 +50,13 @@ struct PracticeTimelineView: View {
             .searchable(
                 text: $searchText,
                 tokens: $selectedTags,
-                suggestedTokens: $suggestedTags,
+                suggestedTokens: .constant(suggestedTags),
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search notes or filter by tag",
                 token: { token in
                     Text(token.name)
                 }
             )
-            .onAppear {
-                suggestedTags = allTags.map { TagToken(name: $0) }
-            }
-
             .sheet(item: $selectedSession) { session in
                 EditSessionView(
                     session: session
@@ -77,6 +70,10 @@ struct PracticeTimelineView: View {
 }
 
 private extension PracticeTimelineView {
+    private var suggestedTags: [TagToken] {
+        allTags.map { TagToken(name: $0) }
+    }
+    
     func handleSessionAction() {
         if sessionViewModel.isSessionActive {
             if let session = sessionViewModel.endSession() {
