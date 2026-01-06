@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+// TODO - extract subviews
 struct PracticeTimelineView: View {
     
     @Query(sort: \PracticeSession.startTime, order: .reverse)
@@ -28,10 +29,7 @@ struct PracticeTimelineView: View {
     
     @State private var selectedTags: [TagToken] = []
     
-    @State private var suggestedTags: [TagToken] = []
 
-
-    
     var body: some View {
             ZStack {
                 // App-wide background
@@ -53,17 +51,13 @@ struct PracticeTimelineView: View {
             .searchable(
                 text: $searchText,
                 tokens: $selectedTags,
-                suggestedTokens: $suggestedTags,
+                suggestedTokens: .constant(suggestedTags),
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search notes or filter by tag",
                 token: { token in
                     Text(token.name)
                 }
             )
-            .onAppear {
-                suggestedTags = allTags.map { TagToken(name: $0) }
-            }
-
             .sheet(item: $selectedSession) { session in
                 EditSessionView(
                     session: session
@@ -77,9 +71,14 @@ struct PracticeTimelineView: View {
 }
 
 private extension PracticeTimelineView {
+    private var suggestedTags: [TagToken] {
+        allTags.map { TagToken(name: $0) }
+    }
+    
     func handleSessionAction() {
         if sessionViewModel.isSessionActive {
             if let session = sessionViewModel.endSession() {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 context.insert(session)
                 do {
                     try context.save()
@@ -131,10 +130,12 @@ private extension PracticeTimelineView {
                         SessionCard(session: session)
                             .contentShape(Rectangle())
                             .onTapGesture {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 selectedSession = session
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
+                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                                     context.delete(session)
                                     do {
                                         try context.save()
@@ -182,7 +183,6 @@ private extension PracticeTimelineView {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 } else {
                     Button {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         handleSessionAction()
                     } label: {
                         Label("Start Practice", systemImage: "play.fill")
