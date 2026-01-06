@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+// TODO - extract subviews
 struct PracticeTimelineView: View {
     
     @Query(sort: \PracticeSession.startTime, order: .reverse)
