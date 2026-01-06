@@ -34,7 +34,7 @@ struct PracticeTimelineView: View {
                     .ignoresSafeArea()
                 if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     emptyState
-                } else if filteredSessions.isEmpty {
+                } else if isSearching && filteredSessions.isEmpty {
                     filteredEmptyState
                 } else {
                     timelineList
@@ -73,6 +73,11 @@ private extension PracticeTimelineView {
         } else {
             sessionViewModel.startSession()
         }
+    }
+    
+    
+    private var isSearching: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     var formattedElapsedTime: String {

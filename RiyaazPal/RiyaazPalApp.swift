@@ -12,7 +12,9 @@ import SwiftData
 struct RiyaazPalApp: App {
     var body: some Scene {
         WindowGroup {
-            PracticeTimelineView()
+            NavigationStack {
+                PracticeTimelineView()
+            }
             
         }
         .modelContainer(for: PracticeSession.self)
