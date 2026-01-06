@@ -80,6 +80,7 @@ private extension PracticeTimelineView {
     func handleSessionAction() {
         if sessionViewModel.isSessionActive {
             if let session = sessionViewModel.endSession() {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 context.insert(session)
                 do {
                     try context.save()
@@ -131,10 +132,12 @@ private extension PracticeTimelineView {
                         SessionCard(session: session)
                             .contentShape(Rectangle())
                             .onTapGesture {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 selectedSession = session
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
+                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                                     context.delete(session)
                                     do {
                                         try context.save()
@@ -182,7 +185,6 @@ private extension PracticeTimelineView {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 } else {
                     Button {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         handleSessionAction()
                     } label: {
                         Label("Start Practice", systemImage: "play.fill")
