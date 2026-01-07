@@ -13,6 +13,8 @@ struct PracticeScoreMeter: View {
     let score: Int
     let subtitle: String
 
+    @State private var animatedScore: Double = 0
+    
     private var normalizedScore: Double {
         Double(min(max(score, 0), 100)) / 100.0
     }
@@ -33,7 +35,7 @@ struct PracticeScoreMeter: View {
                         )
 
                     Circle()
-                        .trim(from: 0, to: normalizedScore)
+                        .trim(from: 0, to: animatedScore)
                         .stroke(
                             Color("AccentColor"),
                             style: StrokeStyle(
@@ -41,8 +43,9 @@ struct PracticeScoreMeter: View {
                                 lineCap: .round
                             )
                         )
+                    
                         .rotationEffect(.degrees(-90))
-                        .animation(.easeOut(duration: 0.6), value: score)
+                        
 
                     Text("\(score)")
                         .font(.system(size: 34, weight: .bold))
@@ -70,6 +73,11 @@ struct PracticeScoreMeter: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color("CardBackground"))
         )
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.6)) {
+                    animatedScore = normalizedScore
+                }
+                }
     }
 
     // TODO: Improve labels for this 
