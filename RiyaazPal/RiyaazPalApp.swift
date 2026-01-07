@@ -12,8 +12,20 @@ import SwiftData
 struct RiyaazPalApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                PracticeTimelineView()
+            TabView {
+                NavigationStack {
+                    PracticeTimelineView()
+                }
+                .tabItem {
+                    Label("Timeline", systemImage: "music.note.list")
+                }
+
+                NavigationStack {
+                    InsightsView()
+                }
+                .tabItem {
+                    Label("Insights", systemImage: "chart.bar")
+                }
             }
             
         }

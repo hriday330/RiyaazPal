@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C000668F2F0EF8D500BC930C /* InsightsView.swift */; };
+		C00066932F0F101000BC930C /* PracticeScoreMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00066922F0F101000BC930C /* PracticeScoreMeter.swift */; };
 		C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */; };
 		C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */; };
 		C0A430C12F03494400C2401C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0A430C02F03494400C2401C /* Assets.xcassets */; };
@@ -24,6 +26,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C000668F2F0EF8D500BC930C /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		C00066922F0F101000BC930C /* PracticeScoreMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeScoreMeter.swift; sourceTree = "<group>"; };
 		C0A430B92F03494200C2401C /* RiyaazPal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RiyaazPal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiyaazPalApp.swift; sourceTree = "<group>"; };
 		C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineView.swift; sourceTree = "<group>"; };
@@ -52,6 +56,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C000668E2F0EF85900BC930C /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				C000668F2F0EF8D500BC930C /* InsightsView.swift */,
+			);
+			path = Insights;
+			sourceTree = "<group>";
+		};
 		C0A430B02F03494200C2401C = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +122,7 @@
 		C0A430CD2F05991100C2401C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C000668E2F0EF85900BC930C /* Insights */,
 				C0A430EB2F098F4400C2401C /* Preview */,
 				C0A430E42F0841F000C2401C /* Components */,
 				C0A430E12F083A1E00C2401C /* Session */,
@@ -141,6 +154,7 @@
 			children = (
 				C0A430E72F08A25C00C2401C /* TagChip.swift */,
 				C0A430E92F08A9CC00C2401C /* FlowLayout.swift */,
+				C00066922F0F101000BC930C /* PracticeScoreMeter.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -232,11 +246,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */,
+				C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */,
 				C0A430D52F0599CD00C2401C /* PracticeSessionViewModel.swift in Sources */,
 				C0A430E82F08A25C00C2401C /* TagChip.swift in Sources */,
 				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
 				C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */,
+				C00066932F0F101000BC930C /* PracticeScoreMeter.swift in Sources */,
 				C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */,
 				C0A430E32F083A2700C2401C /* EditSessionView.swift in Sources */,
 				C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */,
