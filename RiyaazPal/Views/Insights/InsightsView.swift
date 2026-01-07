@@ -49,29 +49,9 @@ private extension InsightsView {
 
 private extension InsightsView {
     var practiceScoreCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Practice Health")
-                .font(.headline)
-                .foregroundStyle(Color("PrimaryText"))
-
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("78 / 100")
-                        .font(.system(size: 34, weight: .bold))
-                        .foregroundStyle(Color("AccentColor"))
-
-                    Text("Consistent with strong technical focus")
-                        .font(.subheadline)
-                        .foregroundStyle(Color("SecondaryText"))
-                }
-
-                Spacer()
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color("CardBackground"))
+        PracticeScoreMeter(
+            score: 78,
+            subtitle: "Consistent practice with strong technical focus"
         )
     }
 }
