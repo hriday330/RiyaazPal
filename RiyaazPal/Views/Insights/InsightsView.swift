@@ -38,10 +38,6 @@ struct InsightsView: View {
         FocusStatsCalculator.compute(sessions: recentSessions)
     }
     
-    private var focusCategory: TagCategory {
-        .section
-    }
-    
 
     var body: some View {
         ZStack {
@@ -52,7 +48,7 @@ struct InsightsView: View {
                 VStack(spacing: 24) {
                     header
                     practiceScoreCard
-                    FocusBreakdownCard(focusStats: focusStats, category: focusCategory)
+                    FocusCarousel(focusStats: focusStats)
                     consistencySummary
                     notablePatterns
                     suggestedDirection
