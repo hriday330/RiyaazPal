@@ -7,8 +7,25 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 struct InsightsView: View {
+    @Query(sort: \PracticeSession.startTime, order: .reverse)
+        private var sessions: [PracticeSession]
+    
+    private var recentSessions: [PracticeSession] {
+        InsightWindowHelper.sessionsInWindow(sessions)
+    }
+
+    private var focusStats: FocusStats {
+        FocusStatsCalculator.compute(sessions: recentSessions)
+    }
+    
+    private var dateRange: DateRange {
+        InsightWindowHelper.dateRange()
+    }
+    
+    
 
     var body: some View {
         ZStack {
@@ -19,7 +36,7 @@ struct InsightsView: View {
                 VStack(spacing: 24) {
                     header
                     practiceScoreCard
-                    focusBreakdown
+                    FocusCarousel(focusStats: focusStats)
                     consistencySummary
                     notablePatterns
                     suggestedDirection
@@ -34,12 +51,12 @@ struct InsightsView: View {
 private extension InsightsView {
     var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Your Practice This Week")
+            Text("Your Recent Practice")
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color("PrimaryText"))
 
-            Text("Jan 1 – Jan 7")
+            Text(dateString)
                 .font(.subheadline)
                 .foregroundStyle(Color("SecondaryText"))
         }
@@ -53,40 +70,6 @@ private extension InsightsView {
             score: 78,
             subtitle: "Consistent practice with strong technical focus"
         )
-    }
-}
-
-private extension InsightsView {
-    var focusBreakdown: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Focus Breakdown")
-                .font(.headline)
-
-            VStack(spacing: 8) {
-                focusRow(label: "Alap", percent: 40)
-                focusRow(label: "Taan", percent: 25)
-                focusRow(label: "Layakari", percent: 15)
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color("CardBackground"))
-        )
-    }
-
-    func focusRow(label: String, percent: Int) -> some View {
-        HStack {
-            Text(label)
-                .font(.subheadline)
-                .foregroundStyle(Color("PrimaryText"))
-
-            Spacer()
-
-            Text("\(percent)%")
-                .font(.subheadline)
-                .foregroundStyle(Color("SecondaryText"))
-        }
     }
 }
 
@@ -172,6 +155,16 @@ private extension InsightsView {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color("ActiveCardBackground"))
         )
+    }
+}
+
+private extension InsightsView {
+    private var dateString: String {
+        let formatter = DateIntervalFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+
+        return formatter.string(from: dateRange.start, to: dateRange.end)
     }
 }
 
