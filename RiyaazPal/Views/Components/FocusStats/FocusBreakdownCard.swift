@@ -136,7 +136,7 @@ private extension FocusBreakdownCard {
         focusStats: focusStats,
         category: .technique
     )
-    .padding()
+    .padding(10)
     .background(Color("AppBackground"))
     .preferredColorScheme(.light)
 }

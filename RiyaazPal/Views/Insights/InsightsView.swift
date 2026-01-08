@@ -10,23 +10,6 @@ import SwiftUI
 import SwiftData
 
 struct InsightsView: View {
-    // TODO - delete once integrated with focusStats
-    private var dummyFocusStats: FocusStats {
-        FocusStats(
-            histogramsByCategory: [
-                .section: [
-                    "alap": 3,
-                    "taan": 1
-                ],
-                .technique: [
-                    "meend": 3,
-                    "kan": 3,
-                    "gamak": 1
-                ]
-            ]
-        )
-    }
-
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
     
@@ -37,6 +20,11 @@ struct InsightsView: View {
     private var focusStats: FocusStats {
         FocusStatsCalculator.compute(sessions: recentSessions)
     }
+    
+    private var dateRange: DateRange {
+        InsightWindowHelper.dateRange()
+    }
+    
     
 
     var body: some View {
@@ -63,12 +51,12 @@ struct InsightsView: View {
 private extension InsightsView {
     var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Your Practice This Week")
+            Text("Your Recent Practice")
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color("PrimaryText"))
 
-            Text("Jan 1 – Jan 7")
+            Text(dateString)
                 .font(.subheadline)
                 .foregroundStyle(Color("SecondaryText"))
         }
@@ -167,6 +155,16 @@ private extension InsightsView {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color("ActiveCardBackground"))
         )
+    }
+}
+
+private extension InsightsView {
+    private var dateString: String {
+        let formatter = DateIntervalFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+
+        return formatter.string(from: dateRange.start, to: dateRange.end)
     }
 }
 
