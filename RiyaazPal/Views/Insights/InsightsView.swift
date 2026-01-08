@@ -13,13 +13,17 @@ struct InsightsView: View {
     // TODO - delete once integrated with focusStats
     private var dummyFocusStats: FocusStats {
         FocusStats(
-            tagHistogram: [
-                "alap": 4,
-                "taan": 2,
-                "layakari": 1
-            ],
-            dominantTags: ["alap", "taan"],
-            neglectedTags: []
+            histogramsByCategory: [
+                .section: [
+                    "alap": 3,
+                    "taan": 1
+                ],
+                .technique: [
+                    "meend": 3,
+                    "kan": 3,
+                    "gamak": 1
+                ]
+            ]
         )
     }
 
@@ -34,6 +38,10 @@ struct InsightsView: View {
         FocusStatsCalculator.compute(sessions: recentSessions)
     }
     
+    private var focusCategory: TagCategory {
+        .section
+    }
+    
 
     var body: some View {
         ZStack {
@@ -44,7 +52,7 @@ struct InsightsView: View {
                 VStack(spacing: 24) {
                     header
                     practiceScoreCard
-                    FocusBreakdownCard(focusStats: focusStats)
+                    FocusBreakdownCard(focusStats: focusStats, category: focusCategory)
                     consistencySummary
                     notablePatterns
                     suggestedDirection

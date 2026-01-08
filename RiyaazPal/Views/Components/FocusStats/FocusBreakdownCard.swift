@@ -11,14 +11,19 @@ import SwiftUI
 struct FocusBreakdownCard: View {
 
     let focusStats: FocusStats
+    let category: TagCategory
     let maxRows: Int = 3
 
+    private var histogram: [String: Int] {
+        focusStats.histogramsByCategory[category] ?? [:]
+    }
+
     private var totalSessions: Int {
-        focusStats.tagHistogram.values.reduce(0, +)
+        histogram.values.reduce(0, +)
     }
 
     private var sortedTags: [(tag: String, count: Int)] {
-        focusStats.tagHistogram
+        histogram
             .sorted { $0.value > $1.value }
             .prefix(maxRows)
             .map { ($0.key, $0.value) }
@@ -26,7 +31,7 @@ struct FocusBreakdownCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Focus Breakdown")
+            Text(title)
                 .font(.headline)
 
             if totalSessions == 0 {
@@ -52,11 +57,21 @@ struct FocusBreakdownCard: View {
 
 private extension FocusBreakdownCard {
 
+    var title: String {
+            switch category {
+            case .section:
+                return "Section Focus"
+            case .technique:
+                return "Technique Focus"
+            default:
+                return "Focus Breakdown"
+            }
+        }
+    
     func percentage(for count: Int) -> Int {
         guard totalSessions > 0 else { return 0 }
         return Int(round((Double(count) / Double(totalSessions)) * 100))
     }
-
     var emptyState: some View {
         Text("Not enough data to determine focus yet.")
             .font(.subheadline)
@@ -76,4 +91,52 @@ private extension FocusBreakdownCard {
                 .foregroundStyle(Color("SecondaryText"))
         }
     }
+}
+
+#Preview("Focus Breakdown – Section") {
+    let focusStats = FocusStats(
+        histogramsByCategory: [
+            .section: [
+                "alap": 4,
+                "taan": 2,
+                "jor": 1
+            ],
+            .technique: [
+                "meend": 3,
+                "kan": 2
+            ]
+        ]
+    )
+
+    return FocusBreakdownCard(
+        focusStats: focusStats,
+        category: .section
+    )
+    .padding()
+    .background(Color("AppBackground"))
+    .preferredColorScheme(.light)
+}
+
+#Preview("Focus Breakdown – Technique") {
+    let focusStats = FocusStats(
+        histogramsByCategory: [
+            .section: [
+                "alap": 3,
+                "taan": 1
+            ],
+            .technique: [
+                "meend": 3,
+                "kan": 3,
+                "gamak": 1
+            ]
+        ]
+    )
+
+    return FocusBreakdownCard(
+        focusStats: focusStats,
+        category: .technique
+    )
+    .padding()
+    .background(Color("AppBackground"))
+    .preferredColorScheme(.light)
 }

@@ -8,49 +8,35 @@
 import Foundation
 
 struct FocusStats {
-    let tagHistogram: [String: Int]
-    let dominantTags: [String]
-    let neglectedTags: [String]
+    let histogramsByCategory: [TagCategory: [String: Int]]
 }
 
 enum FocusStatsCalculator {
 
     static func compute(
-        sessions: [PracticeSession],
-        dominantCount: Int = 3,
-        neglectThreshold: Int = 0
-    ) -> FocusStats {
+            sessions: [PracticeSession]
+        ) -> FocusStats {
 
-        let allTagsInWindow: Set<String> = Set(
-            sessions.flatMap { $0.tags.map(normalize) }
-        )
+            var histograms: [TagCategory: [String: Int]] = [:]
 
-        var histogram: [String: Int] = [:]
+            for session in sessions {
+                let uniqueTags = Set(
+                    session.tags.map(normalize)
+                )
 
-        for session in sessions {
-            let uniqueTags = Set(session.tags.map(normalize))
-            for tag in uniqueTags {
-                histogram[tag, default: 0] += 1
+                for tag in uniqueTags {
+                    let category = TagRegistry.category(for: tag)
+
+                    guard isFocusRelevant(category) else { continue }
+
+                    histograms[category, default: [:]][tag, default: 0] += 1
+                }
             }
+
+            return FocusStats(
+                histogramsByCategory: histograms
+            )
         }
-
-        let sortedByFrequency = histogram
-            .sorted { $0.value > $1.value }
-        
-        let dominantTags = sortedByFrequency
-            .prefix(dominantCount)
-            .map { $0.key }
-
-        let neglectedTags = allTagsInWindow.filter { tag in
-            histogram[tag, default: 0] <= neglectThreshold
-        }
-
-        return FocusStats(
-            tagHistogram: histogram,
-            dominantTags: dominantTags,
-            neglectedTags: neglectedTags.sorted()
-        )
-    }
 }
 
 private extension FocusStatsCalculator {
@@ -61,3 +47,14 @@ private extension FocusStatsCalculator {
     }
 }
 
+private extension FocusStatsCalculator {
+
+    static func isFocusRelevant(_ category: TagCategory) -> Bool {
+        switch category {
+        case .section, .technique:
+            return true
+        default:
+            return false
+        }
+    }
+}
