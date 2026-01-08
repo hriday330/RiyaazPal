@@ -13,6 +13,11 @@ struct InsightsView: View {
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
     
+    
+    private var dateRange: DateRange {
+        InsightWindowHelper.dateRange()
+    }
+    
     private var recentSessions: [PracticeSession] {
         InsightWindowHelper.sessionsInWindow(sessions)
     }
@@ -21,12 +26,12 @@ struct InsightsView: View {
         FocusStatsCalculator.compute(sessions: recentSessions)
     }
     
-    private var dateRange: DateRange {
-        InsightWindowHelper.dateRange()
+    private var consistencyStats: ConsistencyStats {
+        ConsistencyStatsCalculator.compute(sessions: recentSessions, dateRange: dateRange)
     }
     
     
-
+    
     var body: some View {
         ZStack {
             Color("AppBackground")
@@ -80,9 +85,15 @@ private extension InsightsView {
             Text("Consistency")
                 .font(.headline)
 
-            Text("You practiced 5 out of the last 7 days.")
-                .font(.subheadline)
-                .foregroundStyle(Color("SecondaryText"))
+            Text("You practiced \(consistencyStats.practicedDays) out of the last \(consistencyStats.totalDays) days.")
+            .font(.subheadline)
+            .foregroundStyle(Color("SecondaryText"))
+
+            if consistencyStats.streak > 1 {
+                Text("Current streak: \(consistencyStats.streak) days")
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
         }
         .padding()
         .background(
