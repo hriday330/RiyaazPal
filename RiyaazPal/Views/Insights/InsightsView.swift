@@ -9,6 +9,19 @@ import Foundation
 import SwiftUI
 
 struct InsightsView: View {
+    // TODO - delete once integrated with focusStats
+    private var dummyFocusStats: FocusStats {
+        FocusStats(
+            tagHistogram: [
+                "alap": 4,
+                "taan": 2,
+                "layakari": 1
+            ],
+            dominantTags: ["alap", "taan"],
+            neglectedTags: []
+        )
+    }
+
 
     var body: some View {
         ZStack {
@@ -19,7 +32,7 @@ struct InsightsView: View {
                 VStack(spacing: 24) {
                     header
                     practiceScoreCard
-                    focusBreakdown
+                    FocusBreakdownCard(focusStats: dummyFocusStats)
                     consistencySummary
                     notablePatterns
                     suggestedDirection
@@ -53,40 +66,6 @@ private extension InsightsView {
             score: 78,
             subtitle: "Consistent practice with strong technical focus"
         )
-    }
-}
-
-private extension InsightsView {
-    var focusBreakdown: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Focus Breakdown")
-                .font(.headline)
-
-            VStack(spacing: 8) {
-                focusRow(label: "Alap", percent: 40)
-                focusRow(label: "Taan", percent: 25)
-                focusRow(label: "Layakari", percent: 15)
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color("CardBackground"))
-        )
-    }
-
-    func focusRow(label: String, percent: Int) -> some View {
-        HStack {
-            Text(label)
-                .font(.subheadline)
-                .foregroundStyle(Color("PrimaryText"))
-
-            Spacer()
-
-            Text("\(percent)%")
-                .font(.subheadline)
-                .foregroundStyle(Color("SecondaryText"))
-        }
     }
 }
 
