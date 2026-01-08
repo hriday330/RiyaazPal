@@ -53,8 +53,6 @@ enum FocusStatsCalculator {
     }
 }
 
-// MARK: - Tag Normalization
-
 private extension FocusStatsCalculator {
     static func normalize(_ tag: String) -> String {
         tag

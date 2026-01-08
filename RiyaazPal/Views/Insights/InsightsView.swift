@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 struct InsightsView: View {
     // TODO - delete once integrated with focusStats
@@ -22,6 +23,17 @@ struct InsightsView: View {
         )
     }
 
+    @Query(sort: \PracticeSession.startTime, order: .reverse)
+        private var sessions: [PracticeSession]
+    
+    private var recentSessions: [PracticeSession] {
+        InsightWindowHelper.sessionsInWindow(sessions)
+    }
+
+    private var focusStats: FocusStats {
+        FocusStatsCalculator.compute(sessions: recentSessions)
+    }
+    
 
     var body: some View {
         ZStack {
@@ -32,7 +44,7 @@ struct InsightsView: View {
                 VStack(spacing: 24) {
                     header
                     practiceScoreCard
-                    FocusBreakdownCard(focusStats: dummyFocusStats)
+                    FocusBreakdownCard(focusStats: focusStats)
                     consistencySummary
                     notablePatterns
                     suggestedDirection
