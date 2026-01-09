@@ -34,6 +34,14 @@ struct InsightsView: View {
         PracticePatternCalculator.compute(sessions: recentSessions, focusStats: focusStats)
     }
     
+    private var practiceScore: Int {
+        PracticeScoreCalculator.compute(
+            consistency: consistencyStats,
+            patterns: patterns
+        )
+    }
+
+    
     var body: some View {
         ZStack {
             Color("AppBackground")
@@ -74,7 +82,7 @@ private extension InsightsView {
 private extension InsightsView {
     var practiceScoreCard: some View {
         PracticeScoreMeter(
-            score: 78,
+            score: practiceScore,
             subtitle: "Consistent practice with strong technical focus"
         )
     }
@@ -200,7 +208,7 @@ private extension InsightsView {
     let container = PreviewModelContainer.make()
     let context = container.mainContext
 
-    PreviewData.insertPerfectSessions(into: context)
+    PreviewData.insertPerfectMonth(into: context)
     return NavigationStack {
         InsightsView()
         

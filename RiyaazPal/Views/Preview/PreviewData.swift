@@ -152,5 +152,46 @@ enum PreviewData {
             context.insert(session)
         }
     }
+    
+    static func insertPerfectMonth(into context: ModelContext) {
+        let now = Date()
+
+        let baseTags = ["alap", "gat", "layakari"]
+        let optionalTechnique = "taans"
+
+        for dayOffset in 1...28 {
+            let duration: TimeInterval
+
+            // Gentle variation, no fatigue patterns
+            switch dayOffset % 4 {
+            case 0:
+                duration = 45 * 60
+            case 1:
+                duration = 55 * 60
+            case 2:
+                duration = 60 * 60
+            default:
+                duration = 50 * 60
+            }
+
+            var tags = baseTags
+
+            // Light technique integration 2x a week
+            if dayOffset % 7 == 0 || dayOffset % 7 == 3 {
+                tags.append(optionalTechnique)
+            }
+
+            let session = PracticeSession(
+                startTime: now.addingTimeInterval(
+                    -Double(dayOffset) * 24 * 60 * 60
+                ),
+                duration: duration,
+                notes: "Consistent daily riyaz",
+                tags: tags
+            )
+
+            context.insert(session)
+        }
+    }
 
 }

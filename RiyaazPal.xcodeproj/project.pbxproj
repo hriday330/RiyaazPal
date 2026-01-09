@@ -16,6 +16,7 @@
 		C066A2962F0FAE24005A5D44 /* FocusCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A2952F0FAE24005A5D44 /* FocusCarousel.swift */; };
 		C066A2982F104854005A5D44 /* ConsistencyStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A2972F104854005A5D44 /* ConsistencyStats.swift */; };
 		C066A29A2F1087AA005A5D44 /* PracticePatterns.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A2992F1087AA005A5D44 /* PracticePatterns.swift */; };
+		C066A29C2F118912005A5D44 /* PracticeScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A29B2F118912005A5D44 /* PracticeScoreCalculator.swift */; };
 		C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */; };
 		C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */; };
 		C0A430C12F03494400C2401C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0A430C02F03494400C2401C /* Assets.xcassets */; };
@@ -42,6 +43,7 @@
 		C066A2952F0FAE24005A5D44 /* FocusCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusCarousel.swift; sourceTree = "<group>"; };
 		C066A2972F104854005A5D44 /* ConsistencyStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencyStats.swift; sourceTree = "<group>"; };
 		C066A2992F1087AA005A5D44 /* PracticePatterns.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticePatterns.swift; sourceTree = "<group>"; };
+		C066A29B2F118912005A5D44 /* PracticeScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeScoreCalculator.swift; sourceTree = "<group>"; };
 		C0A430B92F03494200C2401C /* RiyaazPal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RiyaazPal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiyaazPalApp.swift; sourceTree = "<group>"; };
 		C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineView.swift; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 				C066A2932F0F4465005A5D44 /* TagCategory.swift */,
 				C066A2972F104854005A5D44 /* ConsistencyStats.swift */,
 				C066A2992F1087AA005A5D44 /* PracticePatterns.swift */,
+				C066A29B2F118912005A5D44 /* PracticeScoreCalculator.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
@@ -291,6 +294,7 @@
 				C066A2902F0F3A68005A5D44 /* FocusBreakdownCard.swift in Sources */,
 				C0A430E32F083A2700C2401C /* EditSessionView.swift in Sources */,
 				C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */,
+				C066A29C2F118912005A5D44 /* PracticeScoreCalculator.swift in Sources */,
 				C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */,
 				C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */,
 				C066A2942F0F4465005A5D44 /* TagCategory.swift in Sources */,
