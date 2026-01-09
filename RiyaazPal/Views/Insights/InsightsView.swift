@@ -30,7 +30,9 @@ struct InsightsView: View {
         ConsistencyStatsCalculator.compute(sessions: recentSessions, dateRange: dateRange)
     }
     
-    
+    private var patterns: [PracticePattern] {
+        PracticePatternCalculator.compute(sessions: recentSessions, focusStats: focusStats)
+    }
     
     var body: some View {
         ZStack {
@@ -111,17 +113,14 @@ private extension InsightsView {
                 .font(.headline)
 
             VStack(spacing: 10) {
-                patternCard(
-                    icon: "music.note",
-                    title: "Focus Imbalance",
-                    description: "Vilambit appeared in only one session this week."
-                )
-
-                patternCard(
-                    icon: "clock",
-                    title: "Fatigue Signal",
-                    description: "Long sessions were often followed by shorter practice."
-                )
+                
+                ForEach(patterns, id:\.id) { pattern in
+                    patternCard(
+                        icon: pattern.icon,
+                        title: pattern.title,
+                        description: pattern.description
+                    )
+                }
             }
         }
     }
@@ -180,15 +179,27 @@ private extension InsightsView {
 }
 
 #Preview("Insights – Light") {
-    NavigationStack {
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
+
+    PreviewData.insertSessions(into: context)
+    return NavigationStack {
         InsightsView()
+        
     }
+    .modelContainer(container)
     .preferredColorScheme(.light)
 }
 
 #Preview("Insights – Dark") {
-    NavigationStack {
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
+    PreviewData.insertSessions(into: context)
+
+    return NavigationStack {
         InsightsView()
+        
     }
+    .modelContainer(container)
     .preferredColorScheme(.dark)
 }
