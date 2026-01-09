@@ -22,7 +22,7 @@ struct TagRegistry {
     ]
 
     private static let sections: Set<String> = [
-        "alap", "jor", "jhala", "gat"
+        "alap", "jor", "jhala", "gat",
     ]
 
     private static let techniques: Set<String> = [
