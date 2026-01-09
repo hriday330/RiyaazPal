@@ -114,6 +114,11 @@ private extension InsightsView {
 
             VStack(spacing: 10) {
                 
+                if (patterns.isEmpty) {
+                    Text("No major patterns detected this period. Keep up the balanced riyaz!")
+                        .font(.caption)
+                        .foregroundStyle(Color("SecondaryText"))
+                }
                 ForEach(patterns, id:\.id) { pattern in
                     patternCard(
                         icon: pattern.icon,
@@ -183,6 +188,19 @@ private extension InsightsView {
     let context = container.mainContext
 
     PreviewData.insertSessions(into: context)
+    return NavigationStack {
+        InsightsView()
+        
+    }
+    .modelContainer(container)
+    .preferredColorScheme(.light)
+}
+
+#Preview("Insights – Light - Perfect") {
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
+
+    PreviewData.insertPerfectSessions(into: context)
     return NavigationStack {
         InsightsView()
         
