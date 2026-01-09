@@ -34,6 +34,14 @@ struct InsightsView: View {
         PracticePatternCalculator.compute(sessions: recentSessions, focusStats: focusStats)
     }
     
+    private var practiceScore: Int {
+        PracticeScoreCalculator.compute(
+            consistency: consistencyStats,
+            patterns: patterns
+        )
+    }
+
+    
     var body: some View {
         ZStack {
             Color("AppBackground")
@@ -74,7 +82,7 @@ private extension InsightsView {
 private extension InsightsView {
     var practiceScoreCard: some View {
         PracticeScoreMeter(
-            score: 78,
+            score: practiceScore,
             subtitle: "Consistent practice with strong technical focus"
         )
     }
@@ -114,6 +122,11 @@ private extension InsightsView {
 
             VStack(spacing: 10) {
                 
+                if (patterns.isEmpty) {
+                    Text("No major patterns detected this period. Keep up the balanced riyaz!")
+                        .font(.caption)
+                        .foregroundStyle(Color("SecondaryText"))
+                }
                 ForEach(patterns, id:\.id) { pattern in
                     patternCard(
                         icon: pattern.icon,
@@ -183,6 +196,19 @@ private extension InsightsView {
     let context = container.mainContext
 
     PreviewData.insertSessions(into: context)
+    return NavigationStack {
+        InsightsView()
+        
+    }
+    .modelContainer(container)
+    .preferredColorScheme(.light)
+}
+
+#Preview("Insights – Light - Perfect") {
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
+
+    PreviewData.insertPerfectMonth(into: context)
     return NavigationStack {
         InsightsView()
         
