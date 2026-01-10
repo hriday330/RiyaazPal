@@ -137,6 +137,7 @@ private extension InsightsView {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .foregroundStyle(Color("AccentColor"))
+                .frame(width: 20, alignment: .top)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
@@ -148,7 +149,7 @@ private extension InsightsView {
                     .foregroundStyle(Color("SecondaryText"))
             }
 
-            Spacer()
+            Spacer(minLength:15)
         }
         .padding()
         .background(
