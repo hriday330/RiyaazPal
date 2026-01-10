@@ -11,13 +11,26 @@ import SwiftUI
 struct PracticeScoreMeter: View {
 
     let score: Int
-    let subtitle: String
 
     @State private var animatedScore: Double = 0
-    
-    private var normalizedScore: Double {
-        Double(min(max(score, 0), 100)) / 100.0
+
+    private var clampedScore: Int {
+        min(max(score, 0), 100)
     }
+
+    private var normalizedScore: Double {
+        Double(clampedScore) / 100.0
+    }
+
+    private var scoreBand: ScoreBand {
+        ScoreBand(score: clampedScore)
+    }
+
+    private var subtitle: String {
+        scoreBand.subtitle
+    }
+
+    // MARK: - View
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -43,11 +56,9 @@ struct PracticeScoreMeter: View {
                                 lineCap: .round
                             )
                         )
-                    
                         .rotationEffect(.degrees(-90))
-                        
 
-                    Text("\(score)")
+                    Text("\(clampedScore)")
                         .font(.system(size: 34, weight: .bold))
                         .foregroundStyle(Color("PrimaryText"))
                 }
@@ -75,33 +86,62 @@ struct PracticeScoreMeter: View {
         )
         .onAppear {
             withAnimation(.easeOut(duration: 0.6)) {
-                    animatedScore = normalizedScore
-                }
-                }
+                animatedScore = normalizedScore
+            }
+        }
     }
 
-    // TODO: Improve labels for this 
     private var scoreLabel: String {
+        scoreBand.label
+    }
+}
+
+private enum ScoreBand {
+    case excellent
+    case strong
+    case steady
+    case needsAttention
+
+    init(score: Int) {
         switch score {
-        case 85...100: return "Excellent"
-        case 70..<85:  return "Strong"
-        case 50..<70:  return "Steady"
-        default:       return "Needs Attention"
+        case 85...100:
+            self = .excellent
+        case 70..<85:
+            self = .strong
+        case 50..<70:
+            self = .steady
+        default:
+            self = .needsAttention
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .excellent:      return "Excellent"
+        case .strong:         return "Strong"
+        case .steady:         return "Steady"
+        case .needsAttention: return "Needs Attention"
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .excellent:
+            return "Highly consistent, well-balanced practice"
+        case .strong:
+            return "Consistent practice with good structural balance"
+        case .steady:
+            return "Regular practice, with room for refinement"
+        case .needsAttention:
+            return "Inconsistent practice pattern this period"
         }
     }
 }
 
-
 #Preview("Practice Score Meter – Light") {
     VStack {
-        PracticeScoreMeter(
-            score: 78,
-            subtitle: "Consistent practice with strong technical focus"
-        )
-        PracticeScoreMeter(
-            score: 62,
-            subtitle: "Regular practice, but focus is uneven"
-        )
+        PracticeScoreMeter(score: 78)
+        PracticeScoreMeter(score: 50)
     }
     .padding()
     .background(Color("AppBackground"))
@@ -109,11 +149,8 @@ struct PracticeScoreMeter: View {
 }
 
 #Preview("Practice Score Meter – Dark") {
-    PracticeScoreMeter(
-        score: 90,
-        subtitle: "Excellent consistency and balanced focus"
-    )
-    .padding()
-    .background(Color("AppBackground"))
-    .preferredColorScheme(.dark)
+    PracticeScoreMeter(score: 90)
+        .padding()
+        .background(Color("AppBackground"))
+        .preferredColorScheme(.dark)
 }
