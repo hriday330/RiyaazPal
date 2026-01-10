@@ -33,7 +33,7 @@ struct PracticeScoreMeter: View {
     // MARK: - View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 24) {
             Text("Practice Health")
                 .font(.headline)
                 .foregroundStyle(Color("PrimaryText"))
