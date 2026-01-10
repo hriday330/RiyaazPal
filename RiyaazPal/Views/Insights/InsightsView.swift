@@ -48,7 +48,7 @@ struct InsightsView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 12) {
                     header
                     practiceScoreCard
                     FocusCarousel(focusStats: focusStats)
@@ -104,11 +104,7 @@ private extension InsightsView {
                     .foregroundStyle(Color("SecondaryText"))
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color("CardBackground"))
-        )
+        .insightCard()
     }
 }
 
@@ -134,13 +130,14 @@ private extension InsightsView {
                     )
                 }
             }
-        }
+        }.insightCard()
     }
 
     func patternCard(icon: String, title: String, description: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .foregroundStyle(Color("AccentColor"))
+                .frame(width: 20, alignment: .top)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
@@ -152,7 +149,7 @@ private extension InsightsView {
                     .foregroundStyle(Color("SecondaryText"))
             }
 
-            Spacer()
+            Spacer(minLength:15)
         }
         .padding()
         .background(
@@ -172,11 +169,19 @@ private extension InsightsView {
                 .font(.subheadline)
                 .foregroundStyle(Color("SecondaryText"))
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color("ActiveCardBackground"))
-        )
+        .insightCard(background: Color("ActiveCardBackground"))
+    }
+}
+
+private extension View {
+    func insightCard(background: Color = Color("CardBackground")) -> some View {
+        self
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(background)
+            )
     }
 }
 

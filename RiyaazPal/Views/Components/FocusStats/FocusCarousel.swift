@@ -76,7 +76,6 @@ private extension FocusCarousel {
     )
 
     return FocusCarousel(focusStats: focusStats)
-        .padding()
         .background(Color("AppBackground"))
         .preferredColorScheme(.light)
 }
