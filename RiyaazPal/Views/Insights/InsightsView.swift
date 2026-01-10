@@ -82,8 +82,7 @@ private extension InsightsView {
 private extension InsightsView {
     var practiceScoreCard: some View {
         PracticeScoreMeter(
-            score: practiceScore,
-            subtitle: "Consistent practice with strong technical focus"
+            score: practiceScore
         )
     }
 }
@@ -124,7 +123,7 @@ private extension InsightsView {
                 
                 if (patterns.isEmpty) {
                     Text("No major patterns detected this period. Keep up the balanced riyaz!")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundStyle(Color("SecondaryText"))
                 }
                 ForEach(patterns, id:\.id) { pattern in
