@@ -17,6 +17,7 @@ struct EditSessionView: View {
     @State private var newTag: String = ""
     
     @State private var showingDurationPicker = false
+    @State private var showingStartTimePicker = false
 
 
     init(session: PracticeSession) {
@@ -57,11 +58,7 @@ struct EditSessionView: View {
                         .padding(.top, 20)
                         .padding(.horizontal)
                         VStack(spacing: 12) {
-                            HStack {
-                                Text("Started")
-                                Spacer()
-                                Text(formattedStartTime)
-                            }
+                            startDateTimePicker
                             durationStepper
 
                         }
@@ -94,6 +91,7 @@ struct EditSessionView: View {
         session.tags = draft.tags
         session.detailedNotes = draft.detailedNotes
         session.duration = draft.duration
+        session.startTime = draft.startTime
     }
 }
 
@@ -199,6 +197,42 @@ private extension EditSessionView {
             }
         }
     }
+    
+    var startDateTimePicker: some View {
+        Button {
+            showingStartTimePicker = true
+        } label: {
+            HStack {
+                Text("Started")
+                    .foregroundStyle(Color("SecondaryText"))
+
+                Spacer()
+
+                Text(formattedStartTime)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("EditorBackground"))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color("EditorBorder"), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showingStartTimePicker) {
+            DateTimePickerSheet(
+                startTime: $draft.startTime
+            )
+        }
+
+    }
 
     var formattedStartTime: String {
         let formatter = DateFormatter()
@@ -288,7 +322,7 @@ private extension EditSessionView {
 
 struct PracticeSessionDraft {
     let id: UUID
-    let startTime: Date
+    var startTime: Date
     var duration: TimeInterval
     var notes: String
     var tags: [String]

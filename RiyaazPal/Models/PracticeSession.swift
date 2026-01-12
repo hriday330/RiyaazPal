@@ -11,7 +11,7 @@ import SwiftData
 @Model
 final class PracticeSession {
     let id: UUID
-    let startTime: Date
+    var startTime: Date
     var duration: TimeInterval
     var notes: String
     var tags: [String]
