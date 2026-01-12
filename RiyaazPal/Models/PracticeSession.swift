@@ -12,7 +12,7 @@ import SwiftData
 final class PracticeSession {
     let id: UUID
     let startTime: Date
-    let duration: TimeInterval
+    var duration: TimeInterval
     var notes: String
     var tags: [String]
     var detailedNotes: String

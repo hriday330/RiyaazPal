@@ -15,6 +15,9 @@ struct EditSessionView: View {
     private let session: PracticeSession
     @State private var draft: PracticeSessionDraft
     @State private var newTag: String = ""
+    
+    @State private var showingDurationPicker = false
+
 
     init(session: PracticeSession) {
         self.session = session
@@ -59,11 +62,8 @@ struct EditSessionView: View {
                                 Spacer()
                                 Text(formattedStartTime)
                             }
-                            HStack {
-                                Text("Duration")
-                                Spacer()
-                                Text(formattedDuration)
-                            }
+                            durationStepper
+
                         }
                         .font(.subheadline)
                         .foregroundStyle(Color("SecondaryText"))
@@ -93,6 +93,7 @@ struct EditSessionView: View {
         session.notes = draft.notes
         session.tags = draft.tags
         session.detailedNotes = draft.detailedNotes
+        session.duration = draft.duration
     }
 }
 
@@ -206,11 +207,56 @@ private extension EditSessionView {
         return formatter.string(from: draft.startTime)
     }
 
-    var formattedDuration: String {
-        let totalSeconds = Int(draft.duration)
-        let minutes = totalSeconds / 60
-        let seconds = totalSeconds % 60
-        return String(format: "%d:%02d", minutes, seconds)
+    private var durationMinutes: Int {
+        get { Int(draft.duration / 60) }
+        set { draft.duration = TimeInterval(newValue * 60) }
+    }
+
+    private var formattedDuration: String {
+        let hours = durationMinutes / 60
+        let minutes = durationMinutes % 60
+
+        if hours > 0 {
+            return minutes > 0
+                ? "\(hours) hr \(minutes) min"
+                : "\(hours) hr"
+        } else {
+            return "\(minutes) min"
+        }
+    }
+    
+    var durationStepper: some View {
+        Button {
+            showingDurationPicker = true
+        } label: {
+            HStack {
+                Text(formattedDuration)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                Spacer()
+
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("EditorBackground"))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color("EditorBorder"), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showingDurationPicker) {
+            DurationPickerSheet(
+                duration: $draft.duration
+            )
+        }
+
+
     }
 
     func addTag() {
@@ -243,7 +289,7 @@ private extension EditSessionView {
 struct PracticeSessionDraft {
     let id: UUID
     let startTime: Date
-    let duration: TimeInterval
+    var duration: TimeInterval
     var notes: String
     var tags: [String]
     var detailedNotes: String
