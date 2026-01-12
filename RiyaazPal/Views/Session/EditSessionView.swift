@@ -264,10 +264,13 @@ private extension EditSessionView {
             showingDurationPicker = true
         } label: {
             HStack {
-                Text(formattedDuration)
-                    .foregroundStyle(Color("PrimaryText"))
+                Text("Duration")
+                    .foregroundStyle(Color("SecondaryText"))
 
                 Spacer()
+
+                Text(formattedDuration)
+                    .foregroundStyle(Color("PrimaryText"))
 
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.caption)
