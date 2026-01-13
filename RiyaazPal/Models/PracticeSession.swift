@@ -16,6 +16,7 @@ final class PracticeSession {
     var notes: String
     var tags: [String]
     var detailedNotes: String
+    var lastModified: Date
 
     init(
         id: UUID = UUID(),
@@ -23,7 +24,8 @@ final class PracticeSession {
         duration: TimeInterval,
         notes: String,
         tags: [String] = [],
-        detailedNotes: String = ""
+        detailedNotes: String = "",
+        lastModified: Date = .now
     ) {
         self.id = id
         self.startTime = startTime
@@ -31,6 +33,7 @@ final class PracticeSession {
         self.notes = notes
         self.tags = tags
         self.detailedNotes = detailedNotes
+        self.lastModified = lastModified
     }
 }
 

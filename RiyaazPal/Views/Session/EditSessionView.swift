@@ -92,6 +92,7 @@ struct EditSessionView: View {
         session.detailedNotes = draft.detailedNotes
         session.duration = draft.duration
         session.startTime = draft.startTime
+        session.lastModified = .now
     }
 }
 
