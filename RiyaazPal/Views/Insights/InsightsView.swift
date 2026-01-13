@@ -18,12 +18,6 @@ struct InsightsView: View {
     @State private var insightError: String?
     
     @State private var currentWindow: DateRange = InsightWindowHelper.dateRange()
-
-
-    
-    private var dateRange: DateRange {
-        InsightWindowHelper.dateRange()
-    }
     
     private var recentSessions: [PracticeSession] {
         InsightWindowHelper.sessionsInWindow(sessions)
@@ -34,7 +28,7 @@ struct InsightsView: View {
     }
     
     private var consistencyStats: ConsistencyStats {
-        ConsistencyStatsCalculator.compute(sessions: recentSessions, dateRange: dateRange)
+        ConsistencyStatsCalculator.compute(sessions: recentSessions, dateRange: currentWindow)
     }
     
     private var patterns: [PracticePattern] {
@@ -73,6 +67,7 @@ struct InsightsView: View {
                 .padding()
             }
         }.task(id: insightsVersion) {
+            print("🟡 Insights task fired:", insightsVersion)
             await fetchReflectionInsight()
         }
 
@@ -217,15 +212,15 @@ private extension InsightsView {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
 
-        return formatter.string(from: dateRange.start, to: dateRange.end)
+        return formatter.string(from: currentWindow.start, to: currentWindow.end)
     }
     
     private var insightsVersion: InsightsVersion {
         InsightsVersion(
             sessionCount: recentSessions.count,
             lastModified: recentSessions.map(\.lastModified).max(),
-            rangeStart: dateRange.start,
-            rangeEnd: dateRange.end
+            rangeStart: currentWindow.start,
+            rangeEnd: currentWindow.end
         )
     }
 
