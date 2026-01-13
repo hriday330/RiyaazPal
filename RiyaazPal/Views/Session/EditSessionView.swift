@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import SwiftData
+import SwiftData 
 
 struct EditSessionView: View {
     @Environment(\.dismiss) private var dismiss

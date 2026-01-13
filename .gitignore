@@ -28,3 +28,6 @@ fastlane/test_output
 
 # Secrets
 *.env
+*Secrets.swift
+
+

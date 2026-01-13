@@ -13,6 +13,13 @@ struct InsightsView: View {
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
     
+    @State private var reflectionInsight: ReflectionInsight?
+    @State private var isLoadingInsight = false
+    @State private var insightError: String?
+    
+    @State private var currentWindow: DateRange = InsightWindowHelper.dateRange()
+
+
     
     private var dateRange: DateRange {
         InsightWindowHelper.dateRange()
@@ -42,6 +49,8 @@ struct InsightsView: View {
     }
 
     
+
+    
     var body: some View {
         ZStack {
             Color("AppBackground")
@@ -54,14 +63,23 @@ struct InsightsView: View {
                     FocusCarousel(focusStats: focusStats)
                     consistencySummary
                     notablePatterns
-                    suggestedDirection
+                    ReflectionInsightSection(
+                        insight: reflectionInsight,
+                        isLoading: isLoadingInsight,
+                        error: insightError
+                    )
+
                 }
                 .padding()
             }
+        }.task(id: currentWindow.start) {
+            await fetchReflectionInsight()
         }
+
         .navigationTitle("Insights")
     }
 }
+
 
 private extension InsightsView {
     var header: some View {
@@ -85,6 +103,28 @@ private extension InsightsView {
             score: practiceScore
         )
     }
+    
+    private func fetchReflectionInsight() async {
+        guard !recentSessions.isEmpty else { return }
+
+        isLoadingInsight = true
+        insightError = nil
+
+        do {
+            let insight = try await ReflectionInsightService.generateInsight(
+                sessions: recentSessions,
+                window: currentWindow
+            )
+
+            reflectionInsight = insight
+        } catch {
+            insightError = "Unable to analyze reflections. Please try again."
+            reflectionInsight = nil
+        }
+
+        isLoadingInsight = false
+    }
+
 }
 
 
@@ -159,20 +199,6 @@ private extension InsightsView {
     }
 }
 
-private extension InsightsView {
-    var suggestedDirection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Suggested Direction")
-                .font(.headline)
-
-            Text("Consider dedicating a short session this week to vilambit alap to rebalance your practice.")
-                .font(.subheadline)
-                .foregroundStyle(Color("SecondaryText"))
-        }
-        .insightCard(background: Color("ActiveCardBackground"))
-    }
-}
-
 private extension View {
     func insightCard(background: Color = Color("CardBackground")) -> some View {
         self
@@ -194,6 +220,8 @@ private extension InsightsView {
         return formatter.string(from: dateRange.start, to: dateRange.end)
     }
 }
+
+
 
 #Preview("Insights – Light") {
     let container = PreviewModelContainer.make()
