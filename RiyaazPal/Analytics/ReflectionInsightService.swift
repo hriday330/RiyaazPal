@@ -9,7 +9,6 @@ import Foundation
 
 enum ReflectionInsightService {
 
-    /// Main entry point used by InsightsView / ViewModel
     static func generateInsight(
         sessions: [PracticeSession],
         window: DateRange
@@ -25,8 +24,6 @@ enum ReflectionInsightService {
 
 }
 
-// MARK: - Response Models (must match Edge Function)
-
 struct ReflectionInsight: Decodable {
     let items: [InsightItem]
 }
@@ -36,8 +33,6 @@ struct InsightItem: Decodable {
     let confidence_delta: Int
     let evidence: String
 }
-
-// MARK: - Request Payload
 
 private struct ReflectionRequestBody: Encodable {
     let week_start: String
@@ -49,8 +44,6 @@ private struct ReflectionRequestBody: Encodable {
         let metrics: [String: Double]
     }
 }
-
-// MARK: - Request Builder
 
 private extension ReflectionInsightService {
 
@@ -76,7 +69,7 @@ private extension ReflectionInsightService {
                 return .init(
                     date: dateTimeFormatter.string(from: session.startTime),
                     notes: notes,
-                    metrics: [:] // reserved for future deterministic signals
+                    metrics: [:] // TODO: add additional signals here if needed
                 )
             }
 
@@ -98,9 +91,6 @@ enum InsightError: LocalizedError {
         "Not enough reflection data to generate insights."
     }
 }
-
-
-// MARK: - Edge Function Call
 
 private extension ReflectionInsightService {
 
@@ -125,16 +115,14 @@ private extension ReflectionInsightService {
         let (data, response) = try await URLSession.shared.data(for: request)
 
         let status = (response as? HTTPURLResponse)?.statusCode ?? -1
-        print("Edge status:", status)
+
 
         let text = String(decoding: data, as: UTF8.self)
-        print("Edge raw response:", text)
-
+        
         guard status == 200 else {
             throw URLError(.badServerResponse)
         }
 
-        // 6. Decode
         return try JSONDecoder().decode(ReflectionInsight.self, from: data)
     }
 
