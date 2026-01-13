@@ -10,8 +10,9 @@ import SwiftData
 
 @main
 struct RiyaazPalApp: App {
+    
     var body: some Scene {
-        WindowGroup {
+        return WindowGroup {
             TabView {
                 NavigationStack {
                     PracticeTimelineView()

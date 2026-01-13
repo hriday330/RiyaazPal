@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import SwiftData
+import SwiftData 
 
 struct EditSessionView: View {
     @Environment(\.dismiss) private var dismiss
@@ -92,6 +92,7 @@ struct EditSessionView: View {
         session.detailedNotes = draft.detailedNotes
         session.duration = draft.duration
         session.startTime = draft.startTime
+        session.lastModified = .now
     }
 }
 

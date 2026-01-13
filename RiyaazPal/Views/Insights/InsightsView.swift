@@ -13,10 +13,11 @@ struct InsightsView: View {
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
     
+    @State private var reflectionInsight: ReflectionInsight?
+    @State private var isLoadingInsight = false
+    @State private var insightError: String?
     
-    private var dateRange: DateRange {
-        InsightWindowHelper.dateRange()
-    }
+    @State private var currentWindow: DateRange = InsightWindowHelper.dateRange()
     
     private var recentSessions: [PracticeSession] {
         InsightWindowHelper.sessionsInWindow(sessions)
@@ -27,7 +28,7 @@ struct InsightsView: View {
     }
     
     private var consistencyStats: ConsistencyStats {
-        ConsistencyStatsCalculator.compute(sessions: recentSessions, dateRange: dateRange)
+        ConsistencyStatsCalculator.compute(sessions: recentSessions, dateRange: currentWindow)
     }
     
     private var patterns: [PracticePattern] {
@@ -42,6 +43,8 @@ struct InsightsView: View {
     }
 
     
+
+    
     var body: some View {
         ZStack {
             Color("AppBackground")
@@ -54,14 +57,24 @@ struct InsightsView: View {
                     FocusCarousel(focusStats: focusStats)
                     consistencySummary
                     notablePatterns
-                    suggestedDirection
+                    ReflectionInsightSection(
+                        insight: reflectionInsight,
+                        isLoading: isLoadingInsight,
+                        error: insightError
+                    )
+
                 }
                 .padding()
             }
+        }.task(id: insightsVersion) {
+            print("🟡 Insights task fired:", insightsVersion)
+            await fetchReflectionInsight()
         }
+
         .navigationTitle("Insights")
     }
 }
+
 
 private extension InsightsView {
     var header: some View {
@@ -85,6 +98,28 @@ private extension InsightsView {
             score: practiceScore
         )
     }
+    
+    private func fetchReflectionInsight() async {
+        guard !recentSessions.isEmpty else { return }
+
+        isLoadingInsight = true
+        insightError = nil
+
+        do {
+            let insight = try await ReflectionInsightService.generateInsight(
+                sessions: recentSessions,
+                window: currentWindow
+            )
+
+            reflectionInsight = insight
+        } catch {
+            insightError = "Unable to analyze reflections. Please try again."
+            reflectionInsight = nil
+        }
+
+        isLoadingInsight = false
+    }
+
 }
 
 
@@ -159,20 +194,6 @@ private extension InsightsView {
     }
 }
 
-private extension InsightsView {
-    var suggestedDirection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Suggested Direction")
-                .font(.headline)
-
-            Text("Consider dedicating a short session this week to vilambit alap to rebalance your practice.")
-                .font(.subheadline)
-                .foregroundStyle(Color("SecondaryText"))
-        }
-        .insightCard(background: Color("ActiveCardBackground"))
-    }
-}
-
 private extension View {
     func insightCard(background: Color = Color("CardBackground")) -> some View {
         self
@@ -191,9 +212,27 @@ private extension InsightsView {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
 
-        return formatter.string(from: dateRange.start, to: dateRange.end)
+        return formatter.string(from: currentWindow.start, to: currentWindow.end)
     }
+    
+    private var insightsVersion: InsightsVersion {
+        InsightsVersion(
+            sessionCount: recentSessions.count,
+            lastModified: recentSessions.map(\.lastModified).max(),
+            rangeStart: currentWindow.start,
+            rangeEnd: currentWindow.end
+        )
+    }
+
 }
+
+struct InsightsVersion: Hashable {
+    let sessionCount: Int
+    let lastModified: Date?
+    let rangeStart: Date
+    let rangeEnd: Date
+}
+
 
 #Preview("Insights – Light") {
     let container = PreviewModelContainer.make()
