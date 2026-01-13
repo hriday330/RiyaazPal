@@ -158,6 +158,7 @@ private extension PracticeTimelineView {
                                     do {
                                         try context.save()
                                     } catch {
+                                        // TODO - alert if failed to save session 
                                         print("Failed to save session: \(error.localizedDescription)")
                                     }
                                 } label: {

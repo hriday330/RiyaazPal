@@ -102,9 +102,6 @@ Deno.serve(async (req: Request) => {
       Practice reflections:
       ${body.reflections.map(r => `- ${r.date}: ${r.notes}`).join("\n")}
     `
-
-    // FIX: Changed from .responses.create to .chat.completions.create
-    // FIX: Changed 'input' to 'messages'
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.2,
@@ -116,7 +113,7 @@ Deno.serve(async (req: Request) => {
         type: "json_schema",
         json_schema: {
           name: "reflection_insight",
-          strict: true, // Recommended for structured outputs
+          strict: true, 
           schema: {
             type: "object",
             properties: {
@@ -147,7 +144,7 @@ Deno.serve(async (req: Request) => {
     const content = completion.choices[0].message.content
     
     return new Response(
-      content, // Content is already a JSON string from the API
+      content, 
       {
         headers: { "Content-Type": "application/json" },
         status: 200

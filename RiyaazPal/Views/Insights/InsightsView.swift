@@ -67,7 +67,6 @@ struct InsightsView: View {
                 .padding()
             }
         }.task(id: insightsVersion) {
-            print("🟡 Insights task fired:", insightsVersion)
             await fetchReflectionInsight()
         }
 
