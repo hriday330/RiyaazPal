@@ -72,7 +72,7 @@ struct InsightsView: View {
                 }
                 .padding()
             }
-        }.task(id: currentWindow.start) {
+        }.task(id: insightsVersion) {
             await fetchReflectionInsight()
         }
 
@@ -219,8 +219,24 @@ private extension InsightsView {
 
         return formatter.string(from: dateRange.start, to: dateRange.end)
     }
+    
+    private var insightsVersion: InsightsVersion {
+        InsightsVersion(
+            sessionCount: recentSessions.count,
+            lastModified: recentSessions.map(\.lastModified).max(),
+            rangeStart: dateRange.start,
+            rangeEnd: dateRange.end
+        )
+    }
+
 }
 
+struct InsightsVersion: Hashable {
+    let sessionCount: Int
+    let lastModified: Date?
+    let rangeStart: Date
+    let rangeEnd: Date
+}
 
 
 #Preview("Insights – Light") {
