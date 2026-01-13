@@ -55,6 +55,11 @@ Deno.serve(async (req: Request) => {
       - It is always better to return fewer insights than to return uncertain ones.
       - Do NOT restate obvious facts or single-session anomalies.
 
+      5. Temporal weighting rule (MANDATORY):
+      - More recent sessions must be weighted more heavily than older ones.
+      - When assessing a skill, prioritize patterns from the latest sessions in the window.
+      - Older sessions may provide context, but must not override a clear recent trend.
+      - If recent sessions contradict older struggles, the insight should reflect the recent state.
       ----------------------------------------
       REQUIRED INTERNAL REASONING (DO NOT OUTPUT)
       ----------------------------------------
