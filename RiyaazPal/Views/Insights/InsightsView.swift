@@ -13,36 +13,28 @@ struct InsightsView: View {
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
     
-    @State private var reflectionInsight: ReflectionInsight?
-    @State private var isLoadingInsight = false
-    @State private var insightError: String?
     
-    @State private var currentWindow: DateRange = InsightWindowHelper.dateRange()
+    @State private var insightsViewModel = InsightsViewModel()
     
     private var recentSessions: [PracticeSession] {
-        InsightWindowHelper.sessionsInWindow(sessions)
+        insightsViewModel.recentSessions(from: sessions)
     }
 
     private var focusStats: FocusStats {
-        FocusStatsCalculator.compute(sessions: recentSessions)
+        insightsViewModel.focusStats(from: recentSessions)
     }
     
     private var consistencyStats: ConsistencyStats {
-        ConsistencyStatsCalculator.compute(sessions: recentSessions, dateRange: currentWindow)
+        insightsViewModel.consistencyStats(from: recentSessions)
     }
     
     private var patterns: [PracticePattern] {
-        PracticePatternCalculator.compute(sessions: recentSessions, focusStats: focusStats)
+        insightsViewModel.patterns(from: recentSessions, focusStats: focusStats)
     }
     
     private var practiceScore: Int {
-        PracticeScoreCalculator.compute(
-            consistency: consistencyStats,
-            patterns: patterns
-        )
+        insightsViewModel.practiceScore(consistency: consistencyStats, patterns: patterns)
     }
-
-    
 
     
     var body: some View {
@@ -53,21 +45,23 @@ struct InsightsView: View {
             ScrollView {
                 VStack(spacing: 12) {
                     header
-                    practiceScoreCard
+                    PracticeScoreMeter(
+                        score: practiceScore
+                    )
                     FocusCarousel(focusStats: focusStats)
                     consistencySummary
                     notablePatterns
                     ReflectionInsightSection(
-                        insight: reflectionInsight,
-                        isLoading: isLoadingInsight,
-                        error: insightError
+                        insight: insightsViewModel.reflectionInsight,
+                        isLoading: insightsViewModel.isLoadingInsight,
+                        error: insightsViewModel.insightError
                     )
 
                 }
                 .padding()
             }
         }.task(id: insightsVersion) {
-            await fetchReflectionInsight()
+            await insightsViewModel.fetchReflectionInsight(sessions: recentSessions)
         }
 
         .navigationTitle("Insights")
@@ -90,37 +84,6 @@ private extension InsightsView {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
-
-private extension InsightsView {
-    var practiceScoreCard: some View {
-        PracticeScoreMeter(
-            score: practiceScore
-        )
-    }
-    
-    private func fetchReflectionInsight() async {
-        guard !recentSessions.isEmpty else { return }
-
-        isLoadingInsight = true
-        insightError = nil
-
-        do {
-            let insight = try await ReflectionInsightService.generateInsight(
-                sessions: recentSessions,
-                window: currentWindow
-            )
-
-            reflectionInsight = insight
-        } catch {
-            insightError = "Unable to analyze reflections. Please try again."
-            reflectionInsight = nil
-        }
-
-        isLoadingInsight = false
-    }
-
-}
-
 
 private extension InsightsView {
     var consistencySummary: some View {
@@ -211,27 +174,16 @@ private extension InsightsView {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
 
-        return formatter.string(from: currentWindow.start, to: currentWindow.end)
+        return formatter.string(from: insightsViewModel.currentWindow.start, to: insightsViewModel.currentWindow.end)
     }
     
     private var insightsVersion: InsightsVersion {
-        InsightsVersion(
-            sessionCount: recentSessions.count,
-            lastModified: recentSessions.map(\.lastModified).max(),
-            rangeStart: currentWindow.start,
-            rangeEnd: currentWindow.end
+        insightsViewModel.insightsVersion(
+            recentSessions: recentSessions
         )
     }
 
 }
-
-struct InsightsVersion: Hashable {
-    let sessionCount: Int
-    let lastModified: Date?
-    let rangeStart: Date
-    let rangeEnd: Date
-}
-
 
 #Preview("Insights – Light") {
     let container = PreviewModelContainer.make()

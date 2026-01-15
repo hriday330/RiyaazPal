@@ -115,9 +115,6 @@ private extension ReflectionInsightService {
         let (data, response) = try await URLSession.shared.data(for: request)
 
         let status = (response as? HTTPURLResponse)?.statusCode ?? -1
-
-
-        let text = String(decoding: data, as: UTF8.self)
         
         guard status == 200 else {
             throw URLError(.badServerResponse)
