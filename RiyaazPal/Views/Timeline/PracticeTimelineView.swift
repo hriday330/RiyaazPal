@@ -24,9 +24,6 @@ struct PracticeTimelineView: View {
     @StateObject private var timelineFilterViewModel = TimelineFilterViewModel();
     
     @State private var selectedSession: PracticeSession?
-    
-
-    
 
     var body: some View {
             ZStack {
@@ -38,7 +35,7 @@ struct PracticeTimelineView: View {
                         activeSessionBar
                     }
                 } else if timelineFilterViewModel.isSearching && timelineFilterViewModel.filteredSessions(from: sessions).isEmpty {
-                    filteredEmptyState
+                    PracticeTimelineFilteredEmptyState()
                 } else {
                     timelineList
                         .listStyle(.plain)
@@ -207,22 +204,6 @@ private extension PracticeTimelineView {
                 .ignoresSafeArea()
             }
         }.transition(.move(edge: .bottom).combined(with: .opacity))
-    }
-    
-    var filteredEmptyState: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 36))
-                .foregroundStyle(.secondary)
-
-            Text("No matching sessions")
-                .font(.headline)
-
-            Text("Try a different tag or search term.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
