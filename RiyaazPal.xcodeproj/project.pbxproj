@@ -38,6 +38,7 @@
 		C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */; };
 		C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EE2F098F9000C2401C /* PreviewData.swift */; };
 		C0E580422F19EDD400571C5E /* TimelineFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */; };
+		C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,6 +75,7 @@
 		C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModelContainer.swift; sourceTree = "<group>"; };
 		C0A430EE2F098F9000C2401C /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineFilterViewModel.swift; sourceTree = "<group>"; };
+		C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineEmptyState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +227,7 @@
 				C00066922F0F101000BC930C /* PracticeScoreMeter.swift */,
 				C066A29F2F14F2F6005A5D44 /* DurationPickerSheet.swift */,
 				C066A2A12F14F641005A5D44 /* DateTimePickerSheet.swift */,
+				C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -316,6 +319,7 @@
 				C0A430E82F08A25C00C2401C /* TagChip.swift in Sources */,
 				C066A2AC2F15B868005A5D44 /* ReflectionInsightsSection.swift in Sources */,
 				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,
+				C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */,
 				C066A2982F104854005A5D44 /* ConsistencyStats.swift in Sources */,
 				C066A2B02F18893E005A5D44 /* InsightsViewModel.swift in Sources */,
 				C066A2962F0FAE24005A5D44 /* FocusCarousel.swift in Sources */,
