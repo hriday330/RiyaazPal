@@ -66,7 +66,7 @@ struct EditSessionView: View {
                         .foregroundStyle(Color("SecondaryText"))
                         .padding(.horizontal)
                         .padding(.top, 8)
-                        tagsSection
+                        EditSessionTagsSection(tags: $draft.tags, newTag: $newTag, onAddTag: addTag)
                             .padding(.top, 16)
                         EditSessionNotesEditor(notes: $draft.detailedNotes)
                             .padding(.top, 20)
@@ -97,47 +97,6 @@ struct EditSessionView: View {
 }
 
 private extension EditSessionView {
-    
-    var tagsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Tags")
-                .font(.headline)
-                .foregroundStyle(Color("PrimaryText"))
-                .padding(.horizontal)
-
-            FlowLayout(spacing: 8) {
-                ForEach(draft.tags, id: \.self) { tag in
-                    TagChip(
-                        tag: tag,
-                        onDelete: {
-                            draft.tags.removeAll { $0 == tag }
-                        }
-                    )
-                }
-            }
-            .padding(.horizontal)
-            
-            HStack(spacing: 8) {
-                TextField("Add tag", text: $newTag)
-                    .textFieldStyle(.roundedBorder)
-                    .submitLabel(.done)
-                    .onSubmit(addTag)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color("EditorBorder"), lineWidth: 1)
-                    )
-
-                Button(action: addTag) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(Color("AccentColor"))
-                }
-                .disabled(newTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-            .padding(.horizontal)
-        }
-    }
-
     var saveAndCancelButtons: some View {
         VStack(spacing: 12) {
             Button {
