@@ -40,6 +40,7 @@
 		C0E580422F19EDD400571C5E /* TimelineFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */; };
 		C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */; };
 		C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */; };
+		C0E580482F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +79,7 @@
 		C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineFilterViewModel.swift; sourceTree = "<group>"; };
 		C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineEmptyState.swift; sourceTree = "<group>"; };
 		C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineFilteredEmptyState.swift; sourceTree = "<group>"; };
+		C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionDetailedNotesEditor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,6 +233,7 @@
 				C066A2A12F14F641005A5D44 /* DateTimePickerSheet.swift */,
 				C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */,
 				C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */,
+				C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -319,6 +322,7 @@
 				C0A430D52F0599CD00C2401C /* PracticeSessionViewModel.swift in Sources */,
 				C066A2922F0F3DF9005A5D44 /* InsightWindow.swift in Sources */,
 				C066A2A42F159C39005A5D44 /* ReflectionInsightService.swift in Sources */,
+				C0E580482F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift in Sources */,
 				C0A430E82F08A25C00C2401C /* TagChip.swift in Sources */,
 				C066A2AC2F15B868005A5D44 /* ReflectionInsightsSection.swift in Sources */,
 				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,

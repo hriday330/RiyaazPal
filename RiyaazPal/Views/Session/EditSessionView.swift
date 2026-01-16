@@ -68,7 +68,7 @@ struct EditSessionView: View {
                         .padding(.top, 8)
                         tagsSection
                             .padding(.top, 16)
-                        detailedNotesInput
+                        EditSessionNotesEditor(notes: $draft.detailedNotes)
                             .padding(.top, 20)
                             .padding(.bottom, 20)
                     }
@@ -138,40 +138,6 @@ private extension EditSessionView {
         }
     }
 
-    var detailedNotesInput: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Notes")
-                .font(.headline)
-                .foregroundStyle(Color("PrimaryText"))
-                .padding(.horizontal)
-            
-            ZStack(alignment: .topLeading) {
-                if draft.detailedNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Text("What felt good? What needs work?")
-                        .foregroundStyle(Color("SecondaryText"))
-                        .padding(.top, 20)
-                        .padding(.leading, 18)
-                }
-
-                TextEditor(text: $draft.detailedNotes)
-                    .font(.body)
-                    .foregroundStyle(Color("PrimaryText"))
-                    .scrollContentBackground(.hidden)
-                    .padding(12)
-            }
-            .frame(minHeight: 160)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("EditorBackground"))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color("EditorBorder"), lineWidth: 1)
-            )
-            .padding(.horizontal)
-        }
-    }
-    
     var saveAndCancelButtons: some View {
         VStack(spacing: 12) {
             Button {
