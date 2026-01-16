@@ -21,15 +21,10 @@ struct PracticeTimelineView: View {
     
     @StateObject private var sessionViewModel = PracticeSessionViewModel()
     
+    @StateObject private var timelineFilterViewModel = TimelineFilterViewModel();
+    
     @State private var selectedSession: PracticeSession?
     
-    @State private var sessionIsInserting: Bool = false
-    
-    @State private var searchText = ""
-    
-    @State private var selectedTags: [TagToken] = []
-    
-    @State private var highlightedTag: String?
 
     
 
@@ -40,7 +35,7 @@ struct PracticeTimelineView: View {
                     .ignoresSafeArea()
                 if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     emptyState
-                } else if isSearching && filteredSessions.isEmpty {
+                } else if timelineFilterViewModel.isSearching && timelineFilterViewModel.filteredSessions(from: sessions).isEmpty {
                     filteredEmptyState
                 } else {
                     timelineList
@@ -52,29 +47,16 @@ struct PracticeTimelineView: View {
             }
             .navigationTitle("RiyaazPal")
             .searchable(
-                text: $searchText,
-                tokens: $selectedTags,
-                suggestedTokens: .constant(suggestedTags),
+                text: $timelineFilterViewModel.searchText,
+                tokens: $timelineFilterViewModel.selectedTags,
+                suggestedTokens: .constant(timelineFilterViewModel.suggestedTags(from: sessions)),
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search notes or filter by tag",
                 token: { token in
                     Text(token.name)
                 }
             ).onSubmit(of: .search) {
-                let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !trimmed.isEmpty else { return }
-
-                if !selectedTags.contains(where: { $0.name.caseInsensitiveCompare(trimmed) == .orderedSame }) {
-                    selectedTags.append(TagToken(name: trimmed))
-                } else {
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        highlightedTag = trimmed
-                    }
-                }
-                
-                UISelectionFeedbackGenerator().selectionChanged()
-
-                searchText = ""
+                timelineFilterViewModel.handleSearchSubmit()
             }
             .sheet(item: $selectedSession) { session in
                 EditSessionView(
@@ -89,9 +71,6 @@ struct PracticeTimelineView: View {
 }
 
 private extension PracticeTimelineView {
-    private var suggestedTags: [TagToken] {
-        allTags.map { TagToken(name: $0) }
-    }
     
     func handleSessionAction() {
         if sessionViewModel.isSessionActive {
@@ -110,16 +89,6 @@ private extension PracticeTimelineView {
         }
     }
     
-    private var allTags: [String] {
-        Array(
-            Set(sessions.flatMap { $0.tags.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } })
-        )
-        .sorted()
-    }
-
-    private var isSearching: Bool {
-        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !selectedTags.isEmpty
-    }
     
     var formattedElapsedTime: String {
         let minutes = Int(sessionViewModel.elapsedTime) / 60
@@ -142,7 +111,7 @@ private extension PracticeTimelineView {
     
     var timelineList: some View {
         List {
-            ForEach(timelineViewModel.groupedByDay(from: filteredSessions), id: \.date) { group in
+            ForEach(timelineViewModel.groupedByDay(from: timelineFilterViewModel.filteredSessions(from: sessions)), id: \.date) { group in
                 Section {
                     ForEach(group.sessions) { session in
                         SessionCard(session: session)
@@ -177,6 +146,8 @@ private extension PracticeTimelineView {
         }
     }
     
+    
+    // TODO - extract empty state
     private var emptyState: some View {
         VStack(spacing: 20) {
             Image(systemName: "music.note.list")
@@ -298,32 +269,6 @@ private extension PracticeTimelineView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
-    private var filteredSessions: [PracticeSession] {
-        return sessions.filter { session in
-            if !selectedTags.isEmpty {
-                let selected = Set(selectedTags.map { $0.name.lowercased() })
-                let sessionTags = session.tags.map { $0.lowercased() }
-
-                if !selected.isSubset(of: sessionTags) {
-                    return false
-                }
-
-            }
-            
-            if !searchText.isEmpty {
-                let text = searchText.lowercased()
-                let matches =
-                    session.notes.lowercased().contains(text) ||
-                    session.detailedNotes.lowercased().contains(text)
-
-                if !matches { return false }
-            }
-            
-            return true
-        }
-    }
-
 }
 
 struct TagToken: Identifiable, Hashable {
