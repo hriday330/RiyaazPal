@@ -42,6 +42,7 @@
 		C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */; };
 		C0E580482F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */; };
 		C0E5804A2F1AE85400571C5E /* EditSessionTagsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580492F1AE85400571C5E /* EditSessionTagsSection.swift */; };
+		C0E5804C2F1B00FF00571C5E /* EditSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804B2F1B00FF00571C5E /* EditSessionViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +83,7 @@
 		C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineFilteredEmptyState.swift; sourceTree = "<group>"; };
 		C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionDetailedNotesEditor.swift; sourceTree = "<group>"; };
 		C0E580492F1AE85400571C5E /* EditSessionTagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionTagsSection.swift; sourceTree = "<group>"; };
+		C0E5804B2F1B00FF00571C5E /* EditSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +192,7 @@
 				C0A430DE2F060DD300C2401C /* PracticeTimelineViewModel.swift */,
 				C066A2AF2F18893E005A5D44 /* InsightsViewModel.swift */,
 				C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */,
+				C0E5804B2F1B00FF00571C5E /* EditSessionViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -351,6 +354,7 @@
 				C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */,
 				C066A2942F0F4465005A5D44 /* TagCategory.swift in Sources */,
 				C066A2A82F159EDB005A5D44 /* Secrets.swift in Sources */,
+				C0E5804C2F1B00FF00571C5E /* EditSessionViewModel.swift in Sources */,
 				C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */,
 				C066A2A22F14F641005A5D44 /* DateTimePickerSheet.swift in Sources */,
 			);

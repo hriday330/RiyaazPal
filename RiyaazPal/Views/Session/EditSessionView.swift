@@ -13,24 +13,13 @@ struct EditSessionView: View {
     @Environment(\.dismiss) private var dismiss
 
     private let session: PracticeSession
-    @State private var draft: PracticeSessionDraft
-    @State private var newTag: String = ""
-    
-    @State private var showingDurationPicker = false
-    @State private var showingStartTimePicker = false
+    @StateObject private var editSessionViewModel: EditSessionViewModel
 
 
     init(session: PracticeSession) {
         self.session = session
-        _draft = State(
-            initialValue: PracticeSessionDraft(
-                id: session.id,
-                startTime: session.startTime,
-                duration: session.duration,
-                notes: session.notes,
-                tags: session.tags,
-                detailedNotes: session.detailedNotes
-            )
+        _editSessionViewModel = StateObject(
+            wrappedValue: EditSessionViewModel(session: session)
         )
     }
 
@@ -44,7 +33,7 @@ struct EditSessionView: View {
                         VStack(spacing: 8) {
                             TextField(
                                 "Practice Session",
-                                text: $draft.notes
+                                text: $editSessionViewModel.draft.notes
                             )
                             .font(.title2)
                             .fontWeight(.semibold)
@@ -66,9 +55,9 @@ struct EditSessionView: View {
                         .foregroundStyle(Color("SecondaryText"))
                         .padding(.horizontal)
                         .padding(.top, 8)
-                        EditSessionTagsSection(tags: $draft.tags, newTag: $newTag, onAddTag: addTag)
+                        EditSessionTagsSection(tags: $editSessionViewModel.draft.tags, newTag: $editSessionViewModel.newTag, onAddTag: editSessionViewModel.addTag)
                             .padding(.top, 16)
-                        EditSessionNotesEditor(notes: $draft.detailedNotes)
+                        EditSessionNotesEditor(notes: $editSessionViewModel.draft.detailedNotes)
                             .padding(.top, 20)
                             .padding(.bottom, 20)
                     }
@@ -85,22 +74,13 @@ struct EditSessionView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
     }
-
-    private func commit() {
-        session.notes = draft.notes
-        session.tags = draft.tags
-        session.detailedNotes = draft.detailedNotes
-        session.duration = draft.duration
-        session.startTime = draft.startTime
-        session.lastModified = .now
-    }
 }
 
 private extension EditSessionView {
     var saveAndCancelButtons: some View {
         VStack(spacing: 12) {
             Button {
-                commit()
+                editSessionViewModel.commit()
                 dismiss()
             } label: {
                 Text("Save Changes")
@@ -126,7 +106,7 @@ private extension EditSessionView {
     
     var startDateTimePicker: some View {
         Button {
-            showingStartTimePicker = true
+            editSessionViewModel.showingStartTimePicker = true
         } label: {
             HStack {
                 Text("Started")
@@ -152,9 +132,9 @@ private extension EditSessionView {
             )
         }
         .buttonStyle(.plain)
-        .sheet(isPresented: $showingStartTimePicker) {
+        .sheet(isPresented: $editSessionViewModel.showingStartTimePicker) {
             DateTimePickerSheet(
-                startTime: $draft.startTime
+                startTime: $editSessionViewModel.draft.startTime
             )
         }
 
@@ -164,12 +144,12 @@ private extension EditSessionView {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        return formatter.string(from: draft.startTime)
+        return formatter.string(from: editSessionViewModel.draft.startTime)
     }
 
     private var durationMinutes: Int {
-        get { Int(draft.duration / 60) }
-        set { draft.duration = TimeInterval(newValue * 60) }
+        get { Int(editSessionViewModel.draft.duration / 60) }
+        set { editSessionViewModel.draft.duration = TimeInterval(newValue * 60) }
     }
 
     private var formattedDuration: String {
@@ -187,7 +167,7 @@ private extension EditSessionView {
     
     var durationStepper: some View {
         Button {
-            showingDurationPicker = true
+            editSessionViewModel.showingDurationPicker = true
         } label: {
             HStack {
                 Text("Duration")
@@ -213,49 +193,14 @@ private extension EditSessionView {
             )
         }
         .buttonStyle(.plain)
-        .sheet(isPresented: $showingDurationPicker) {
+        .sheet(isPresented: $editSessionViewModel.showingDurationPicker) {
             DurationPickerSheet(
-                duration: $draft.duration
+                duration: $editSessionViewModel.draft.duration
             )
         }
 
 
     }
-
-    func addTag() {
-        let normalized = normalizeTag(newTag)
-        guard !normalized.isEmpty else { return }
-        let existing = draft.tags
-                .map(normalizeTag)
-                .contains(normalized)
-        guard !existing else {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            return
-        }
-        
-        let trimmed = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        draft.tags.append(trimmed)
-        newTag = ""
-    }
-    
-    func normalizeTag(_ tag: String) -> String {
-        tag
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-    }
-
-    
-   
-}
-
-struct PracticeSessionDraft {
-    let id: UUID
-    var startTime: Date
-    var duration: TimeInterval
-    var notes: String
-    var tags: [String]
-    var detailedNotes: String
 }
 
 #Preview("Edit Session – Light") {
