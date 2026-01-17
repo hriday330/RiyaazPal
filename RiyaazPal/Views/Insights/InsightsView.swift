@@ -49,6 +49,12 @@ struct InsightsView: View {
                         score: practiceScore
                     )
                     FocusCarousel(focusStats: focusStats)
+                        .background(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .fill(Color("CardBackground"))
+                        )
+                        .shadow(color: .black.opacity(0.08), radius: 10)
+
                     consistencySummary
                     notablePatterns
                     ReflectionInsightSection(
@@ -167,8 +173,8 @@ private extension View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(background)
-            )
+                    .fill(Color("CardBackground"))
+            ).shadow(color: .black.opacity(0.08), radius: 10)
     }
 }
 
