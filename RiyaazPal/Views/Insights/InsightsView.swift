@@ -41,7 +41,7 @@ struct InsightsView: View {
         ZStack {
             Color("AppBackground")
                 .ignoresSafeArea()
-
+            
             ScrollView {
                 VStack(spacing: 12) {
                     header
@@ -49,15 +49,28 @@ struct InsightsView: View {
                         score: practiceScore
                     )
                     FocusCarousel(focusStats: focusStats)
+                        .background(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .fill(Color("CardBackground"))
+                        )
+                        .shadow(color: .black.opacity(0.08), radius: 10)
+                    
                     consistencySummary
+                        .shadow(color: .black.opacity(0.08), radius: 10)
                     notablePatterns
                     ReflectionInsightSection(
                         insight: insightsViewModel.reflectionInsight,
                         isLoading: insightsViewModel.isLoadingInsight,
                         error: insightsViewModel.insightError
                     )
-
+                    
+                }.scrollTransition(.interactive) { content, phase in
+                    content
+                        .opacity(phase.isIdentity ? 1.0 : 0.94)
+                        .offset(y: phase.isIdentity ? 0 : 6)
+                    
                 }
+                
                 .padding()
             }.refreshable {
                 await insightsViewModel.fetchReflectionInsight(
@@ -128,7 +141,7 @@ private extension InsightsView {
                         icon: pattern.icon,
                         title: pattern.title,
                         description: pattern.description
-                    )
+                    ).shadow(color: .black.opacity(0.08), radius: 10)
                 }
             }
         }.insightCard()
@@ -167,7 +180,7 @@ private extension View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(background)
+                    .fill(Color("CardBackground"))
             )
     }
 }

@@ -36,7 +36,7 @@ struct FocusCarousel: View {
             .frame(height: 180)
 
             dotsIndicator
-        }
+        }.padding(10)
     }
 }
 

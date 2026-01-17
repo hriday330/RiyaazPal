@@ -47,8 +47,8 @@ private extension View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(background)
-            )
+                    .fill(Color("CardBackground"))
+            ).shadow(color: .black.opacity(0.08), radius: 10)
     }
 }
 
