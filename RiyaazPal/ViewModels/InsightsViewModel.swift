@@ -53,29 +53,37 @@ final class InsightsViewModel: ObservableObject {
         )
     }
     
+    private var insightTask: Task<Void, Never>?
     
     @MainActor
-    func fetchReflectionInsight(
-        sessions: [PracticeSession]
-    ) async {
-        guard !sessions.isEmpty else { return }
+    func fetchReflectionInsight(sessions: [PracticeSession]) async {
+        insightTask?.cancel()
         
-        isLoadingInsight = true
-        insightError = nil
-        
-        do {
-            let insight = try await ReflectionInsightService.generateInsight(
-                sessions: sessions,
-                window: currentWindow
-            )
-            
-            reflectionInsight = insight
-        } catch {
-            insightError = "Unable to analyze reflections. Please try again."
+        guard !sessions.isEmpty else {
             reflectionInsight = nil
+            return
         }
-        
-        isLoadingInsight = false
+        insightTask = Task {
+            isLoadingInsight = true
+            insightError = nil
+            
+            do {
+                let insight = try await ReflectionInsightService.generateInsight(
+                    sessions: sessions,
+                    window: currentWindow
+                )
+                try Task.checkCancellation()
+                
+                reflectionInsight = insight
+            } catch is CancellationError {
+                return
+            } catch {
+                insightError = "Unable to analyze reflections. Please try again."
+                reflectionInsight = nil
+            }
+            
+            isLoadingInsight = false
+        }
     }
     
     func insightsVersion(

@@ -14,7 +14,7 @@ struct InsightsView: View {
         private var sessions: [PracticeSession]
     
     
-    @State private var insightsViewModel = InsightsViewModel()
+    @StateObject private var insightsViewModel = InsightsViewModel()
     
     private var recentSessions: [PracticeSession] {
         insightsViewModel.recentSessions(from: sessions)
@@ -59,8 +59,13 @@ struct InsightsView: View {
 
                 }
                 .padding()
+            }.refreshable {
+                await insightsViewModel.fetchReflectionInsight(
+                    sessions: recentSessions
+                )
             }
         }.task(id: insightsVersion) {
+            print("Fetching insights")
             await insightsViewModel.fetchReflectionInsight(sessions: recentSessions)
         }
 
