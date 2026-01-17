@@ -40,6 +40,12 @@ struct PracticeTimelineView: View {
                     timelineList
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
+                        .scrollTransition(.interactive) { content, phase in
+                            content
+                                .opacity(phase.isIdentity ? 1.0 : 0.94)
+                                .offset(y: phase.isIdentity ? 0 : 6)
+
+                        }
                     sessionControl
                 }
                 
