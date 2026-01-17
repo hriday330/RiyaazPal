@@ -65,7 +65,6 @@ struct InsightsView: View {
                 )
             }
         }.task(id: insightsVersion) {
-            print("Fetching insights")
             await insightsViewModel.fetchReflectionInsight(sessions: recentSessions)
         }
 
