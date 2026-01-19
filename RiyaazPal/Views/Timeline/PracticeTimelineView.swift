@@ -25,6 +25,8 @@ struct PracticeTimelineView: View {
     
     @State private var selectedSession: PracticeSession?
 
+    @State private var selectedMonth: Date = Date()
+
     var body: some View {
             ZStack {
                 // App-wide background
@@ -37,7 +39,7 @@ struct PracticeTimelineView: View {
                 } else if timelineFilterViewModel.isSearching && timelineFilterViewModel.filteredSessions(from: sessions).isEmpty {
                     PracticeTimelineFilteredEmptyState()
                 } else {
-                    timelineList
+                    timelineWithMonthStepper
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
                         .scrollTransition(.interactive) { content, phase in
@@ -147,6 +149,7 @@ private extension PracticeTimelineView {
                         .font(.headline)
                         .foregroundStyle(.secondary)
                 }
+                .id(Calendar.current.startOfDay(for: group.date))
             }
         }
     }
@@ -213,11 +216,61 @@ private extension PracticeTimelineView {
     }
 }
 
-struct TagToken: Identifiable, Hashable {
-    var id: String { name }
-    let name: String
-}
 
+private extension PracticeTimelineView {
+    var timelineWithMonthStepper: some View {
+        ScrollViewReader { proxy in
+            VStack(spacing: 0) {
+                MonthStepper(
+                    month: selectedMonth,
+                    onPrevious: {
+                        shiftMonth(by: -1, proxy: proxy)
+                    },
+                    onNext: {
+                        shiftMonth(by: 1, proxy: proxy)
+                    },
+                    sessions: sessions
+                )
+
+                timelineList
+            }
+        }
+    }
+
+    func shiftMonth(by delta: Int, proxy: ScrollViewProxy) {
+        guard
+            let newMonth = Calendar.current.date(
+                byAdding: .month,
+                value: delta,
+                to: selectedMonth
+            )
+        else { return }
+
+        selectedMonth = newMonth
+
+        scrollToMonth(newMonth, proxy: proxy)
+    }
+
+    func scrollToMonth(_ month: Date, proxy: ScrollViewProxy) {
+        let calendar = Calendar.current
+
+        guard let targetDate = timelineViewModel
+            .groupedByDay(from: sessions)
+            .map(\.date)
+            .first(where: {
+                calendar.isDate($0, equalTo: month, toGranularity: .month)
+            })
+        else { return }
+
+        let scrollID = calendar.startOfDay(for: targetDate)
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
+            proxy.scrollTo(scrollID, anchor: .topLeading)
+        }
+    }
+
+
+}
 #Preview("Practice Timeline – Light") {
     let container = PreviewModelContainer.make()
     let context = container.mainContext
@@ -286,6 +339,62 @@ struct TagToken: Identifiable, Hashable {
             tags: ["Raga Bhairav"]
         )
     )
+    
+    // TODO - remove after testing scroll 
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-860_400),
+            duration: 45 * 60,
+            notes: "Alap practice – slow tempo1",
+            tags: ["Raga Yaman", "Alap"]
+        )
+    )
+
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-1_860_400),
+            duration: 30 * 60,
+            notes: "Meend exercises1",
+            tags: ["Technique"]
+        )
+    )
+
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-1_986_400),
+            duration: 60 * 60,
+            notes: "Full riyaaz session with tanpura1",
+            tags: ["Raga Bhairav"]
+        )
+    )
+    
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-2_860_400),
+            duration: 45 * 60,
+            notes: "Alap practice – slow tempo1",
+            tags: ["Raga Yaman", "Alap"]
+        )
+    )
+
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-3_860_400),
+            duration: 30 * 60,
+            notes: "Meend exercises1",
+            tags: ["Technique"]
+        )
+    )
+
+    context.insert(
+        PracticeSession(
+            startTime: Date().addingTimeInterval(-4_986_400),
+            duration: 60 * 60,
+            notes: "Full riyaaz session with tanpura1",
+            tags: ["Raga Bhairav"]
+        )
+    )
+    
 
     return NavigationStack {
         PracticeTimelineView()

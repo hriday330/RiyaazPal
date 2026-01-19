@@ -73,3 +73,8 @@ final class TimelineFilterViewModel: ObservableObject {
         searchText = ""
     }
 }
+
+struct TagToken: Identifiable, Hashable {
+    var id: String { name }
+    let name: String
+}

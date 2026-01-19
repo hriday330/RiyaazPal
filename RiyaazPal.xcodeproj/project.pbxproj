@@ -43,6 +43,7 @@
 		C0E580482F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */; };
 		C0E5804A2F1AE85400571C5E /* EditSessionTagsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580492F1AE85400571C5E /* EditSessionTagsSection.swift */; };
 		C0E5804C2F1B00FF00571C5E /* EditSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804B2F1B00FF00571C5E /* EditSessionViewModel.swift */; };
+		C0E5804E2F1DCF8B00571C5E /* MonthStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804D2F1DCF8B00571C5E /* MonthStepper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,6 +85,7 @@
 		C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionDetailedNotesEditor.swift; sourceTree = "<group>"; };
 		C0E580492F1AE85400571C5E /* EditSessionTagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionTagsSection.swift; sourceTree = "<group>"; };
 		C0E5804B2F1B00FF00571C5E /* EditSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionViewModel.swift; sourceTree = "<group>"; };
+		C0E5804D2F1DCF8B00571C5E /* MonthStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthStepper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,6 +242,7 @@
 				C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */,
 				C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */,
 				C0E580492F1AE85400571C5E /* EditSessionTagsSection.swift */,
+				C0E5804D2F1DCF8B00571C5E /* MonthStepper.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -339,6 +342,7 @@
 				C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */,
 				C066A2962F0FAE24005A5D44 /* FocusCarousel.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
+				C0E5804E2F1DCF8B00571C5E /* MonthStepper.swift in Sources */,
 				C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */,
 				C066A29A2F1087AA005A5D44 /* PracticePatterns.swift in Sources */,
 				C066A2A02F14F2F6005A5D44 /* DurationPickerSheet.swift in Sources */,
