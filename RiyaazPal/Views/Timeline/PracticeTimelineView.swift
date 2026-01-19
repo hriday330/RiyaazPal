@@ -34,7 +34,7 @@ struct PracticeTimelineView: View {
                     .ignoresSafeArea()
                 if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     PracticeTimelineEmptyState(isSessionActive: sessionViewModel.isSessionActive, onStartSession: handleSessionAction) {
-                        activeSessionBar
+                        ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
                     }
                 } else if timelineFilterViewModel.isSearching && timelineFilterViewModel.filteredSessions(from: sessions).isEmpty {
                     PracticeTimelineFilteredEmptyState()
@@ -97,17 +97,10 @@ private extension PracticeTimelineView {
     }
     
     
-    var formattedElapsedTime: String {
-        let minutes = Int(sessionViewModel.elapsedTime) / 60
-        let seconds = Int(sessionViewModel.elapsedTime) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
-
-    
     var sessionControl: some View {
         Group {
             if sessionViewModel.isSessionActive {
-                activeSessionBar
+                ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
             } else {
                 SessionActionButton(isActive: sessionViewModel.isSessionActive, action: handleSessionAction)
             }
@@ -152,40 +145,6 @@ private extension PracticeTimelineView {
                 .id(Calendar.current.startOfDay(for: group.date))
             }
         }
-    }
-    
-    var activeSessionBar: some View {
-        VStack {
-            Spacer()
-
-            Button {
-                handleSessionAction()
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "stop.fill")
-                        .foregroundStyle(Color("AccentColor"))
-
-                    Text(formattedElapsedTime)
-                        .font(.headline)
-                        .foregroundStyle(Color("PrimaryText"))
-
-                    Spacer()
-
-                    Text("Recording")
-                        .font(.subheadline)
-                        .foregroundStyle(Color("SecondaryText"))
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color("ActiveCardBackground"))
-                )
-                .shadow(radius: 6)
-                .padding(.horizontal)
-                .padding(.bottom, 12)
-                .ignoresSafeArea()
-            }
-        }.transition(.move(edge: .bottom).combined(with: .opacity))
     }
 }
 
