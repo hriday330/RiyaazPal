@@ -272,61 +272,6 @@ private extension PracticeTimelineView {
         )
     )
     
-    // TODO - remove after testing scroll
-    context.insert(
-        PracticeSession(
-            startTime: Date().addingTimeInterval(-860_400),
-            duration: 45 * 60,
-            notes: "Alap practice – slow tempo1",
-            tags: ["Raga Yaman", "Alap"]
-        )
-    )
-
-    context.insert(
-        PracticeSession(
-            startTime: Date().addingTimeInterval(-1_860_400),
-            duration: 30 * 60,
-            notes: "Meend exercises1",
-            tags: ["Technique"]
-        )
-    )
-
-    context.insert(
-        PracticeSession(
-            startTime: Date().addingTimeInterval(-1_986_400),
-            duration: 60 * 60,
-            notes: "Full riyaaz session with tanpura1",
-            tags: ["Raga Bhairav"]
-        )
-    )
-    
-    context.insert(
-        PracticeSession(
-            startTime: Date().addingTimeInterval(-2_860_400),
-            duration: 45 * 60,
-            notes: "Alap practice – slow tempo1",
-            tags: ["Raga Yaman", "Alap"]
-        )
-    )
-
-    context.insert(
-        PracticeSession(
-            startTime: Date().addingTimeInterval(-3_860_400),
-            duration: 30 * 60,
-            notes: "Meend exercises1",
-            tags: ["Technique"]
-        )
-    )
-
-    context.insert(
-        PracticeSession(
-            startTime: Date().addingTimeInterval(-4_986_400),
-            duration: 60 * 60,
-            notes: "Full riyaaz session with tanpura1",
-            tags: ["Raga Bhairav"]
-        )
-    )
-    
 
     return NavigationStack {
         PracticeTimelineView()
