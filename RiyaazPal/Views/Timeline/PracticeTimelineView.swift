@@ -109,7 +109,7 @@ private extension PracticeTimelineView {
             if sessionViewModel.isSessionActive {
                 activeSessionBar
             } else {
-                floatingSessionButton
+                SessionActionButton(isActive: sessionViewModel.isSessionActive, action: handleSessionAction)
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.85),
@@ -150,33 +150,6 @@ private extension PracticeTimelineView {
                         .foregroundStyle(.secondary)
                 }
                 .id(Calendar.current.startOfDay(for: group.date))
-            }
-        }
-    }
-    
-    var floatingSessionButton: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    handleSessionAction()
-                } label : {
-                    Label(
-                        sessionViewModel.isSessionActive ? "End Session" : "Start Session",
-                        systemImage: sessionViewModel.isSessionActive ? "stop.fill" : "play.fill"
-                    )
-                    .font(.headline)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 14)
-                    
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color("AccentColor"))
-                .clipShape(Capsule())
-                .shadow(radius: 8)
-                .padding()
-                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: sessionViewModel.isSessionActive)
             }
         }
     }
@@ -340,7 +313,7 @@ private extension PracticeTimelineView {
         )
     )
     
-    // TODO - remove after testing scroll 
+    // TODO - remove after testing scroll
     context.insert(
         PracticeSession(
             startTime: Date().addingTimeInterval(-860_400),
