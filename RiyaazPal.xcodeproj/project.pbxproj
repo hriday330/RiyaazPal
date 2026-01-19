@@ -43,6 +43,9 @@
 		C0E580482F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */; };
 		C0E5804A2F1AE85400571C5E /* EditSessionTagsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580492F1AE85400571C5E /* EditSessionTagsSection.swift */; };
 		C0E5804C2F1B00FF00571C5E /* EditSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804B2F1B00FF00571C5E /* EditSessionViewModel.swift */; };
+		C0E5804E2F1DCF8B00571C5E /* MonthStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804D2F1DCF8B00571C5E /* MonthStepper.swift */; };
+		C0E580502F1DD1EB00571C5E /* SessionActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804F2F1DD1EB00571C5E /* SessionActionButton.swift */; };
+		C0E580522F1DD36300571C5E /* ActiveSessionBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580512F1DD36300571C5E /* ActiveSessionBar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,6 +87,9 @@
 		C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionDetailedNotesEditor.swift; sourceTree = "<group>"; };
 		C0E580492F1AE85400571C5E /* EditSessionTagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionTagsSection.swift; sourceTree = "<group>"; };
 		C0E5804B2F1B00FF00571C5E /* EditSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditSessionViewModel.swift; sourceTree = "<group>"; };
+		C0E5804D2F1DCF8B00571C5E /* MonthStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthStepper.swift; sourceTree = "<group>"; };
+		C0E5804F2F1DD1EB00571C5E /* SessionActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionActionButton.swift; sourceTree = "<group>"; };
+		C0E580512F1DD36300571C5E /* ActiveSessionBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSessionBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,6 +246,9 @@
 				C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */,
 				C0E580472F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift */,
 				C0E580492F1AE85400571C5E /* EditSessionTagsSection.swift */,
+				C0E5804D2F1DCF8B00571C5E /* MonthStepper.swift */,
+				C0E5804F2F1DD1EB00571C5E /* SessionActionButton.swift */,
+				C0E580512F1DD36300571C5E /* ActiveSessionBar.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -339,6 +348,7 @@
 				C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */,
 				C066A2962F0FAE24005A5D44 /* FocusCarousel.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
+				C0E5804E2F1DCF8B00571C5E /* MonthStepper.swift in Sources */,
 				C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */,
 				C066A29A2F1087AA005A5D44 /* PracticePatterns.swift in Sources */,
 				C066A2A02F14F2F6005A5D44 /* DurationPickerSheet.swift in Sources */,
@@ -348,6 +358,7 @@
 				C066A2902F0F3A68005A5D44 /* FocusBreakdownCard.swift in Sources */,
 				C0A430E32F083A2700C2401C /* EditSessionView.swift in Sources */,
 				C0E580422F19EDD400571C5E /* TimelineFilterViewModel.swift in Sources */,
+				C0E580522F1DD36300571C5E /* ActiveSessionBar.swift in Sources */,
 				C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */,
 				C066A29C2F118912005A5D44 /* PracticeScoreCalculator.swift in Sources */,
 				C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */,
@@ -356,6 +367,7 @@
 				C066A2A82F159EDB005A5D44 /* Secrets.swift in Sources */,
 				C0E5804C2F1B00FF00571C5E /* EditSessionViewModel.swift in Sources */,
 				C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */,
+				C0E580502F1DD1EB00571C5E /* SessionActionButton.swift in Sources */,
 				C066A2A22F14F641005A5D44 /* DateTimePickerSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -25,6 +25,8 @@ struct PracticeTimelineView: View {
     
     @State private var selectedSession: PracticeSession?
 
+    @State private var selectedMonth: Date = Date()
+
     var body: some View {
             ZStack {
                 // App-wide background
@@ -32,12 +34,12 @@ struct PracticeTimelineView: View {
                     .ignoresSafeArea()
                 if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     PracticeTimelineEmptyState(isSessionActive: sessionViewModel.isSessionActive, onStartSession: handleSessionAction) {
-                        activeSessionBar
+                        ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
                     }
                 } else if timelineFilterViewModel.isSearching && timelineFilterViewModel.filteredSessions(from: sessions).isEmpty {
                     PracticeTimelineFilteredEmptyState()
                 } else {
-                    timelineList
+                    timelineWithMonthStepper
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
                         .scrollTransition(.interactive) { content, phase in
@@ -95,19 +97,12 @@ private extension PracticeTimelineView {
     }
     
     
-    var formattedElapsedTime: String {
-        let minutes = Int(sessionViewModel.elapsedTime) / 60
-        let seconds = Int(sessionViewModel.elapsedTime) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
-
-    
     var sessionControl: some View {
         Group {
             if sessionViewModel.isSessionActive {
-                activeSessionBar
+                ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
             } else {
-                floatingSessionButton
+                SessionActionButton(isActive: sessionViewModel.isSessionActive, action: handleSessionAction)
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.85),
@@ -147,77 +142,67 @@ private extension PracticeTimelineView {
                         .font(.headline)
                         .foregroundStyle(.secondary)
                 }
+                .id(Calendar.current.startOfDay(for: group.date))
             }
         }
     }
-    
-    var floatingSessionButton: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    handleSessionAction()
-                } label : {
-                    Label(
-                        sessionViewModel.isSessionActive ? "End Session" : "Start Session",
-                        systemImage: sessionViewModel.isSessionActive ? "stop.fill" : "play.fill"
-                    )
-                    .font(.headline)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 14)
-                    
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color("AccentColor"))
-                .clipShape(Capsule())
-                .shadow(radius: 8)
-                .padding()
-                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: sessionViewModel.isSessionActive)
-            }
-        }
-    }
-    
-    var activeSessionBar: some View {
-        VStack {
-            Spacer()
+}
 
-            Button {
-                handleSessionAction()
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "stop.fill")
-                        .foregroundStyle(Color("AccentColor"))
 
-                    Text(formattedElapsedTime)
-                        .font(.headline)
-                        .foregroundStyle(Color("PrimaryText"))
-
-                    Spacer()
-
-                    Text("Recording")
-                        .font(.subheadline)
-                        .foregroundStyle(Color("SecondaryText"))
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color("ActiveCardBackground"))
+private extension PracticeTimelineView {
+    var timelineWithMonthStepper: some View {
+        ScrollViewReader { proxy in
+            VStack(spacing: 0) {
+                MonthStepper(
+                    month: selectedMonth,
+                    onPrevious: {
+                        shiftMonth(by: -1, proxy: proxy)
+                    },
+                    onNext: {
+                        shiftMonth(by: 1, proxy: proxy)
+                    },
+                    sessions: sessions
                 )
-                .shadow(radius: 6)
-                .padding(.horizontal)
-                .padding(.bottom, 12)
-                .ignoresSafeArea()
+
+                timelineList
             }
-        }.transition(.move(edge: .bottom).combined(with: .opacity))
+        }
     }
-}
 
-struct TagToken: Identifiable, Hashable {
-    var id: String { name }
-    let name: String
-}
+    func shiftMonth(by delta: Int, proxy: ScrollViewProxy) {
+        guard
+            let newMonth = Calendar.current.date(
+                byAdding: .month,
+                value: delta,
+                to: selectedMonth
+            )
+        else { return }
 
+        selectedMonth = newMonth
+
+        scrollToMonth(newMonth, proxy: proxy)
+    }
+
+    func scrollToMonth(_ month: Date, proxy: ScrollViewProxy) {
+        let calendar = Calendar.current
+
+        guard let targetDate = timelineViewModel
+            .groupedByDay(from: sessions)
+            .map(\.date)
+            .first(where: {
+                calendar.isDate($0, equalTo: month, toGranularity: .month)
+            })
+        else { return }
+
+        let scrollID = calendar.startOfDay(for: targetDate)
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
+            proxy.scrollTo(scrollID, anchor: .topLeading)
+        }
+    }
+
+
+}
 #Preview("Practice Timeline – Light") {
     let container = PreviewModelContainer.make()
     let context = container.mainContext
@@ -286,6 +271,7 @@ struct TagToken: Identifiable, Hashable {
             tags: ["Raga Bhairav"]
         )
     )
+    
 
     return NavigationStack {
         PracticeTimelineView()
