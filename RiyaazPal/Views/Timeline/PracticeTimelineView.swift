@@ -49,6 +49,17 @@ struct PracticeTimelineView: View {
                 
             }
             .navigationTitle("RiyaazPal")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        // NOOP for now
+                    } label: {
+                        Image(systemName: "person.crop.circle")
+                            .imageScale(.large)
+                    }
+                    .accessibilityLabel("Profile")
+                }
+            }
             .searchable(
                 text: $timelineFilterViewModel.searchText,
                 tokens: $timelineFilterViewModel.selectedTags,
