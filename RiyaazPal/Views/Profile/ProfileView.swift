@@ -22,7 +22,6 @@ struct ProfileView: View {
     var body: some View {
         ZStack {
             Color("AppBackground")
-                .ignoresSafeArea()
 
             List {
                 ForEach(categories) { category in
