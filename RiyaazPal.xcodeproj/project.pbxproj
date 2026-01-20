@@ -37,6 +37,7 @@
 		C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430E92F08A9CC00C2401C /* FlowLayout.swift */; };
 		C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */; };
 		C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EE2F098F9000C2401C /* PreviewData.swift */; };
+		C0E130B12F1F825600C005F5 /* CategoryItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */; };
 		C0E580422F19EDD400571C5E /* TimelineFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */; };
 		C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */; };
 		C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */; };
@@ -47,6 +48,8 @@
 		C0E580502F1DD1EB00571C5E /* SessionActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804F2F1DD1EB00571C5E /* SessionActionButton.swift */; };
 		C0E580522F1DD36300571C5E /* ActiveSessionBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580512F1DD36300571C5E /* ActiveSessionBar.swift */; };
 		C0E580542F1EB45700571C5E /* TagCategoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580532F1EB45700571C5E /* TagCategoryModel.swift */; };
+		C0F593742F1F6560009F6A0D /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F593732F1F6560009F6A0D /* ProfileView.swift */; };
+		C0F593772F1F6593009F6A0D /* CategoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F593762F1F6593009F6A0D /* CategoryDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +85,7 @@
 		C0A430E92F08A9CC00C2401C /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModelContainer.swift; sourceTree = "<group>"; };
 		C0A430EE2F098F9000C2401C /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryItemRow.swift; sourceTree = "<group>"; };
 		C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineFilterViewModel.swift; sourceTree = "<group>"; };
 		C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineEmptyState.swift; sourceTree = "<group>"; };
 		C0E580452F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineFilteredEmptyState.swift; sourceTree = "<group>"; };
@@ -92,6 +96,8 @@
 		C0E5804F2F1DD1EB00571C5E /* SessionActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionActionButton.swift; sourceTree = "<group>"; };
 		C0E580512F1DD36300571C5E /* ActiveSessionBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSessionBar.swift; sourceTree = "<group>"; };
 		C0E580532F1EB45700571C5E /* TagCategoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCategoryModel.swift; sourceTree = "<group>"; };
+		C0F593732F1F6560009F6A0D /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		C0F593762F1F6593009F6A0D /* CategoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,6 +215,8 @@
 		C0A430CD2F05991100C2401C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C0F593752F1F6580009F6A0D /* CategoryDetail */,
+				C0F593722F1F6553009F6A0D /* Profile */,
 				C000668E2F0EF85900BC930C /* Insights */,
 				C0A430EB2F098F4400C2401C /* Preview */,
 				C0A430E42F0841F000C2401C /* Components */,
@@ -263,6 +271,23 @@
 				C0A430EE2F098F9000C2401C /* PreviewData.swift */,
 			);
 			path = Preview;
+			sourceTree = "<group>";
+		};
+		C0F593722F1F6553009F6A0D /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				C0F593732F1F6560009F6A0D /* ProfileView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		C0F593752F1F6580009F6A0D /* CategoryDetail */ = {
+			isa = PBXGroup;
+			children = (
+				C0F593762F1F6593009F6A0D /* CategoryDetailView.swift */,
+				C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */,
+			);
+			path = CategoryDetail;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -336,6 +361,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C0E580542F1EB45700571C5E /* TagCategoryModel.swift in Sources */,
+				C0F593742F1F6560009F6A0D /* ProfileView.swift in Sources */,
 				C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */,
 				C0E5804A2F1AE85400571C5E /* EditSessionTagsSection.swift in Sources */,
 				C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */,
@@ -349,6 +375,7 @@
 				C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */,
 				C066A2982F104854005A5D44 /* ConsistencyStats.swift in Sources */,
 				C066A2B02F18893E005A5D44 /* InsightsViewModel.swift in Sources */,
+				C0F593772F1F6593009F6A0D /* CategoryDetailView.swift in Sources */,
 				C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */,
 				C066A2962F0FAE24005A5D44 /* FocusCarousel.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
@@ -364,6 +391,7 @@
 				C0E580422F19EDD400571C5E /* TimelineFilterViewModel.swift in Sources */,
 				C0E580522F1DD36300571C5E /* ActiveSessionBar.swift in Sources */,
 				C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */,
+				C0E130B12F1F825600C005F5 /* CategoryItemRow.swift in Sources */,
 				C066A29C2F118912005A5D44 /* PracticeScoreCalculator.swift in Sources */,
 				C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */,
 				C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */,
