@@ -102,6 +102,7 @@ private extension CategoryDetailView {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
     
+    // TODO - fix bug wtih sticky rename
     func commitRename(from old: String, to new: String) {
         guard
             let index = category.tags.firstIndex(of: old),
@@ -114,7 +115,6 @@ private extension CategoryDetailView {
 
         category.tags[index] = new
         try? context.save()
-
         editingTag = nil
         focusedTag = nil
     }
