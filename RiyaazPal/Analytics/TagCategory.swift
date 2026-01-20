@@ -6,42 +6,97 @@
 //
 
 import Foundation
+import SwiftData
 
-enum TagCategory {
-    case raga
-    case section
-    case technique
-    case tempo
-    case other
+// NEW TAG CATEGORY
+
+struct TagCategory: Identifiable, Hashable {
+    let id: UUID
+    let name: String
+    let isFocusRelevant: Bool
 }
 
-struct TagRegistry {
 
-    private static let ragas: Set<String> = [
-        "yaman", "puriya", "bhairav", "todi", "bhimpalasi", "puriya dhanashri", "bilaskhani todi", "ahir bhairav", "darbari kanada", "multani"
-    ]
+enum DefaultTagCategories {
 
-    private static let sections: Set<String> = [
-        "alap", "jor", "jhala", "gat",
+    static let all: [TagCategoryModel] = [
+        .init(
+            name: "Raga",
+            tags: [
+                "yaman", "puriya", "bhairav", "todi",
+                "bhimpalasi", "puriya dhanashri",
+                "bilaskhani todi", "ahir bhairav",
+                "darbari kanada", "multani"
+            ],
+            isSystemDefault: true,
+            order: 0,
+            isFocusRelevant: false
+        ),
+        .init(
+            name: "Section",
+            tags: ["alap", "jor", "jhala", "gat"],
+            isSystemDefault: true,
+            order: 1,
+            isFocusRelevant: true
+        ),
+        .init(
+            name: "Technique",
+            tags: ["meend", "gamak", "kan", "krintan"],
+            isSystemDefault: true,
+            order: 2,
+            isFocusRelevant: true
+        ),
+        .init(
+            name: "Tempo",
+            tags: ["vilambit", "madhya", "drut"],
+            isSystemDefault: true,
+            order: 3,
+            isFocusRelevant: false
+        ),
+        .init(
+            name: "Taal",
+            tags: ["teentaal", "jhaptaal", "ektaal", "rupak"],
+            isSystemDefault: true,
+            order: 4,
+            isFocusRelevant: false
+        )
     ]
+}
 
-    private static let techniques: Set<String> = [
-        "meend", "gamak", "kan", "krintan", 
-    ]
+func seedDefaultTagCategoriesIfNeeded(context: ModelContext) throws {
+    let descriptor = FetchDescriptor<TagCategoryModel>()
+    let existing = try context.fetch(descriptor)
 
-    private static let tempos: Set<String> = [
-        "vilambit", "madhya", "drut"
-    ]
-    
-    private static let taal: Set<String> = [
-        "teentaal", "jhaptaal", "ektaal", "rupak"
-    ]
+    guard existing.isEmpty else { return }
 
-    static func category(for tag: String) -> TagCategory {
-        if sections.contains(tag) { return .section }
-        if techniques.contains(tag) { return .technique }
-        if tempos.contains(tag) { return .tempo }
-        if ragas.contains(tag) { return .raga }
-        return .other
+    for category in DefaultTagCategories.all {
+        context.insert(category)
+    }
+
+    try context.save()
+}
+
+final class TagCategorizer {
+
+    private let categories: [TagCategoryModel]
+
+    init(categories: [TagCategoryModel]) {
+        self.categories = categories
+    }
+
+    func category(for tag: String) -> TagCategory {
+        let normalized = tag.lowercased()
+
+        if let match = categories.first(where: {
+            $0.tags.contains(normalized)
+        }) {
+            return TagCategory(id: match.id, name: match.name, isFocusRelevant: match.isFocusRelevant)
+        }
+
+        return TagCategory(
+            id: UUID(),
+            name: "Other",
+            isFocusRelevant: false
+        )
     }
 }

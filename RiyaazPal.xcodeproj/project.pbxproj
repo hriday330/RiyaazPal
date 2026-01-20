@@ -46,6 +46,7 @@
 		C0E5804E2F1DCF8B00571C5E /* MonthStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804D2F1DCF8B00571C5E /* MonthStepper.swift */; };
 		C0E580502F1DD1EB00571C5E /* SessionActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804F2F1DD1EB00571C5E /* SessionActionButton.swift */; };
 		C0E580522F1DD36300571C5E /* ActiveSessionBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580512F1DD36300571C5E /* ActiveSessionBar.swift */; };
+		C0E580542F1EB45700571C5E /* TagCategoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580532F1EB45700571C5E /* TagCategoryModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,6 +91,7 @@
 		C0E5804D2F1DCF8B00571C5E /* MonthStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthStepper.swift; sourceTree = "<group>"; };
 		C0E5804F2F1DD1EB00571C5E /* SessionActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionActionButton.swift; sourceTree = "<group>"; };
 		C0E580512F1DD36300571C5E /* ActiveSessionBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSessionBar.swift; sourceTree = "<group>"; };
+		C0E580532F1EB45700571C5E /* TagCategoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCategoryModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +189,7 @@
 			isa = PBXGroup;
 			children = (
 				C0A430CE2F05993400C2401C /* PracticeSession.swift */,
+				C0E580532F1EB45700571C5E /* TagCategoryModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -332,6 +335,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0E580542F1EB45700571C5E /* TagCategoryModel.swift in Sources */,
 				C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */,
 				C0E5804A2F1AE85400571C5E /* EditSessionTagsSection.swift in Sources */,
 				C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */,

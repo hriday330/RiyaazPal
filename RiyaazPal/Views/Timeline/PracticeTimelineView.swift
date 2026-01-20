@@ -8,12 +8,11 @@
 import SwiftUI
 import SwiftData
 
-// TODO - extract subviews
 struct PracticeTimelineView: View {
     
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
-    
+
     @StateObject private var timelineViewModel = PracticeTimelineViewModel()
     
     @Environment(\.modelContext)
@@ -31,7 +30,6 @@ struct PracticeTimelineView: View {
             ZStack {
                 // App-wide background
                 Color("AppBackground")
-                    .ignoresSafeArea()
                 if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     PracticeTimelineEmptyState(isSessionActive: sessionViewModel.isSessionActive, onStartSession: handleSessionAction) {
                         ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
@@ -45,8 +43,6 @@ struct PracticeTimelineView: View {
                         .scrollTransition(.interactive) { content, phase in
                             content
                                 .opacity(phase.isIdentity ? 1.0 : 0.94)
-                                .offset(y: phase.isIdentity ? 0 : 6)
-
                         }
                     sessionControl
                 }

@@ -8,29 +8,37 @@
 import Foundation
 import SwiftUI
 
+let section = TagCategory(
+    id: UUID(),
+    name: "Section",
+    isFocusRelevant: true
+)
+
+let technique = TagCategory(
+    id: UUID(),
+    name: "Technique",
+    isFocusRelevant: true
+)
+
 struct FocusCarousel: View {
 
     let focusStats: FocusStats
-
+    let categories: [TagCategory]
     @State private var selectedIndex: Int = 0
 
     var body: some View {
         VStack(spacing: 4) {
 
             TabView(selection: $selectedIndex) {
-                FocusBreakdownCard(
-                    focusStats: focusStats,
-                    category: TagCategory.section
-                )
-                .frame(width: 320)
-                .tag(0)
-
-                FocusBreakdownCard(
-                    focusStats: focusStats,
-                    category: TagCategory.technique
-                )
-                .frame(width: 320)
-                .tag(1)
+                ForEach(Array(categories.enumerated()), id: \.element.id) 
+                    { index, category in
+                        FocusBreakdownCard(
+                            focusStats: focusStats,
+                            category: category
+                        )
+                        .frame(width: 320)
+                        .tag(index)
+                    }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 180)
@@ -41,10 +49,9 @@ struct FocusCarousel: View {
 }
 
 private extension FocusCarousel {
-
     var dotsIndicator: some View {
         HStack(spacing: 6) {
-            ForEach(0..<2, id: \.self) { index in
+            ForEach(0..<categories.count, id: \.self) { index in
                 Circle()
                     .fill(
                         index == selectedIndex
@@ -62,12 +69,12 @@ private extension FocusCarousel {
 #Preview("Focus Carousel – Light") {
     let focusStats = FocusStats(
         histogramsByCategory: [
-            TagCategory.section: [
+            section: [
                 "alap": 4,
                 "taan": 2,
                 "jor": 1,
             ],
-            TagCategory.technique: [
+            technique: [
                 "meend": 3,
                 "kan": 2,
                 "gamak": 1
@@ -75,7 +82,7 @@ private extension FocusCarousel {
         ]
     )
 
-    return FocusCarousel(focusStats: focusStats)
+    return FocusCarousel(focusStats: focusStats, categories: [section, technique])
         .background(Color("AppBackground"))
         .preferredColorScheme(.light)
 }
@@ -83,18 +90,18 @@ private extension FocusCarousel {
 #Preview("Focus Carousel – Dark") {
     let focusStats = FocusStats(
         histogramsByCategory: [
-            TagCategory.section: [
+            section: [
                 "alap": 5,
                 "taan": 3
             ],
-            TagCategory.technique: [
+            technique: [
                 "meend": 4,
                 "kan": 1
             ]
         ]
     )
 
-    return FocusCarousel(focusStats: focusStats)
+    return FocusCarousel(focusStats: focusStats, categories: [section, technique])
         .padding()
         .background(Color("AppBackground"))
         .preferredColorScheme(.dark)

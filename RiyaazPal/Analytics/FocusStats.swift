@@ -11,10 +11,19 @@ struct FocusStats {
     let histogramsByCategory: [TagCategory: [String: Int]]
 }
 
+extension FocusStats {
+    func histogram(forCategoryNamed name: String) -> [String: Int]? {
+        histogramsByCategory.first {
+            $0.key.name.lowercased() == name.lowercased()
+        }?.value
+    }
+}
+
 enum FocusStatsCalculator {
 
     static func compute(
-            sessions: [PracticeSession]
+            sessions: [PracticeSession],
+            categorizer: TagCategorizer
         ) -> FocusStats {
 
             var histograms: [TagCategory: [String: Int]] = [:]
@@ -25,7 +34,7 @@ enum FocusStatsCalculator {
                 )
 
                 for tag in uniqueTags {
-                    let category = TagRegistry.category(for: tag)
+                    let category = categorizer.category(for: tag)
 
                     guard isFocusRelevant(category) else { continue }
 
@@ -38,7 +47,7 @@ enum FocusStatsCalculator {
             )
         }
 }
-
+ 
 private extension FocusStatsCalculator {
     static func normalize(_ tag: String) -> String {
         tag
@@ -50,11 +59,6 @@ private extension FocusStatsCalculator {
 private extension FocusStatsCalculator {
 
     static func isFocusRelevant(_ category: TagCategory) -> Bool {
-        switch category {
-        case .section, .technique:
-            return true
-        default:
-            return false
-        }
+        return category.isFocusRelevant
     }
 }

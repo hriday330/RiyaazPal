@@ -20,8 +20,8 @@ final class InsightsViewModel: ObservableObject {
         InsightWindowHelper.sessionsInWindow(sessions)
     }
     
-    func focusStats(from sessions: [PracticeSession]) -> FocusStats {
-        FocusStatsCalculator.compute(sessions: sessions)
+    func focusStats(from sessions: [PracticeSession], categorizer: TagCategorizer) -> FocusStats {
+        FocusStatsCalculator.compute(sessions: sessions, categorizer: categorizer)
     }
     
     func consistencyStats(
@@ -35,11 +35,13 @@ final class InsightsViewModel: ObservableObject {
     
     func patterns(
         from sessions: [PracticeSession],
-        focusStats: FocusStats
+        focusStats: FocusStats,
+        categorizer: TagCategorizer
     ) -> [PracticePattern] {
         PracticePatternCalculator.compute(
             sessions: sessions,
-            focusStats: focusStats
+            focusStats: focusStats,
+            categorizer: categorizer
         )
     }
     
