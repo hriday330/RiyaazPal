@@ -12,12 +12,20 @@ import SwiftData
 @MainActor
 enum PreviewModelContainer {
     static func make() -> ModelContainer {
-        try! ModelContainer(
-            for: PracticeSession.self,
+        let container = try! ModelContainer(
+            for:
+                PracticeSession.self,
+                TagCategoryModel.self
+            ,
             configurations: ModelConfiguration(
                 isStoredInMemoryOnly: true
             )
         )
+
+        let context = container.mainContext
+        try! seedDefaultTagCategoriesIfNeeded(context: context)
+
+        return container
     }
 }
 

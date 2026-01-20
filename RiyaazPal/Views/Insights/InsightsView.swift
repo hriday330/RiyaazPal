@@ -13,15 +13,21 @@ struct InsightsView: View {
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
     
+    @Query(sort: \TagCategoryModel.order)
+        private var tagCategories: [TagCategoryModel]
     
     @StateObject private var insightsViewModel = InsightsViewModel()
+    
+    private var categorizer: TagCategorizer {
+        TagCategorizer(categories: tagCategories)
+    }
     
     private var recentSessions: [PracticeSession] {
         insightsViewModel.recentSessions(from: sessions)
     }
 
     private var focusStats: FocusStats {
-        insightsViewModel.focusStats(from: recentSessions)
+        insightsViewModel.focusStats(from: recentSessions, categorizer: categorizer)
     }
     
     private var consistencyStats: ConsistencyStats {
@@ -29,14 +35,26 @@ struct InsightsView: View {
     }
     
     private var patterns: [PracticePattern] {
-        insightsViewModel.patterns(from: recentSessions, focusStats: focusStats)
+        insightsViewModel.patterns(from: recentSessions, focusStats: focusStats, categorizer: categorizer)
     }
     
     private var practiceScore: Int {
         insightsViewModel.practiceScore(consistency: consistencyStats, patterns: patterns)
     }
 
-    
+    private var focusCategories: [TagCategory] {
+        tagCategories
+            .filter { $0.isFocusRelevant }
+            .sorted { $0.order < $1.order }
+            .map {
+                TagCategory(
+                    id: $0.id,
+                    name: $0.name,
+                    isFocusRelevant: $0.isFocusRelevant
+                )
+            }
+    }
+
     var body: some View {
         ZStack {
             Color("AppBackground")
@@ -48,7 +66,7 @@ struct InsightsView: View {
                     PracticeScoreMeter(
                         score: practiceScore
                     )
-                    FocusCarousel(focusStats: focusStats)
+                    FocusCarousel(focusStats: focusStats, categories: focusCategories)
                         .background(
                             RoundedRectangle(cornerRadius: 18, style: .continuous)
                                 .fill(Color("CardBackground"))

@@ -8,12 +8,11 @@
 import SwiftUI
 import SwiftData
 
-// TODO - extract subviews
 struct PracticeTimelineView: View {
     
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
-    
+
     @StateObject private var timelineViewModel = PracticeTimelineViewModel()
     
     @Environment(\.modelContext)

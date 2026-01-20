@@ -26,7 +26,8 @@ enum PracticePatternCalculator {
     
     static func compute(
         sessions: [PracticeSession],
-        focusStats: FocusStats
+        focusStats: FocusStats,
+        categorizer: TagCategorizer
     ) -> [PracticePattern] {
         
         guard sessions.count >= 2 else { return [] }
@@ -48,7 +49,7 @@ enum PracticePatternCalculator {
             patterns.append((.fatigueSignal, p))
         }
         
-        if let p = focusVolatility(from: sessions) {
+        if let p = focusVolatility(from: sessions, categorizer: categorizer) {
             patterns.append((.focusVolatility, p))
         }
         
@@ -69,7 +70,7 @@ private extension PracticePatternCalculator {
     ) -> PracticePattern? {
 
         guard
-            let sectionHistogram = stats.histogramsByCategory[.section],
+            let sectionHistogram = stats.histogram(forCategoryNamed: "section"),
             !sectionHistogram.isEmpty
         else { return nil }
 
@@ -101,7 +102,7 @@ private extension PracticePatternCalculator {
         let foundationalSections = ["gat", "alap"]
 
         let seenSections = Set(
-            (stats.histogramsByCategory[.section] ?? [:]).keys
+            (stats.histogram(forCategoryNamed: "section") ?? [:]).keys
         )
 
         guard let missing = foundationalSections.first(where: {
@@ -158,7 +159,8 @@ private extension PracticePatternCalculator {
 private extension PracticePatternCalculator {
 
     static func focusVolatility(
-        from sessions: [PracticeSession]
+        from sessions: [PracticeSession],
+        categorizer: TagCategorizer
     ) -> PracticePattern? {
 
         guard sessions.count >= 3 else { return nil }
@@ -167,16 +169,19 @@ private extension PracticePatternCalculator {
 
         func normalizedFocusSet(_ session: PracticeSession) -> Set<String> {
             Set(
-                session.tags
-                    .map {
-                        $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                    session.tags.compactMap { rawTag in
+                        let tag = rawTag
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
                             .lowercased()
+
+                        let category = categorizer.category(for: tag)
+                        guard category.name == "section" || category.name == "technique" else {
+                            return nil
+                        }
+
+                        return tag
                     }
-                    .filter {
-                        let category = TagRegistry.category(for: $0)
-                        return category == .section || category == .technique
-                    }
-            )
+                )
         }
 
         let focusSets = sorted.map(normalizedFocusSet)

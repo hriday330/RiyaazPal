@@ -53,10 +53,10 @@ struct FocusBreakdownCard: View {
 private extension FocusBreakdownCard {
 
     var title: String {
-            switch category {
-            case .section:
+        switch category.name {
+            case "Section":
                 return "Section Focus"
-            case .technique:
+            case "Technique":
                 return "Technique Focus"
             default:
                 return "Focus Breakdown"
@@ -89,49 +89,27 @@ private extension FocusBreakdownCard {
 }
 
 #Preview("Focus Breakdown – Section") {
+    let section = TagCategory(
+        id: UUID(),
+        name: "Section",
+        isFocusRelevant: true
+    )
+
     let focusStats = FocusStats(
         histogramsByCategory: [
-            .section: [
+            section: [
                 "alap": 4,
                 "taan": 2,
                 "jor": 1
-            ],
-            .technique: [
-                "meend": 3,
-                "kan": 2
             ]
         ]
     )
 
     return FocusBreakdownCard(
         focusStats: focusStats,
-        category: .section
+        category: section
     )
     .padding()
-    .background(Color("AppBackground"))
-    .preferredColorScheme(.light)
-}
-
-#Preview("Focus Breakdown – Technique") {
-    let focusStats = FocusStats(
-        histogramsByCategory: [
-            .section: [
-                "alap": 3,
-                "taan": 1
-            ],
-            .technique: [
-                "meend": 3,
-                "kan": 3,
-                "gamak": 1
-            ]
-        ]
-    )
-
-    return FocusBreakdownCard(
-        focusStats: focusStats,
-        category: .technique
-    )
-    .padding(10)
     .background(Color("AppBackground"))
     .preferredColorScheme(.light)
 }
