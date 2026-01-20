@@ -26,6 +26,8 @@ struct PracticeTimelineView: View {
 
     @State private var selectedMonth: Date = Date()
 
+    @State private var showProfile = false
+    
     var body: some View {
             ZStack {
                 // App-wide background
@@ -52,12 +54,11 @@ struct PracticeTimelineView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        // NOOP for now
+                        showProfile = true
                     } label: {
                         Image(systemName: "person.crop.circle")
                             .imageScale(.large)
                     }
-                    .accessibilityLabel("Profile")
                 }
             }
             .searchable(
@@ -76,6 +77,12 @@ struct PracticeTimelineView: View {
                 EditSessionView(
                     session: session
                 )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+            }.sheet(isPresented: $showProfile) {
+                NavigationStack {
+                    ProfileView()
+                }
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
             }
