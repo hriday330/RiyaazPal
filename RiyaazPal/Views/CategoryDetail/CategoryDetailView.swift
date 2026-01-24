@@ -17,7 +17,6 @@ struct CategoryDetailView: View {
     private var context
     
     @State private var editingTag: String?
-    @FocusState private var focusedTag: String?
     
     var body: some View {
         List {
@@ -25,13 +24,11 @@ struct CategoryDetailView: View {
                 CategoryItemRow(title: tag.capitalized, isEditing: editingTag == tag,
                     onBeginEditing: {
                         editingTag = tag
-                        focusedTag = tag
                     },
                     onCommit: { newName in
                         commitRename(from: tag, to: newName)
                     }
                 )
-                .focused($focusedTag, equals: tag)
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -92,31 +89,22 @@ private extension CategoryDetailView {
         category.tags.insert(newTag, at: 0)
 
         try? context.save()
-
-        // Defer focus until after List updates - had to look this up
-        DispatchQueue.main.async {
-            editingTag = newTag
-            focusedTag = newTag
-        }
-
+        editingTag = newTag
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
-    
-    // TODO - fix bug wtih sticky rename
+
     func commitRename(from old: String, to new: String) {
         guard
             let index = category.tags.firstIndex(of: old),
             !category.tags.contains(new)
         else {
             editingTag = nil
-            focusedTag = nil
             return
         }
 
         category.tags[index] = new
         try? context.save()
         editingTag = nil
-        focusedTag = nil
     }
 
     
