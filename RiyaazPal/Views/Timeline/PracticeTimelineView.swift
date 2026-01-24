@@ -28,6 +28,8 @@ struct PracticeTimelineView: View {
 
     @State private var showProfile = false
     
+    @State private var isScrollingProgrammatically = false
+    
     var body: some View {
             ZStack {
                 // App-wide background
@@ -155,6 +157,9 @@ private extension PracticeTimelineView {
                     Text(group.date.formatted(date: .abbreviated, time: .omitted))
                         .font(.headline)
                         .foregroundStyle(.secondary)
+                        .onAppear {
+                            updateMonthOnScroll(to: group.date)
+                        }
                 }
                 .id(Calendar.current.startOfDay(for: group.date))
             }
@@ -192,11 +197,28 @@ private extension PracticeTimelineView {
             )
         else { return }
 
+        isScrollingProgrammatically = true
+        
         selectedMonth = newMonth
 
         scrollToMonth(newMonth, proxy: proxy)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            isScrollingProgrammatically = false
+        }
     }
 
+    func updateMonthOnScroll(to date: Date) {
+            // If we are currently animating a "Shift Month" click, don't let
+            // the scroll listener interfere or it will stutter.
+            guard !isScrollingProgrammatically else { return }
+            
+            let calendar = Calendar.current
+            
+            if !calendar.isDate(date, equalTo: selectedMonth, toGranularity: .month) {
+                selectedMonth = date
+            }
+        }
+    
     func scrollToMonth(_ month: Date, proxy: ScrollViewProxy) {
         let calendar = Calendar.current
 
@@ -247,7 +269,7 @@ private extension PracticeTimelineView {
             tags: ["Raga Bhairav"]
         )
     )
-
+    
     return NavigationStack {
         PracticeTimelineView()
     }
