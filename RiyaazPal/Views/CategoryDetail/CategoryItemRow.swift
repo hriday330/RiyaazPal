@@ -17,7 +17,8 @@ struct CategoryItemRow: View {
     let onCommit: (String) -> Void
 
     @State private var draft: String
-
+    @FocusState private var isFocused
+    
     init(
         title: String,
         isEditing: Bool,
@@ -41,6 +42,7 @@ struct CategoryItemRow: View {
                     .font(.body.weight(.medium))
                     .submitLabel(.done)
                     .onSubmit { commit() }
+                    .focused($isFocused)
             } else {
                 Text(title.capitalized)
                     .font(.body.weight(.medium))
@@ -50,6 +52,15 @@ struct CategoryItemRow: View {
             }
 
             Spacer()
+        }
+        .onChange(of: isEditing) { _, isItemEditing in
+            if isItemEditing {
+                isFocused = true
+            }
+        }.onChange(of: isFocused) {_, isItemFocused in
+            if !isItemFocused {
+                commit()
+            }
         }
         .padding(.vertical, 6)
         .contentShape(Rectangle())
