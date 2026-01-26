@@ -11,24 +11,33 @@ import SwiftData
 @main
 struct RiyaazPalApp: App {
     
+    @AppStorage("hasCompletedSetup")
+    private var hasCompletedSetup: Bool = false
+    
     var body: some Scene {
         return WindowGroup{
             AppBootstrapView{
-                TabView {
-                    NavigationStack {
-                        PracticeTimelineView()
+                
+                if hasCompletedSetup {
+                    TabView {
+                        NavigationStack {
+                            PracticeTimelineView()
+                        }
+                        .tabItem {
+                            Label("Timeline", systemImage: "music.note.list")
+                        }
+                        
+                        NavigationStack {
+                            InsightsView()
+                        }
+                        .tabItem {
+                            Label("Insights", systemImage: "chart.bar")
+                        }
                     }
-                    .tabItem {
-                        Label("Timeline", systemImage: "music.note.list")
-                    }
-                    
-                    NavigationStack {
-                        InsightsView()
-                    }
-                    .tabItem {
-                        Label("Insights", systemImage: "chart.bar")
-                    }
+                } else {
+                    SetupView()
                 }
+                
                 
             }
         }

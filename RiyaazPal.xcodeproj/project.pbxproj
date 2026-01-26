@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C000668F2F0EF8D500BC930C /* InsightsView.swift */; };
 		C00066932F0F101000BC930C /* PracticeScoreMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00066922F0F101000BC930C /* PracticeScoreMeter.swift */; };
+		C04482E12F273B7A00068D74 /* CategorySetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04482E02F273B7A00068D74 /* CategorySetupStepView.swift */; };
+		C04482E32F273BD700068D74 /* SetupWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04482E22F273BD700068D74 /* SetupWelcomeView.swift */; };
+		C04482E52F273BE500068D74 /* SetupCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04482E42F273BE500068D74 /* SetupCompleteView.swift */; };
 		C066A28D2F0F38E4005A5D44 /* FocusStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A28C2F0F38E4005A5D44 /* FocusStats.swift */; };
 		C066A2902F0F3A68005A5D44 /* FocusBreakdownCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A28F2F0F3A68005A5D44 /* FocusBreakdownCard.swift */; };
 		C066A2922F0F3DF9005A5D44 /* InsightWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A2912F0F3DF9005A5D44 /* InsightWindow.swift */; };
@@ -37,6 +40,8 @@
 		C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430E92F08A9CC00C2401C /* FlowLayout.swift */; };
 		C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */; };
 		C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EE2F098F9000C2401C /* PreviewData.swift */; };
+		C0D82F152F249E2E00B4E0E8 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D82F142F249E2E00B4E0E8 /* SetupView.swift */; };
+		C0D82F172F249F4200B4E0E8 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D82F162F249F4200B4E0E8 /* Preferences.swift */; };
 		C0E130B12F1F825600C005F5 /* CategoryItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */; };
 		C0E580422F19EDD400571C5E /* TimelineFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */; };
 		C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */; };
@@ -55,6 +60,9 @@
 /* Begin PBXFileReference section */
 		C000668F2F0EF8D500BC930C /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		C00066922F0F101000BC930C /* PracticeScoreMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeScoreMeter.swift; sourceTree = "<group>"; };
+		C04482E02F273B7A00068D74 /* CategorySetupStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorySetupStepView.swift; sourceTree = "<group>"; };
+		C04482E22F273BD700068D74 /* SetupWelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupWelcomeView.swift; sourceTree = "<group>"; };
+		C04482E42F273BE500068D74 /* SetupCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupCompleteView.swift; sourceTree = "<group>"; };
 		C066A28C2F0F38E4005A5D44 /* FocusStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusStats.swift; sourceTree = "<group>"; };
 		C066A28F2F0F3A68005A5D44 /* FocusBreakdownCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusBreakdownCard.swift; sourceTree = "<group>"; };
 		C066A2912F0F3DF9005A5D44 /* InsightWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightWindow.swift; sourceTree = "<group>"; };
@@ -85,6 +93,8 @@
 		C0A430E92F08A9CC00C2401C /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModelContainer.swift; sourceTree = "<group>"; };
 		C0A430EE2F098F9000C2401C /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		C0D82F142F249E2E00B4E0E8 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		C0D82F162F249F4200B4E0E8 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryItemRow.swift; sourceTree = "<group>"; };
 		C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineFilterViewModel.swift; sourceTree = "<group>"; };
 		C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineEmptyState.swift; sourceTree = "<group>"; };
@@ -215,6 +225,7 @@
 		C0A430CD2F05991100C2401C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C0D82F132F249E1F00B4E0E8 /* Setup */,
 				C0F593752F1F6580009F6A0D /* CategoryDetail */,
 				C0F593722F1F6553009F6A0D /* Profile */,
 				C000668E2F0EF85900BC930C /* Insights */,
@@ -271,6 +282,18 @@
 				C0A430EE2F098F9000C2401C /* PreviewData.swift */,
 			);
 			path = Preview;
+			sourceTree = "<group>";
+		};
+		C0D82F132F249E1F00B4E0E8 /* Setup */ = {
+			isa = PBXGroup;
+			children = (
+				C0D82F142F249E2E00B4E0E8 /* SetupView.swift */,
+				C0D82F162F249F4200B4E0E8 /* Preferences.swift */,
+				C04482E02F273B7A00068D74 /* CategorySetupStepView.swift */,
+				C04482E22F273BD700068D74 /* SetupWelcomeView.swift */,
+				C04482E42F273BE500068D74 /* SetupCompleteView.swift */,
+			);
+			path = Setup;
 			sourceTree = "<group>";
 		};
 		C0F593722F1F6553009F6A0D /* Profile */ = {
@@ -370,7 +393,9 @@
 				C066A2A42F159C39005A5D44 /* ReflectionInsightService.swift in Sources */,
 				C0E580482F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift in Sources */,
 				C0A430E82F08A25C00C2401C /* TagChip.swift in Sources */,
+				C0D82F152F249E2E00B4E0E8 /* SetupView.swift in Sources */,
 				C066A2AC2F15B868005A5D44 /* ReflectionInsightsSection.swift in Sources */,
+				C0D82F172F249F4200B4E0E8 /* Preferences.swift in Sources */,
 				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,
 				C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */,
 				C066A2982F104854005A5D44 /* ConsistencyStats.swift in Sources */,
@@ -385,13 +410,16 @@
 				C066A2A02F14F2F6005A5D44 /* DurationPickerSheet.swift in Sources */,
 				C00066932F0F101000BC930C /* PracticeScoreMeter.swift in Sources */,
 				C066A28D2F0F38E4005A5D44 /* FocusStats.swift in Sources */,
+				C04482E52F273BE500068D74 /* SetupCompleteView.swift in Sources */,
 				C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */,
+				C04482E12F273B7A00068D74 /* CategorySetupStepView.swift in Sources */,
 				C066A2902F0F3A68005A5D44 /* FocusBreakdownCard.swift in Sources */,
 				C0A430E32F083A2700C2401C /* EditSessionView.swift in Sources */,
 				C0E580422F19EDD400571C5E /* TimelineFilterViewModel.swift in Sources */,
 				C0E580522F1DD36300571C5E /* ActiveSessionBar.swift in Sources */,
 				C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */,
 				C0E130B12F1F825600C005F5 /* CategoryItemRow.swift in Sources */,
+				C04482E32F273BD700068D74 /* SetupWelcomeView.swift in Sources */,
 				C066A29C2F118912005A5D44 /* PracticeScoreCalculator.swift in Sources */,
 				C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */,
 				C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */,
