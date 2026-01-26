@@ -16,7 +16,7 @@ struct RiyaazPalApp: App {
 
 
     private var shouldShowSetup: Bool {
-        true || !hasCompletedSetup
+        true
     }
     
     var body: some Scene {

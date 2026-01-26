@@ -7,15 +7,31 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
-enum SetupStep {
-    case preferences
+enum SetupStep: Int, CaseIterable {
+    case welcome
+    case ragas
+    case talas
+    case sections
+    case tempos
+    case techniques
+    case done
+
+    func next() -> SetupStep? {
+        SetupStep(rawValue: rawValue + 1)
+    }
 }
 
+
 struct SetupView: View {
-    @State private var step: SetupStep = .preferences
+
+    @State private var step: SetupStep = .welcome
     @AppStorage("hasCompletedSetup") private var hasCompletedSetup = false
-    
+
+    @Query(sort: \TagCategoryModel.order)
+    private var categories: [TagCategoryModel]
+
     var body: some View {
         NavigationStack {
             content
@@ -25,10 +41,77 @@ struct SetupView: View {
     @ViewBuilder
     private var content: some View {
         switch step {
-        case .preferences:
-            PreferencesSetupView {
-                // go to the next step
+        case .welcome:
+            SetupWelcomeView {
+                advance()
+            }
+
+        case .ragas:
+            if let category = getCategory(named: "Raga") {
+                CategorySetupStepView(
+                    title: "Your Ragas",
+                    subtitle: "Add the ragas you practice regularly.",
+                    category: category,
+                    onContinue: advance,
+                    onSkip: advance
+                )
+            }
+
+        case .talas:
+            if let category = getCategory(named: "Taal") {
+                CategorySetupStepView(
+                    title: "Your Talas",
+                    subtitle: "Which rhythmic cycles do you use?",
+                    category: category,
+                    onContinue: advance,
+                    onSkip: advance
+                )
+            }
+        case .sections:
+            if let category = getCategory(named: "Section") {
+                CategorySetupStepView(
+                    title: "Practice Sections",
+                    subtitle: "Alap, jor, jhala, gat…",
+                    category: category,
+                    onContinue: advance,
+                    onSkip: advance
+                )
+            }
+
+        case .tempos:
+            if let category = getCategory(named: "Tempo") {
+                CategorySetupStepView(
+                    title: "Tempos",
+                    subtitle: "Vilambit, madhya, drut.",
+                    category: category,
+                    onContinue: advance,
+                    onSkip: advance
+                )
+            }
+
+        case .techniques:
+            if let category = getCategory(named: "Technique") {
+                CategorySetupStepView(
+                    title: "Techniques",
+                    subtitle: "Meend, gamak, kan, bol patterns.",
+                    category: category,
+                    onContinue: advance,
+                    onSkip: advance
+                )
+            }
+
+        case .done:
+            SetupCompleteView {
+                hasCompletedSetup = true
             }
         }
+    }
+
+    private func getCategory(named name: String) -> TagCategoryModel? {
+        return categories.first { $0.name == name }
+    }
+
+    private func advance() {
+        step = step.next() ?? .done
     }
 }
