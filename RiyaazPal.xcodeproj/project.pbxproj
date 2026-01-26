@@ -37,6 +37,8 @@
 		C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430E92F08A9CC00C2401C /* FlowLayout.swift */; };
 		C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */; };
 		C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EE2F098F9000C2401C /* PreviewData.swift */; };
+		C0D82F152F249E2E00B4E0E8 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D82F142F249E2E00B4E0E8 /* SetupView.swift */; };
+		C0D82F172F249F4200B4E0E8 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D82F162F249F4200B4E0E8 /* Preferences.swift */; };
 		C0E130B12F1F825600C005F5 /* CategoryItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */; };
 		C0E580422F19EDD400571C5E /* TimelineFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */; };
 		C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */; };
@@ -85,6 +87,8 @@
 		C0A430E92F08A9CC00C2401C /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModelContainer.swift; sourceTree = "<group>"; };
 		C0A430EE2F098F9000C2401C /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		C0D82F142F249E2E00B4E0E8 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		C0D82F162F249F4200B4E0E8 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryItemRow.swift; sourceTree = "<group>"; };
 		C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineFilterViewModel.swift; sourceTree = "<group>"; };
 		C0E580432F1A40C700571C5E /* PracticeTimelineEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineEmptyState.swift; sourceTree = "<group>"; };
@@ -215,6 +219,7 @@
 		C0A430CD2F05991100C2401C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C0D82F132F249E1F00B4E0E8 /* Setup */,
 				C0F593752F1F6580009F6A0D /* CategoryDetail */,
 				C0F593722F1F6553009F6A0D /* Profile */,
 				C000668E2F0EF85900BC930C /* Insights */,
@@ -271,6 +276,15 @@
 				C0A430EE2F098F9000C2401C /* PreviewData.swift */,
 			);
 			path = Preview;
+			sourceTree = "<group>";
+		};
+		C0D82F132F249E1F00B4E0E8 /* Setup */ = {
+			isa = PBXGroup;
+			children = (
+				C0D82F142F249E2E00B4E0E8 /* SetupView.swift */,
+				C0D82F162F249F4200B4E0E8 /* Preferences.swift */,
+			);
+			path = Setup;
 			sourceTree = "<group>";
 		};
 		C0F593722F1F6553009F6A0D /* Profile */ = {
@@ -370,7 +384,9 @@
 				C066A2A42F159C39005A5D44 /* ReflectionInsightService.swift in Sources */,
 				C0E580482F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift in Sources */,
 				C0A430E82F08A25C00C2401C /* TagChip.swift in Sources */,
+				C0D82F152F249E2E00B4E0E8 /* SetupView.swift in Sources */,
 				C066A2AC2F15B868005A5D44 /* ReflectionInsightsSection.swift in Sources */,
+				C0D82F172F249F4200B4E0E8 /* Preferences.swift in Sources */,
 				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,
 				C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */,
 				C066A2982F104854005A5D44 /* ConsistencyStats.swift in Sources */,
