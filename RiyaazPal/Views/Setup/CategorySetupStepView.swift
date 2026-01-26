@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 struct CategorySetupStepView: View {
 
@@ -39,6 +40,8 @@ struct CategorySetupStepView: View {
                     onContinue()
                 }
                 .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .font(.headline)
 
                 Button("Skip for now") {
                     onSkip()
@@ -50,3 +53,38 @@ struct CategorySetupStepView: View {
         .navigationBarBackButtonHidden(true)
     }
 }
+
+#Preview("Category Setup – Ragas") {
+    let container = try! ModelContainer(
+        for: TagCategoryModel.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+
+    let context = container.mainContext
+
+    let ragaCategory = TagCategoryModel(
+        name: "Raga",
+        tags: ["yaman", "bhairav", "kafi"],
+        isSystemDefault: true,
+        order: 0,
+        isFocusRelevant: true
+    )
+
+    context.insert(ragaCategory)
+
+    return NavigationStack {
+        CategorySetupStepView(
+            title: "Your Ragas",
+            subtitle: "Add the ragas you practice regularly.",
+            category: ragaCategory,
+            onContinue: {
+                print("Continue tapped")
+            },
+            onSkip: {
+                print("Skip tapped")
+            }
+        )
+    }
+    .modelContainer(container)
+}
+

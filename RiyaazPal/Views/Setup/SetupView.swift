@@ -115,3 +115,68 @@ struct SetupView: View {
         step = step.next() ?? .done
     }
 }
+
+
+#Preview("Setup Flow") {
+    let container = try! ModelContainer(
+        for: TagCategoryModel.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+
+    let context = container.mainContext
+
+    context.insert(
+        TagCategoryModel(
+            name: "Raga",
+            tags: ["yaman", "bhairav", "kafi"],
+            isSystemDefault: true,
+            order: 0,
+            isFocusRelevant: true
+        )
+    )
+
+    context.insert(
+        TagCategoryModel(
+            name: "Taal",
+            tags: ["teentaal", "jhaptaal"],
+            isSystemDefault: true,
+            order: 1,
+            isFocusRelevant: true
+        )
+    )
+
+    context.insert(
+        TagCategoryModel(
+            name: "Section",
+            tags: ["alap", "jor", "jhala", "gat"],
+            isSystemDefault: true,
+            order: 2,
+            isFocusRelevant: true
+        )
+    )
+
+    context.insert(
+        TagCategoryModel(
+            name: "Tempo",
+            tags: ["vilambit", "madhya", "drut"],
+            isSystemDefault: true,
+            order: 3,
+            isFocusRelevant: true
+        )
+    )
+
+    context.insert(
+        TagCategoryModel(
+            name: "Technique",
+            tags: ["meend", "gamak", "kan"],
+            isSystemDefault: true,
+            order: 4,
+            isFocusRelevant: true
+        )
+    )
+
+    return NavigationStack {
+        SetupView()
+    }
+    .modelContainer(container)
+}

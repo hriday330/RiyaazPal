@@ -25,6 +25,8 @@ struct SetupWelcomeView: View {
                 onContinue()
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .font(.headline)
         }
         .padding()
     }
