@@ -13,17 +13,12 @@ struct RiyaazPalApp: App {
     
     @AppStorage("hasCompletedSetup")
     private var hasCompletedSetup: Bool = false
-
-
-    private var shouldShowSetup: Bool {
-        true
-    }
     
     var body: some Scene {
         return WindowGroup{
             AppBootstrapView{
                 
-                if !shouldShowSetup {
+                if hasCompletedSetup {
                     TabView {
                         NavigationStack {
                             PracticeTimelineView()
