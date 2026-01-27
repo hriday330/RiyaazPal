@@ -118,7 +118,11 @@ private extension PracticeTimelineView {
             if sessionViewModel.isSessionActive {
                 ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
             } else {
-                SessionActionButton(isActive: sessionViewModel.isSessionActive, action: handleSessionAction)
+                SessionActionButton(isActive: sessionViewModel.isSessionActive, action: handleSessionAction,
+                    secondaryAction: {
+                        createOldSession()
+                    }
+                )
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.85),
@@ -169,6 +173,27 @@ private extension PracticeTimelineView {
 
 
 private extension PracticeTimelineView {
+    
+    func createOldSession() {
+        let session = PracticeSession(
+            startTime: Date(),
+            duration: 60*60, // 1hr adjust later
+            notes: "",
+            tags: []
+        )
+
+        context.insert(session)
+
+        do {
+            try context.save()
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            selectedSession = session
+        } catch {
+            print("Failed to create backfill session: \(error)")
+        }
+    }
+
+    
     var timelineWithMonthStepper: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
