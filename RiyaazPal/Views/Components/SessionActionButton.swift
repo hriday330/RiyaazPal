@@ -11,6 +11,8 @@ import SwiftUI
 struct SessionActionButton: View {
     let isActive: Bool
     let action: () -> Void
+    let secondaryAction: () -> Void
+    
     
     var body: some View {
         VStack {
@@ -25,6 +27,11 @@ struct SessionActionButton: View {
                     .font(.headline)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 14)
+                }
+                .contextMenu {
+                    Button("Log Session", systemImage: "calendar.badge.plus") {
+                        secondaryAction()
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color("AccentColor"))
