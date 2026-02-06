@@ -22,6 +22,8 @@ struct EditSessionView: View {
             wrappedValue: EditSessionViewModel(session: session)
         )
     }
+    
+
 
     var body: some View {
         NavigationStack {
@@ -55,6 +57,9 @@ struct EditSessionView: View {
                         .foregroundStyle(Color("SecondaryText"))
                         .padding(.horizontal)
                         .padding(.top, 8)
+                        SessionTypePicker(sessionType: $editSessionViewModel.draft.sessionType)
+                            .padding(.horizontal)
+                            .padding(.top, 16)
                         EditSessionTagsSection(tags: $editSessionViewModel.draft.tags, newTag: $editSessionViewModel.newTag, onAddTag: editSessionViewModel.addTag)
                             .padding(.top, 16)
                         EditSessionNotesEditor(notes: $editSessionViewModel.draft.detailedNotes)

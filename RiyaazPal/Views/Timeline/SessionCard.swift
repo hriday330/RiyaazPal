@@ -39,7 +39,8 @@ private extension SessionCard {
                 .lineLimit(2)
 
             Spacer()
-
+            
+            SessionTypeChip(type: session.sessionType)
             Text(formattedDuration)
                 .font(.caption)
                 .padding(6)
@@ -73,17 +74,4 @@ private extension SessionCard {
         let minutes = Int(session.duration / 60)
         return "\(minutes) min"
     }
-}
-
-#Preview {
-    SessionCard(
-        session: PracticeSession(
-            startTime: Date(),
-            duration: 45 * 60,
-            notes: "Taan practice – drut teentaal",
-            tags: ["Raga Puriya", "Taan", "Technical"]
-        )
-    )
-    .padding()
-    .background(Color(.systemGroupedBackground))
 }

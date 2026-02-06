@@ -26,7 +26,9 @@ final class EditSessionViewModel: ObservableObject {
             duration: session.duration,
             notes: session.notes,
             tags: session.tags,
-            detailedNotes: session.detailedNotes
+            detailedNotes: session.detailedNotes,
+            sessionType: session.sessionType
+            
         )
     }
 }
@@ -87,6 +89,7 @@ extension EditSessionViewModel {
         session.duration = draft.duration
         session.startTime = draft.startTime
         session.lastModified = .now
+        session.sessionType = draft.sessionType
     }
 
     private func normalizeTag(_ tag: String) -> String {
@@ -101,4 +104,5 @@ struct PracticeSessionDraft {
     var notes: String
     var tags: [String]
     var detailedNotes: String
+    var sessionType: SessionType = .practice
 }
