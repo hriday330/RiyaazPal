@@ -56,6 +56,8 @@
 		C0F593742F1F6560009F6A0D /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F593732F1F6560009F6A0D /* ProfileView.swift */; };
 		C0F593772F1F6593009F6A0D /* CategoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F593762F1F6593009F6A0D /* CategoryDetailView.swift */; };
 		C0FFBDE42F366DED00F84DFA /* SessionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE32F366DED00F84DFA /* SessionType.swift */; };
+		C0FFBDE62F36722200F84DFA /* SessionTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE52F36722200F84DFA /* SessionTypePicker.swift */; };
+		C0FFBDE82F3675D000F84DFA /* SessionTypeChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE72F3675D000F84DFA /* SessionTypeChip.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -110,6 +112,8 @@
 		C0F593732F1F6560009F6A0D /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		C0F593762F1F6593009F6A0D /* CategoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetailView.swift; sourceTree = "<group>"; };
 		C0FFBDE32F366DED00F84DFA /* SessionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionType.swift; sourceTree = "<group>"; };
+		C0FFBDE52F36722200F84DFA /* SessionTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTypePicker.swift; sourceTree = "<group>"; };
+		C0FFBDE72F3675D000F84DFA /* SessionTypeChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTypeChip.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -244,6 +248,7 @@
 			isa = PBXGroup;
 			children = (
 				C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */,
+				C0FFBDE72F3675D000F84DFA /* SessionTypeChip.swift */,
 				C0A430DA2F059A0600C2401C /* DaySection.swift */,
 				C0A430DC2F059CB600C2401C /* SessionCard.swift */,
 			);
@@ -254,6 +259,7 @@
 			isa = PBXGroup;
 			children = (
 				C0A430E22F083A2700C2401C /* EditSessionView.swift */,
+				C0FFBDE52F36722200F84DFA /* SessionTypePicker.swift */,
 			);
 			path = Session;
 			sourceTree = "<group>";
@@ -424,10 +430,12 @@
 				C0E130B12F1F825600C005F5 /* CategoryItemRow.swift in Sources */,
 				C04482E32F273BD700068D74 /* SetupWelcomeView.swift in Sources */,
 				C066A29C2F118912005A5D44 /* PracticeScoreCalculator.swift in Sources */,
+				C0FFBDE62F36722200F84DFA /* SessionTypePicker.swift in Sources */,
 				C0A430EA2F08A9CC00C2401C /* FlowLayout.swift in Sources */,
 				C0A430DD2F059CB600C2401C /* SessionCard.swift in Sources */,
 				C066A2942F0F4465005A5D44 /* TagCategory.swift in Sources */,
 				C066A2A82F159EDB005A5D44 /* Secrets.swift in Sources */,
+				C0FFBDE82F3675D000F84DFA /* SessionTypeChip.swift in Sources */,
 				C0E5804C2F1B00FF00571C5E /* EditSessionViewModel.swift in Sources */,
 				C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */,
 				C0E580502F1DD1EB00571C5E /* SessionActionButton.swift in Sources */,
