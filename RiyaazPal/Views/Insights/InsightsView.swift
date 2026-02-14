@@ -64,11 +64,18 @@ struct InsightsView: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 12) {
+                VStack(spacing: 16) {
                     header
                     PracticeScoreMeter(
                         score: practiceScore
                     )
+                    ReflectionInsightSection(
+                        insight: insightsViewModel.reflectionInsight,
+                        isLoading: insightsViewModel.isLoadingInsight,
+                        error: insightsViewModel.insightError
+                    )
+                    consistencySummary
+                        .shadow(color: .black.opacity(0.08), radius: 10)
                     FocusCarousel(focusStats: focusStats, categories: focusCategories)
                         .background(
                             RoundedRectangle(cornerRadius: 18, style: .continuous)
@@ -76,14 +83,8 @@ struct InsightsView: View {
                         )
                         .shadow(color: .black.opacity(0.08), radius: 10)
                     
-                    consistencySummary
-                        .shadow(color: .black.opacity(0.08), radius: 10)
                     notablePatterns
-                    ReflectionInsightSection(
-                        insight: insightsViewModel.reflectionInsight,
-                        isLoading: insightsViewModel.isLoadingInsight,
-                        error: insightsViewModel.insightError
-                    )
+                    
                     
                 }.scrollTransition(.interactive) { content, phase in
                     content
@@ -124,6 +125,7 @@ private extension InsightsView {
 }
 
 private extension InsightsView {
+    // TODO: extract to subcomponent
     var consistencySummary: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(alignment: .top) {
@@ -168,16 +170,35 @@ private extension InsightsView {
             }
         
             GeometryReader { geo in
+                let ratio = Double(consistencyStats.practicedDays) / Double(max(1, consistencyStats.totalDays))
+
+                let progressColor: Color = {
+                    switch consistencyStats.practicedDays {
+                    case 0..<7:
+                        return .red
+                    case 7..<15:
+                        return .orange
+                    default:
+                        return Color("AccentColor")
+                    }
+                }()
+
                 ZStack(alignment: .leading) {
                     Capsule()
                         .fill(Color.gray.opacity(0.1))
                         .frame(height: 6)
-                    
+
                     Capsule()
-                        .fill(Color("AccentColor"))
-                        .frame(width: geo.size.width * CGFloat(Double(consistencyStats.practicedDays) / Double(max(1, consistencyStats.totalDays))), height: 6)
+                        .fill(progressColor)
+                        .frame(
+                            width: geo.size.width * CGFloat(ratio),
+                            height: 6
+                        )
+                        .animation(.easeInOut(duration: 0.25), value: ratio)
+                        .animation(.easeInOut(duration: 0.25), value: progressColor)
                 }
             }
+
             .frame(height: 6)
         }
         .insightCard()
