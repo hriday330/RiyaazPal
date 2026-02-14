@@ -17,8 +17,12 @@ final class PracticeSession {
     var tags: [String]
     var detailedNotes: String
     var lastModified: Date
-    var sessionType: SessionType
+    var sessionType: SessionType?
 
+    var resolvedSessionType: SessionType {
+        sessionType ?? .practice
+    }
+    
     init(
         id: UUID = UUID(),
         startTime: Date,
