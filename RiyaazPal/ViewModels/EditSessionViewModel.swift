@@ -27,7 +27,7 @@ final class EditSessionViewModel: ObservableObject {
             notes: session.notes,
             tags: session.tags,
             detailedNotes: session.detailedNotes,
-            sessionType: session.sessionType
+            sessionType: session.resolvedSessionType
             
         )
     }

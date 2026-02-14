@@ -40,7 +40,7 @@ private extension SessionCard {
 
             Spacer()
             
-            SessionTypeChip(type: session.sessionType)
+            SessionTypeChip(type: session.resolvedSessionType)
             Text(formattedDuration)
                 .font(.caption)
                 .padding(6)
