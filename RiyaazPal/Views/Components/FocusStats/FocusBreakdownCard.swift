@@ -68,7 +68,7 @@ private extension FocusBreakdownCard {
         return Int(round((Double(count) / Double(totalSessions)) * 100))
     }
     var emptyState: some View {
-        Text("Not enough data to determine focus yet.")
+        Text("Add tags to your sessions to view focus data")
             .font(.subheadline)
             .foregroundStyle(Color("SecondaryText"))
     }
