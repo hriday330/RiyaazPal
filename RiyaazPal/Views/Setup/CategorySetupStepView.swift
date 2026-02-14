@@ -51,6 +51,7 @@ struct CategorySetupStepView: View {
             .padding()
         }
         .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
