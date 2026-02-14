@@ -63,14 +63,13 @@ struct PracticeTimelineView: View {
                     }
                 }
             }
-            .searchable(
+            .searchableIf(
+                !sessions.isEmpty,
                 text: $timelineFilterViewModel.searchText,
                 tokens: $timelineFilterViewModel.selectedTags,
-                suggestedTokens: .constant(timelineFilterViewModel.suggestedTags(from: sessions)),
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search notes or filter by tag",
-                token: { token in
-                    Text(token.name)
+                suggestedTokens: timelineFilterViewModel.suggestedTags(from: sessions),
+                onSubmit: {
+                    timelineFilterViewModel.handleSearchSubmit()
                 }
             ).onSubmit(of: .search) {
                 timelineFilterViewModel.handleSearchSubmit()
@@ -261,9 +260,29 @@ private extension PracticeTimelineView {
             proxy.scrollTo(scrollID, anchor: .topLeading)
         }
     }
-
-
 }
+
+extension View {
+    @ViewBuilder
+    func searchableIf(_ condition: Bool, text: Binding<String>, tokens: Binding<[TagToken]>, suggestedTokens: [TagToken], onSubmit: @escaping () -> Void) -> some View {
+        if condition {
+            self.searchable(
+                text: text,
+                tokens: tokens,
+                suggestedTokens: .constant(suggestedTokens),
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search notes or filter by tag",
+                token: { token in
+                    Text(token.name)
+                }
+            )
+            .onSubmit(of: .search, onSubmit)
+        } else {
+            self
+        }
+    }
+}
+
 #Preview("Practice Timeline – Light") {
     let container = PreviewModelContainer.make()
     let context = container.mainContext
