@@ -14,26 +14,15 @@ struct RiyaazPalApp: App {
     @AppStorage("hasCompletedSetup")
     private var hasCompletedSetup: Bool = false
     
+    @StateObject private var tabRouter = TabRouter()
+    
     var body: some Scene {
         return WindowGroup{
             AppBootstrapView{
                 
                 if hasCompletedSetup {
-                    TabView {
-                        NavigationStack {
-                            PracticeTimelineView()
-                        }
-                        .tabItem {
-                            Label("Timeline", systemImage: "music.note.list")
-                        }
-                        
-                        NavigationStack {
-                            InsightsView()
-                        }
-                        .tabItem {
-                            Label("Insights", systemImage: "chart.bar")
-                        }
-                    }
+                    RootTabView()
+                        .environmentObject(tabRouter)
                 } else {
                     SetupView()
                 }
@@ -48,7 +37,28 @@ struct RiyaazPalApp: App {
     }
 }
 
-
+struct RootTabView: View {
+    @EnvironmentObject var router: TabRouter
+    var body: some View {
+        TabView(selection: $router.selectedTab) {
+            NavigationStack {
+                PracticeTimelineView()
+            }
+            .tabItem {
+                Label("Timeline", systemImage: "music.note.list")
+            }
+            .tag(TabRouter.Tab.timeline)
+            
+            NavigationStack {
+                InsightsView()
+            }
+            .tabItem {
+                Label("Insights", systemImage: "chart.bar")
+            }
+            .tag(TabRouter.Tab.insights)
+        }
+    }
+}
 struct AppBootstrapView<Content: View>: View {
     @Environment(\.modelContext) private var context
     let content: Content
@@ -66,5 +76,13 @@ struct AppBootstrapView<Content: View>: View {
                     assertionFailure("Failed to seed tag categories: \(error)")
                 }
             }
+    }
+}
+
+final class TabRouter: ObservableObject {
+    @Published var selectedTab: Tab = .timeline
+
+    enum Tab {
+        case timeline, insights
     }
 }
