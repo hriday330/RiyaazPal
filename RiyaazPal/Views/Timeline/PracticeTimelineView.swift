@@ -52,6 +52,7 @@ struct PracticeTimelineView: View {
                 }
                 
             }
+
             .navigationTitle("RiyaazPal")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -64,7 +65,7 @@ struct PracticeTimelineView: View {
                 }
             }
             .searchableIf(
-                !sessions.isEmpty,
+                !sessions.isEmpty || sessionViewModel.isSessionActive,
                 text: $timelineFilterViewModel.searchText,
                 tokens: $timelineFilterViewModel.selectedTags,
                 suggestedTokens: timelineFilterViewModel.suggestedTags(from: sessions),
@@ -236,8 +237,14 @@ private extension PracticeTimelineView {
                     },
                     sessions: sessions
                 )
-                sessionTypeFilterChips
-                timelineList
+                sessionTypeFilterChips.padding(.top, 8)
+                
+                if (!timelineFilterViewModel.filteredSessions(from: sessions).isEmpty) {
+                    timelineList
+                } else {
+                    PracticeTimelineTypeEmptyState(filter: timelineFilterViewModel.sessionTypeFilter)
+                }
+                
 
             }
         }
