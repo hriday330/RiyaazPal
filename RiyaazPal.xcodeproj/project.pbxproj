@@ -26,6 +26,7 @@
 		C066A2A82F159EDB005A5D44 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A2A72F159EDB005A5D44 /* Secrets.swift */; };
 		C066A2AC2F15B868005A5D44 /* ReflectionInsightsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A2AB2F15B868005A5D44 /* ReflectionInsightsSection.swift */; };
 		C066A2B02F18893E005A5D44 /* InsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A2AF2F18893E005A5D44 /* InsightsViewModel.swift */; };
+		C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */; };
 		C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */; };
 		C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */; };
 		C0A430C12F03494400C2401C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0A430C02F03494400C2401C /* Assets.xcassets */; };
@@ -81,6 +82,7 @@
 		C066A2AB2F15B868005A5D44 /* ReflectionInsightsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionInsightsSection.swift; sourceTree = "<group>"; };
 		C066A2AF2F18893E005A5D44 /* InsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsViewModel.swift; sourceTree = "<group>"; };
 		C066A2B32F18E07E005A5D44 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencySummarySection.swift; sourceTree = "<group>"; };
 		C0A430B92F03494200C2401C /* RiyaazPal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RiyaazPal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiyaazPalApp.swift; sourceTree = "<group>"; };
 		C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineView.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 			children = (
 				C000668F2F0EF8D500BC930C /* InsightsView.swift */,
 				C066A2AB2F15B868005A5D44 /* ReflectionInsightsSection.swift */,
+				C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */,
 			);
 			path = Insights;
 			sourceTree = "<group>";
@@ -395,6 +398,7 @@
 				C0E580542F1EB45700571C5E /* TagCategoryModel.swift in Sources */,
 				C0F593742F1F6560009F6A0D /* ProfileView.swift in Sources */,
 				C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */,
+				C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */,
 				C0E5804A2F1AE85400571C5E /* EditSessionTagsSection.swift in Sources */,
 				C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */,
 				C0A430D52F0599CD00C2401C /* PracticeSessionViewModel.swift in Sources */,
