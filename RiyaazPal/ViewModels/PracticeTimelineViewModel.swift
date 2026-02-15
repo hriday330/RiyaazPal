@@ -12,6 +12,7 @@ import SwiftUI
 @MainActor
 final class PracticeTimelineViewModel: ObservableObject {
 
+    
     func groupedByDay(
             from sessions: [PracticeSession]
         ) -> [(date: Date, sessions: [PracticeSession])] {

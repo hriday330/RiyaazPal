@@ -170,6 +170,36 @@ private extension PracticeTimelineView {
     }
 }
 
+private extension PracticeTimelineView {
+    var sessionTypeFilterChips: some View {
+        HStack(spacing: 8) {
+            FilterChip(
+                title: "All",
+                isSelected: timelineFilterViewModel.sessionTypeFilter == .all
+            ) {
+                timelineFilterViewModel.sessionTypeFilter = .all
+            }
+
+            FilterChip(
+                title: "Practice",
+                isSelected: timelineFilterViewModel.sessionTypeFilter == .practice
+            ) {
+                timelineFilterViewModel.sessionTypeFilter = .practice
+            }
+
+            FilterChip(
+                title: "Concerts",
+                isSelected: timelineFilterViewModel.sessionTypeFilter == .concert
+            ) {
+                timelineFilterViewModel.sessionTypeFilter = .concert
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
+}
 
 private extension PracticeTimelineView {
     
@@ -206,8 +236,9 @@ private extension PracticeTimelineView {
                     },
                     sessions: sessions
                 )
-
+                sessionTypeFilterChips
                 timelineList
+
             }
         }
     }
