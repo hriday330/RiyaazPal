@@ -184,6 +184,7 @@ private extension InsightsView {
             }
         }.insightCard()
     }
+    
 
     func patternCard(icon: String, title: String, description: String) -> some View {
         HStack(spacing: 12) {

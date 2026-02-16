@@ -44,6 +44,13 @@ struct RepertoireRepeatCard: View {
                     ForEach(topRagas, id: \.raga) { item in
                         ragaRow(name: item.raga, count: item.count)
                     }
+                    if let repetitionInsight {
+                        Text(repetitionInsight)
+                            .font(.caption)
+                            .foregroundStyle(Color("SecondaryText"))
+                            .padding(.top, 6)
+                    }
+
                 }
             }
         }
@@ -68,6 +75,23 @@ struct RepertoireRepeatCard: View {
                 .clipShape(Capsule())
         }
     }
+    
+    private var repetitionInsight: String? {
+        guard let top = topRagas.first else { return nil }
+        
+        let totalConcerts = sessions.count
+        let dominance = Double(top.count) / Double(max(1, totalConcerts))
+        
+        switch dominance {
+        case 0.5...:
+            return "You’ve leaned heavily on \(top.raga) in recent performances. Consider rotating repertoire."
+        case 0.3..<0.5:
+            return "\(top.raga) appears frequently in your concerts. You may be developing a signature piece."
+        default:
+            return nil
+        }
+    }
+
 }
 
 private extension View {
