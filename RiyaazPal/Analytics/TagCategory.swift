@@ -99,4 +99,8 @@ final class TagCategorizer {
             isFocusRelevant: false
         )
     }
+    
+    func isRaga(for tag: String) -> Bool {
+        return category(for:tag).name == "Raga"
+    }
 }

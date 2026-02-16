@@ -155,6 +155,7 @@ private extension InsightsView {
     var concertInsightsContent: some View {
         VStack(spacing: 16) {
             ConcertFrequencyCard(concerts: concertSessions)
+            RepertoireRepeatCard(sessions: concertSessions, categorizer: categorizer)
         }
     }
 
