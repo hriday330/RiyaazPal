@@ -52,6 +52,7 @@ struct PracticeTimelineView: View {
                 }
                 
             }
+
             .navigationTitle("RiyaazPal")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -64,7 +65,7 @@ struct PracticeTimelineView: View {
                 }
             }
             .searchableIf(
-                !sessions.isEmpty,
+                !sessions.isEmpty || sessionViewModel.isSessionActive,
                 text: $timelineFilterViewModel.searchText,
                 tokens: $timelineFilterViewModel.selectedTags,
                 suggestedTokens: timelineFilterViewModel.suggestedTags(from: sessions),
@@ -170,6 +171,36 @@ private extension PracticeTimelineView {
     }
 }
 
+private extension PracticeTimelineView {
+    var sessionTypeFilterChips: some View {
+        HStack(spacing: 8) {
+            FilterChip(
+                title: "All",
+                isSelected: timelineFilterViewModel.sessionTypeFilter == .all
+            ) {
+                timelineFilterViewModel.sessionTypeFilter = .all
+            }
+
+            FilterChip(
+                title: "Practice",
+                isSelected: timelineFilterViewModel.sessionTypeFilter == .practice
+            ) {
+                timelineFilterViewModel.sessionTypeFilter = .practice
+            }
+
+            FilterChip(
+                title: "Concerts",
+                isSelected: timelineFilterViewModel.sessionTypeFilter == .concert
+            ) {
+                timelineFilterViewModel.sessionTypeFilter = .concert
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
+}
 
 private extension PracticeTimelineView {
     
@@ -206,8 +237,15 @@ private extension PracticeTimelineView {
                     },
                     sessions: sessions
                 )
+                sessionTypeFilterChips.padding(.top, 8)
+                
+                if (!timelineFilterViewModel.filteredSessions(from: sessions).isEmpty) {
+                    timelineList
+                } else {
+                    PracticeTimelineTypeEmptyState(filter: timelineFilterViewModel.sessionTypeFilter)
+                }
+                
 
-                timelineList
             }
         }
     }

@@ -13,6 +13,8 @@ final class TimelineFilterViewModel: ObservableObject {
     @Published var searchText = ""
     @Published var selectedTags: [TagToken] = []
     @Published var highlightedTag: String?
+    @Published var sessionTypeFilter: SessionTypeFilter = .all
+
 
     var isSearching: Bool {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -33,6 +35,20 @@ final class TimelineFilterViewModel: ObservableObject {
     ) -> [PracticeSession] {
 
         sessions.filter { session in
+            
+            switch sessionTypeFilter {
+                case .all:
+                    break 
+                case .practice:
+                    if session.resolvedSessionType != .practice {
+                        return false
+                    }
+                case .concert:
+                    if session.resolvedSessionType != .concert {
+                        return false
+                    }
+                }
+
             if !selectedTags.isEmpty {
                 let selected = Set(selectedTags.map { $0.name.lowercased() })
                 let sessionTags = session.tags.map { $0.lowercased() }
@@ -78,3 +94,10 @@ struct TagToken: Identifiable, Hashable {
     var id: String { name }
     let name: String
 }
+
+enum SessionTypeFilter {
+    case all
+    case practice
+    case concert
+}
+
