@@ -29,6 +29,8 @@
 		C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */; };
 		C091E6352F42580200271B6E /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6342F42580200271B6E /* FilterChip.swift */; };
 		C091E6372F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */; };
+		C091E6392F42ADC900271B6E /* ConcertFrequencyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6382F42ADC900271B6E /* ConcertFrequencyCard.swift */; };
+		C091E63B2F42B0F500271B6E /* RepertoireRepeatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E63A2F42B0F500271B6E /* RepertoireRepeatCard.swift */; };
 		C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */; };
 		C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */; };
 		C0A430C12F03494400C2401C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0A430C02F03494400C2401C /* Assets.xcassets */; };
@@ -87,6 +89,8 @@
 		C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencySummarySection.swift; sourceTree = "<group>"; };
 		C091E6342F42580200271B6E /* FilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChip.swift; sourceTree = "<group>"; };
 		C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineTypeEmptyState.swift; sourceTree = "<group>"; };
+		C091E6382F42ADC900271B6E /* ConcertFrequencyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcertFrequencyCard.swift; sourceTree = "<group>"; };
+		C091E63A2F42B0F500271B6E /* RepertoireRepeatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepertoireRepeatCard.swift; sourceTree = "<group>"; };
 		C0A430B92F03494200C2401C /* RiyaazPal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RiyaazPal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiyaazPalApp.swift; sourceTree = "<group>"; };
 		C0A430BE2F03494200C2401C /* PracticeTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineView.swift; sourceTree = "<group>"; };
@@ -139,6 +143,8 @@
 				C000668F2F0EF8D500BC930C /* InsightsView.swift */,
 				C066A2AB2F15B868005A5D44 /* ReflectionInsightsSection.swift */,
 				C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */,
+				C091E6382F42ADC900271B6E /* ConcertFrequencyCard.swift */,
+				C091E63A2F42B0F500271B6E /* RepertoireRepeatCard.swift */,
 			);
 			path = Insights;
 			sourceTree = "<group>";
@@ -406,6 +412,7 @@
 				C0A430DF2F060DD300C2401C /* PracticeTimelineViewModel.swift in Sources */,
 				C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */,
 				C0E5804A2F1AE85400571C5E /* EditSessionTagsSection.swift in Sources */,
+				C091E6392F42ADC900271B6E /* ConcertFrequencyCard.swift in Sources */,
 				C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */,
 				C0A430D52F0599CD00C2401C /* PracticeSessionViewModel.swift in Sources */,
 				C066A2922F0F3DF9005A5D44 /* InsightWindow.swift in Sources */,
@@ -421,6 +428,7 @@
 				C066A2B02F18893E005A5D44 /* InsightsViewModel.swift in Sources */,
 				C0F593772F1F6593009F6A0D /* CategoryDetailView.swift in Sources */,
 				C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */,
+				C091E63B2F42B0F500271B6E /* RepertoireRepeatCard.swift in Sources */,
 				C066A2962F0FAE24005A5D44 /* FocusCarousel.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
 				C091E6352F42580200271B6E /* FilterChip.swift in Sources */,
