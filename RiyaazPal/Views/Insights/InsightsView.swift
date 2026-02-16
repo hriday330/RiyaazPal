@@ -9,6 +9,11 @@ import Foundation
 import SwiftUI
 import SwiftData
 
+enum InsightsMode {
+    case practice
+    case concerts
+}
+
 struct InsightsView: View {
     
     @EnvironmentObject var router: TabRouter
@@ -20,6 +25,7 @@ struct InsightsView: View {
         private var tagCategories: [TagCategoryModel]
     
     @StateObject private var insightsViewModel = InsightsViewModel()
+    @State private var mode: InsightsMode = .practice
     
     private var categorizer: TagCategorizer {
         TagCategorizer(categories: tagCategories)
@@ -28,6 +34,15 @@ struct InsightsView: View {
     private var recentSessions: [PracticeSession] {
         insightsViewModel.recentSessions(from: sessions)
     }
+    
+    private var practiceSessions: [PracticeSession] {
+        recentSessions.filter { $0.resolvedSessionType == .practice }
+    }
+
+    private var concertSessions: [PracticeSession] {
+        recentSessions.filter { $0.resolvedSessionType == .concert }
+    }
+
 
     private var focusStats: FocusStats {
         insightsViewModel.focusStats(from: recentSessions, categorizer: categorizer)
@@ -66,27 +81,14 @@ struct InsightsView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     header
-                    PracticeScoreMeter(
-                        score: practiceScore
-                    )
-                    ReflectionInsightSection(
-                        insight: insightsViewModel.reflectionInsight,
-                        isLoading: insightsViewModel.isLoadingInsight,
-                        error: insightsViewModel.insightError
-                    )
-                    ConsistencySummarySection(consistencyStats: consistencyStats)
-                        .insightCard()
-                        .shadow(color: .black.opacity(0.08), radius: 10)
-                    FocusCarousel(focusStats: focusStats, categories: focusCategories)
-                        .background(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .fill(Color("CardBackground"))
-                        )
-                        .shadow(color: .black.opacity(0.08), radius: 10)
+                    insightsModeChips
+                    if (mode == .practice){
+                        practiceInsightsContent
+                    } else {
+                        concertInsightsContent
+                    }
                     
-                    notablePatterns
-                    
-                    
+            
                 }.scrollTransition(.interactive) { content, phase in
                     content
                         .opacity(phase.isIdentity ? 1.0 : 0.94)
@@ -112,7 +114,7 @@ struct InsightsView: View {
 private extension InsightsView {
     var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Your Recent Practice")
+            Text("Your Recent \(mode == .practice ? "Practice" : "Concerts")")
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color("PrimaryText"))
@@ -125,6 +127,38 @@ private extension InsightsView {
     }
 }
 
+private extension InsightsView {
+    var practiceInsightsContent: some View {
+        VStack{
+            PracticeScoreMeter(
+                score: practiceScore
+            )
+            ReflectionInsightSection(
+                insight: insightsViewModel.reflectionInsight,
+                isLoading: insightsViewModel.isLoadingInsight,
+                error: insightsViewModel.insightError
+            )
+            ConsistencySummarySection(consistencyStats: consistencyStats)
+                .insightCard()
+                .shadow(color: .black.opacity(0.08), radius: 10)
+            FocusCarousel(focusStats: focusStats, categories: focusCategories)
+                .background(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(Color("CardBackground"))
+                )
+                .shadow(color: .black.opacity(0.08), radius: 10)
+            
+            notablePatterns
+        }
+    }
+    
+    var concertInsightsContent: some View {
+        VStack(spacing: 16) {
+            Text("Concerts insights will go here!")
+        }
+    }
+
+}
 private extension InsightsView {
     var notablePatterns: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -173,6 +207,30 @@ private extension InsightsView {
                 .fill(Color("CardBackground"))
         )
     }
+}
+
+private extension InsightsView {
+    var insightsModeChips: some View {
+        HStack(spacing: 8) {
+            FilterChip(
+                title: "Practice",
+                isSelected: mode == .practice
+            ) {
+                mode = .practice
+            }
+
+            FilterChip(
+                title: "Concerts",
+                isSelected: mode == .concerts
+            ) {
+                mode = .concerts
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal)
+    }
+
 }
 
 private extension View {
