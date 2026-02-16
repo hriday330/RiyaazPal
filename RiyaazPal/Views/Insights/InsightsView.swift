@@ -154,9 +154,10 @@ private extension InsightsView {
     
     var concertInsightsContent: some View {
         VStack(spacing: 16) {
-            Text("Concerts insights will go here!")
+            ConcertFrequencyCard(concerts: concertSessions)
         }
     }
+
 
 }
 private extension InsightsView {
