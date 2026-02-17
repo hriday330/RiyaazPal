@@ -15,7 +15,9 @@ struct GoalsPanel: View {
 
     let onAddRaga: () -> Void
     let onAddTechnique: () -> Void
-    let onEdit: () -> Void
+    let onRemove: (GoalEntity) -> Void
+
+    @State private var isEditing: Bool = false
 
     private var ragas: [GoalEntity] {
         goals.filter { $0.type == .raga }
@@ -81,38 +83,67 @@ private extension GoalsPanel {
     var populatedState: some View {
         VStack(alignment: .leading, spacing: 16) {
 
-            HStack {
-                Text("Your current focus")
-                    .font(.headline)
+            header
 
-                Spacer()
-
-                Button("Edit", action: onEdit)
-                    .font(.subheadline)
+            if !ragas.isEmpty || isEditing {
+                section(
+                    title: "Raga",
+                    goals: ragas,
+                    onAdd: onAddRaga
+                )
             }
 
-            if !ragas.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Raga")
-                        .font(.caption)
-                        .foregroundStyle(Color("SecondaryText"))
+            if !techniques.isEmpty || isEditing {
+                section(
+                    title: "Technique",
+                    goals: techniques,
+                    onAdd: onAddTechnique
+                )
+            }
+        }
+    }
 
-                    ForEach(ragas) { goal in
-                        goalRow(goal)
-                    }
+    // MARK: - Header
+
+    var header: some View {
+        HStack {
+            Text("Your current focus")
+                .font(.headline)
+
+            Spacer()
+
+            Button(isEditing ? "Done" : "Edit") {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isEditing.toggle()
                 }
             }
+            .font(.subheadline)
+        }
+    }
 
-            if !techniques.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Technique")
-                        .font(.caption)
-                        .foregroundStyle(Color("SecondaryText"))
+    // MARK: - Section
 
-                    ForEach(techniques) { goal in
-                        goalRow(goal)
+    func section(title: String, goals: [GoalEntity], onAdd: @escaping () -> Void) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(Color("SecondaryText"))
+
+            ForEach(goals) { goal in
+                goalRow(goal)
+            }
+
+            if isEditing {
+                Button(action: onAdd) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.caption)
+                        Text("Add \(title.lowercased())")
+                            .font(.caption)
                     }
                 }
+                .padding(.top, 4)
             }
         }
     }
@@ -132,6 +163,15 @@ private extension GoalsPanel {
             }
 
             Spacer()
+
+            if isEditing {
+                Button {
+                    onRemove(goal)
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .foregroundStyle(.red)
+                }
+            }
         }
     }
 
@@ -155,6 +195,7 @@ private extension GoalsPanel {
     }
 }
 
+// MARK: - Empty
 
 #if DEBUG
 import SwiftUI
@@ -170,13 +211,14 @@ import SwiftData
             goals: [],
             onAddRaga: {},
             onAddTechnique: {},
-            onEdit: {}
+            onRemove: { _ in }
         )
         .padding()
     }
     .modelContainer(container)
     .preferredColorScheme(.light)
 }
+
 
 // MARK: - Raga
 
@@ -197,12 +239,13 @@ import SwiftData
             goals: goals,
             onAddRaga: {},
             onAddTechnique: {},
-            onEdit: {}
+            onRemove: { _ in }
         )
         .padding()
     }
     .modelContainer(container)
 }
+
 
 // MARK: - Technique
 
@@ -229,12 +272,13 @@ import SwiftData
             goals: goals,
             onAddRaga: {},
             onAddTechnique: {},
-            onEdit: {}
+            onRemove: { _ in }
         )
         .padding()
     }
     .modelContainer(container)
 }
+
 
 // MARK: - Mixed
 
@@ -267,7 +311,7 @@ import SwiftData
             goals: goals,
             onAddRaga: {},
             onAddTechnique: {},
-            onEdit: {}
+            onRemove: { _ in }
         )
         .padding()
     }
