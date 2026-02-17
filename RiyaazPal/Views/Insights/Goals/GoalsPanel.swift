@@ -9,15 +9,6 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-//
-//  GoalsPanel.swift
-//  RiyaazPal
-//
-
-import Foundation
-import SwiftUI
-import SwiftData
-
 struct GoalsPanel: View {
 
     let goals: [GoalEntity]
@@ -26,6 +17,16 @@ struct GoalsPanel: View {
     @StateObject private var viewModel = GoalsViewModel()
 
     @State private var isEditing: Bool = false
+
+    // Inline creation state
+    @State private var isAddingGoal: Bool = false
+    @State private var addingType: GoalTypeRaw = .raga
+    @State private var selectedTagName: String?
+    @State private var selectedIntent: GoalIntentRaw = .increaseComfort
+    @State private var showIntentSelector = false
+
+    @Query(sort: \TagCategoryModel.order)
+    private var categories: [TagCategoryModel]
 
     private var ragas: [GoalEntity] {
         goals.filter { $0.type == .raga }
@@ -48,17 +49,6 @@ struct GoalsPanel: View {
         .onAppear {
             viewModel.attachContext(context)
         }
-//        .sheet(isPresented: $viewModel.isPresentingTagPicker) {
-//            TagPickerView(
-//                goalType: viewModel.pendingGoalType,
-//                onSelect: viewModel.tagSelected
-//            )
-//        }
-//        .sheet(isPresented: $viewModel.isPresentingIntentPicker) {
-//            IntentPickerView(
-//                onSelect: viewModel.intentSelected
-//            )
-//        }
         .alert("Focus limit reached", isPresented: $viewModel.showLimitAlert) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -67,6 +57,8 @@ struct GoalsPanel: View {
     }
 }
 
+// MARK: - Card Styling
+
 private extension View {
     func insightCard(background: Color = Color("CardBackground")) -> some View {
         self
@@ -74,14 +66,14 @@ private extension View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color("CardBackground"))
+                    .fill(background)
             )
     }
 }
 
-private extension GoalsPanel {
+// MARK: - Empty State
 
-    // MARK: - Empty State
+private extension GoalsPanel {
 
     var emptyState: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -93,19 +85,20 @@ private extension GoalsPanel {
                 .font(.subheadline)
                 .foregroundStyle(Color("SecondaryText"))
 
-            HStack(spacing: 10) {
-                Button("Add raga") {
-                    viewModel.startAddFlow(type: .raga, currentGoals: goals)
-                }
-
-                Button("Add technique") {
-                    viewModel.startAddFlow(type: .technique, currentGoals: goals)
+            if isAddingGoal {
+                inlineCreator
+            } else {
+                Button("Add focus") {
+                    isAddingGoal = true
                 }
             }
         }
     }
+}
 
-    // MARK: - Populated State
+// MARK: - Populated State
+
+private extension GoalsPanel {
 
     var populatedState: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -113,24 +106,23 @@ private extension GoalsPanel {
             header
 
             if !ragas.isEmpty || isEditing {
-                section(
-                    title: "Raga",
-                    goals: ragas,
-                    type: .raga
-                )
+                section(title: "Raga", goals: ragas)
             }
 
             if !techniques.isEmpty || isEditing {
-                section(
-                    title: "Technique",
-                    goals: techniques,
-                    type: .technique
-                )
+                section(title: "Technique", goals: techniques)
+            }
+
+            if isAddingGoal {
+                inlineCreator
             }
         }
     }
+}
 
-    // MARK: - Header
+// MARK: - Header
+
+private extension GoalsPanel {
 
     var header: some View {
         HStack {
@@ -141,16 +133,22 @@ private extension GoalsPanel {
 
             Button(isEditing ? "Done" : "Edit") {
                 withAnimation(.easeInOut(duration: 0.2)) {
+                    if (isEditing) {
+                        saveGoal()
+                    }
                     isEditing.toggle()
                 }
             }
             .font(.subheadline)
         }
     }
+}
 
-    // MARK: - Section
+// MARK: - Sections
 
-    func section(title: String, goals: [GoalEntity], type: GoalTypeRaw) -> some View {
+private extension GoalsPanel {
+
+    func section(title: String, goals: [GoalEntity]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
 
             Text(title)
@@ -163,7 +161,8 @@ private extension GoalsPanel {
 
             if isEditing {
                 Button {
-                    viewModel.startAddFlow(type: type, currentGoals: self.goals)
+                    addingType = (title == "Raga") ? .raga : .technique
+                    isAddingGoal = true
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "plus.circle.fill")
@@ -176,11 +175,60 @@ private extension GoalsPanel {
             }
         }
     }
+}
 
-    // MARK: - Goal Row
+// MARK: - Inline Goal Creator
+
+private extension GoalsPanel {
+
+    var inlineCreator: some View {
+        VStack(alignment: .leading, spacing: 10) {
+
+            Picker("Type", selection: $addingType) {
+                Text("Raga").tag(GoalTypeRaw.raga)
+                Text("Technique").tag(GoalTypeRaw.technique)
+            }
+            .pickerStyle(.segmented)
+
+            Picker("Select", selection: $selectedTagName) {
+                Text("Select...").tag(String?.none)
+
+                ForEach(tagOptions(), id: \.self) { tag in
+                    Text(tag).tag(Optional(tag))
+                }
+            }
+
+            if showIntentSelector {
+                Picker("Intent", selection: $selectedIntent) {
+                    Text("Increase comfort").tag(GoalIntentRaw.increaseComfort)
+                    Text("Deepen exploration").tag(GoalIntentRaw.deepenExploration)
+                    Text("Stabilize").tag(GoalIntentRaw.stabilize)
+                    Text("Improve clarity").tag(GoalIntentRaw.improveClarity)
+                    Text("Increase complexity").tag(GoalIntentRaw.increaseComplexity)
+                    Text("Build stamina").tag(GoalIntentRaw.buildStamina)
+                }
+            } else {
+                Button("Add intent (optional)") {
+                    showIntentSelector = true
+                }
+                .font(.caption)
+            }
+
+            Button("Save") {
+                saveGoal()
+            }
+            .disabled(selectedTagName == nil)
+        }
+        .padding(.top, 6)
+    }
+}
+
+// MARK: - Goal Row
+
+private extension GoalsPanel {
 
     func goalRow(_ goal: GoalEntity) -> some View {
-        HStack(alignment: .center) {
+        HStack {
 
             Text("• \(goal.tagName)")
                 .font(.subheadline)
@@ -203,34 +251,70 @@ private extension GoalsPanel {
             }
         }
     }
+}
 
-    // MARK: - Intent Label
+// MARK: - Tag Options
 
-    func intentLabel(_ intent: GoalIntentRaw) -> String {
-        switch intent {
-        case .deepenExploration:
-            return "deepen exploration"
-        case .increaseComfort:
-            return "increase comfort"
-        case .stabilize:
-            return "stabilize"
-        case .improveClarity:
-            return "improve clarity"
-        case .increaseComplexity:
-            return "increase complexity"
-        case .buildStamina:
-            return "build stamina"
+private extension GoalsPanel {
+
+    func tagOptions() -> [String] {
+        categories
+            .filter { addingType == .raga ? $0.name == "Raga" : $0.name != "Raga" }
+            .flatMap { $0.tags }
+            .sorted()
+    }
+}
+
+// MARK: - Save Goal
+
+private extension GoalsPanel {
+
+    func saveGoal() {
+        guard
+            let tagName = selectedTagName,
+            let category = categories.first(where: { $0.tags.contains(tagName) })
+        else { return }
+
+        let newGoal = GoalEntity(
+            type: addingType,
+            categoryID: category.id,
+            tagName: tagName,
+            intent: selectedIntent
+        )
+
+        context.insert(newGoal)
+        try? context.save()
+
+        withAnimation {
+            isAddingGoal = false
+            selectedTagName = nil
+            selectedIntent = .increaseComfort
+            showIntentSelector = false
         }
     }
 }
 
-// MARK: - Empty
+// MARK: - Intent Labels
+
+private extension GoalsPanel {
+
+    func intentLabel(_ intent: GoalIntentRaw) -> String {
+        switch intent {
+        case .deepenExploration: return "deepen exploration"
+        case .increaseComfort: return "increase comfort"
+        case .stabilize: return "stabilize"
+        case .improveClarity: return "improve clarity"
+        case .increaseComplexity: return "increase complexity"
+        case .buildStamina: return "build stamina"
+        }
+    }
+}
 
 #if DEBUG
-import SwiftUI
-import SwiftData
+// MARK: - Preview Host
 
 private struct GoalsPanelPreviewHost: View {
+
     @Query(filter: #Predicate<GoalEntity> { $0.isActive == true })
     private var activeGoals: [GoalEntity]
 
@@ -239,12 +323,11 @@ private struct GoalsPanelPreviewHost: View {
             .padding()
     }
 }
-#endif
 
+// MARK: - Previews
 
 #Preview("GoalsPanel – Empty – Light") {
     let container = PreviewModelContainer.make()
-    let context = container.mainContext
 
     return NavigationStack {
         GoalsPanelPreviewHost()
@@ -334,3 +417,4 @@ private struct GoalsPanelPreviewHost: View {
     .modelContainer(container)
     .preferredColorScheme(.dark)
 }
+#endif
