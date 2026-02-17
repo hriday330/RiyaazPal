@@ -15,7 +15,8 @@ enum PreviewModelContainer {
         let container = try! ModelContainer(
             for:
                 PracticeSession.self,
-                TagCategoryModel.self
+                TagCategoryModel.self,
+                GoalEntity.self
             ,
             configurations: ModelConfiguration(
                 isStoredInMemoryOnly: true
