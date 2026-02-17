@@ -9,13 +9,21 @@ import Foundation
 import SwiftUI
 import SwiftData
 
+//
+//  GoalsPanel.swift
+//  RiyaazPal
+//
+
+import Foundation
+import SwiftUI
+import SwiftData
+
 struct GoalsPanel: View {
 
     let goals: [GoalEntity]
 
-    let onAddRaga: () -> Void
-    let onAddTechnique: () -> Void
-    let onRemove: (GoalEntity) -> Void
+    @Environment(\.modelContext) private var context
+    @StateObject private var viewModel = GoalsViewModel()
 
     @State private var isEditing: Bool = false
 
@@ -37,6 +45,25 @@ struct GoalsPanel: View {
         }
         .insightCard()
         .shadow(color: .black.opacity(0.08), radius: 10)
+        .onAppear {
+            viewModel.attachContext(context)
+        }
+//        .sheet(isPresented: $viewModel.isPresentingTagPicker) {
+//            TagPickerView(
+//                goalType: viewModel.pendingGoalType,
+//                onSelect: viewModel.tagSelected
+//            )
+//        }
+//        .sheet(isPresented: $viewModel.isPresentingIntentPicker) {
+//            IntentPickerView(
+//                onSelect: viewModel.intentSelected
+//            )
+//        }
+        .alert("Focus limit reached", isPresented: $viewModel.showLimitAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("You can keep up to 3 active goals at a time.")
+        }
     }
 }
 
@@ -67,12 +94,12 @@ private extension GoalsPanel {
                 .foregroundStyle(Color("SecondaryText"))
 
             HStack(spacing: 10) {
-                Button(action: onAddRaga) {
-                    Text("Add raga")
+                Button("Add raga") {
+                    viewModel.startAddFlow(type: .raga, currentGoals: goals)
                 }
 
-                Button(action: onAddTechnique) {
-                    Text("Add technique")
+                Button("Add technique") {
+                    viewModel.startAddFlow(type: .technique, currentGoals: goals)
                 }
             }
         }
@@ -89,7 +116,7 @@ private extension GoalsPanel {
                 section(
                     title: "Raga",
                     goals: ragas,
-                    onAdd: onAddRaga
+                    type: .raga
                 )
             }
 
@@ -97,7 +124,7 @@ private extension GoalsPanel {
                 section(
                     title: "Technique",
                     goals: techniques,
-                    onAdd: onAddTechnique
+                    type: .technique
                 )
             }
         }
@@ -123,7 +150,7 @@ private extension GoalsPanel {
 
     // MARK: - Section
 
-    func section(title: String, goals: [GoalEntity], onAdd: @escaping () -> Void) -> some View {
+    func section(title: String, goals: [GoalEntity], type: GoalTypeRaw) -> some View {
         VStack(alignment: .leading, spacing: 6) {
 
             Text(title)
@@ -135,7 +162,9 @@ private extension GoalsPanel {
             }
 
             if isEditing {
-                Button(action: onAdd) {
+                Button {
+                    viewModel.startAddFlow(type: type, currentGoals: self.goals)
+                } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "plus.circle.fill")
                             .font(.caption)
@@ -153,7 +182,7 @@ private extension GoalsPanel {
     func goalRow(_ goal: GoalEntity) -> some View {
         HStack(alignment: .center) {
 
-            Text("• \(goal.displayName)")
+            Text("• \(goal.tagName)")
                 .font(.subheadline)
 
             if let intent = goal.intent {
@@ -166,7 +195,7 @@ private extension GoalsPanel {
 
             if isEditing {
                 Button {
-                    onRemove(goal)
+                    viewModel.removeGoal(goal)
                 } label: {
                     Image(systemName: "minus.circle.fill")
                         .foregroundStyle(.red)
@@ -201,17 +230,12 @@ private extension GoalsPanel {
 import SwiftUI
 import SwiftData
 
-// MARK: - Empty
-
 #Preview("GoalsPanel – Empty – Light") {
     let container = PreviewModelContainer.make()
 
     return NavigationStack {
         GoalsPanel(
-            goals: [],
-            onAddRaga: {},
-            onAddTechnique: {},
-            onRemove: { _ in }
+            goals: []
         )
         .padding()
     }
@@ -219,35 +243,26 @@ import SwiftData
     .preferredColorScheme(.light)
 }
 
-
-// MARK: - Raga
-
 #Preview("GoalsPanel – Raga Focus") {
     let container = PreviewModelContainer.make()
 
     let goals = [
         GoalEntity(
             type: .raga,
-            tagID: UUID(),
-            displayName: "Yaman",
+            categoryID: UUID(),
+            tagName: "Yaman",
             intent: .increaseComfort
         )
     ]
 
     return NavigationStack {
         GoalsPanel(
-            goals: goals,
-            onAddRaga: {},
-            onAddTechnique: {},
-            onRemove: { _ in }
+            goals: goals
         )
         .padding()
     }
     .modelContainer(container)
 }
-
-
-// MARK: - Technique
 
 #Preview("GoalsPanel – Technique Focus") {
     let container = PreviewModelContainer.make()
@@ -255,32 +270,26 @@ import SwiftData
     let goals = [
         GoalEntity(
             type: .technique,
-            tagID: UUID(),
-            displayName: "Layakari",
+            categoryID: UUID(),
+            tagName: "Layakari",
             intent: .stabilize
         ),
         GoalEntity(
             type: .technique,
-            tagID: UUID(),
-            displayName: "Meend",
+            categoryID: UUID(),
+            tagName: "Meend",
             intent: .improveClarity
         )
     ]
 
     return NavigationStack {
         GoalsPanel(
-            goals: goals,
-            onAddRaga: {},
-            onAddTechnique: {},
-            onRemove: { _ in }
+            goals: goals
         )
         .padding()
     }
     .modelContainer(container)
 }
-
-
-// MARK: - Mixed
 
 #Preview("GoalsPanel – Mixed Focus – Dark") {
     let container = PreviewModelContainer.make()
@@ -288,30 +297,27 @@ import SwiftData
     let goals = [
         GoalEntity(
             type: .raga,
-            tagID: UUID(),
-            displayName: "Marwa",
+            categoryID: UUID(),
+            tagName: "Marwa",
             intent: .deepenExploration
         ),
         GoalEntity(
             type: .raga,
-            tagID: UUID(),
-            displayName: "Yaman",
+            categoryID: UUID(),
+            tagName: "Yaman",
             intent: .deepenExploration
         ),
         GoalEntity(
             type: .technique,
-            tagID: UUID(),
-            displayName: "Layakari",
+            categoryID: UUID(),
+            tagName: "Layakari",
             intent: .stabilize
         )
     ]
 
     return NavigationStack {
         GoalsPanel(
-            goals: goals,
-            onAddRaga: {},
-            onAddTechnique: {},
-            onRemove: { _ in }
+            goals: goals
         )
         .padding()
     }
