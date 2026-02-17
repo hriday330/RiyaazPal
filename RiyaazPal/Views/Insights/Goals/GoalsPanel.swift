@@ -230,14 +230,24 @@ private extension GoalsPanel {
 import SwiftUI
 import SwiftData
 
+private struct GoalsPanelPreviewHost: View {
+    @Query(filter: #Predicate<GoalEntity> { $0.isActive == true })
+    private var activeGoals: [GoalEntity]
+
+    var body: some View {
+        GoalsPanel(goals: activeGoals)
+            .padding()
+    }
+}
+#endif
+
+
 #Preview("GoalsPanel – Empty – Light") {
     let container = PreviewModelContainer.make()
+    let context = container.mainContext
 
     return NavigationStack {
-        GoalsPanel(
-            goals: []
-        )
-        .padding()
+        GoalsPanelPreviewHost()
     }
     .modelContainer(container)
     .preferredColorScheme(.light)
@@ -245,84 +255,82 @@ import SwiftData
 
 #Preview("GoalsPanel – Raga Focus") {
     let container = PreviewModelContainer.make()
+    let context = container.mainContext
 
-    let goals = [
+    context.insert(
         GoalEntity(
             type: .raga,
             categoryID: UUID(),
             tagName: "Yaman",
             intent: .increaseComfort
         )
-    ]
+    )
 
     return NavigationStack {
-        GoalsPanel(
-            goals: goals
-        )
-        .padding()
+        GoalsPanelPreviewHost()
     }
     .modelContainer(container)
 }
 
 #Preview("GoalsPanel – Technique Focus") {
     let container = PreviewModelContainer.make()
+    let context = container.mainContext
 
-    let goals = [
+    context.insert(
         GoalEntity(
             type: .technique,
             categoryID: UUID(),
             tagName: "Layakari",
             intent: .stabilize
-        ),
+        )
+    )
+    context.insert(
         GoalEntity(
             type: .technique,
             categoryID: UUID(),
             tagName: "Meend",
             intent: .improveClarity
         )
-    ]
+    )
 
     return NavigationStack {
-        GoalsPanel(
-            goals: goals
-        )
-        .padding()
+        GoalsPanelPreviewHost()
     }
     .modelContainer(container)
 }
 
 #Preview("GoalsPanel – Mixed Focus – Dark") {
     let container = PreviewModelContainer.make()
+    let context = container.mainContext
 
-    let goals = [
+    context.insert(
         GoalEntity(
             type: .raga,
             categoryID: UUID(),
             tagName: "Marwa",
             intent: .deepenExploration
-        ),
+        )
+    )
+    context.insert(
         GoalEntity(
             type: .raga,
             categoryID: UUID(),
             tagName: "Yaman",
             intent: .deepenExploration
-        ),
+        )
+    )
+    context.insert(
         GoalEntity(
             type: .technique,
             categoryID: UUID(),
             tagName: "Layakari",
             intent: .stabilize
         )
-    ]
+    )
 
     return NavigationStack {
-        GoalsPanel(
-            goals: goals
-        )
-        .padding()
+        GoalsPanelPreviewHost()
     }
     .modelContainer(container)
     .preferredColorScheme(.dark)
 }
-
-#endif
