@@ -2,6 +2,8 @@
 //  GoalsViewModel.swift
 //  RiyaazPal
 //
+//  Created by Hriday Buddhdev on 2026-02-17.
+//
 
 import Foundation
 import SwiftUI
@@ -11,19 +13,7 @@ final class GoalsViewModel: ObservableObject {
 
     private let maxActiveGoals = 3
 
-    // MARK: - UI Flow State
-
-    @Published var isPresentingTagPicker = false
-    @Published var isPresentingIntentPicker = false
-
-    @Published var pendingGoalType: GoalTypeRaw?
-    @Published var selectedCategory: TagCategoryModel?
-    @Published var selectedTagName: String?
-    @Published var selectedIntent: GoalIntentRaw?
-
     @Published var showLimitAlert = false
-
-    // MARK: - Dependencies
 
     private var context: ModelContext?
 
@@ -31,42 +21,47 @@ final class GoalsViewModel: ObservableObject {
         self.context = context
     }
 
-    // MARK: - Flow Control
-
     @MainActor
-    func startAddFlow(type: GoalTypeRaw, currentGoals: [GoalEntity]) {
-        guard currentGoals.count < maxActiveGoals else {
+    func createGoal(
+        type: GoalTypeRaw,
+        category: TagCategoryModel,
+        tagName: String,
+        intent: GoalIntentRaw?,
+        currentGoals: [GoalEntity]
+    ) {
+        guard let context else { return }
+
+        // enforce max goals
+        let activeGoals = currentGoals.filter { $0.isActive }
+        guard activeGoals.count < maxActiveGoals else {
             showLimitAlert = true
             return
         }
 
-        pendingGoalType = type
-        selectedCategory = nil
-        selectedTagName = nil
-        selectedIntent = nil
+        // prevent duplicates
+        let alreadyExists = activeGoals.contains {
+            $0.tagName == tagName && $0.type == type
+        }
 
-        isPresentingTagPicker = true
+        guard !alreadyExists else { return }
+
+        let newGoal = GoalEntity(
+            type: type,
+            categoryID: category.id,
+            tagName: tagName,
+            intent: intent
+        )
+
+        context.insert(newGoal)
+
+        do {
+            try context.save()
+        } catch {
+            print("GoalsViewModel.createGoal error:", error)
+        }
     }
 
-    /// Called when a tag is picked from TagPickerView
-    @MainActor
-    func tagSelected(category: TagCategoryModel, tagName: String) {
-        selectedCategory = category
-        selectedTagName = tagName
-
-        isPresentingTagPicker = false
-        isPresentingIntentPicker = true
-    }
-
-    @MainActor
-    func intentSelected(_ intent: GoalIntentRaw?) {
-        selectedIntent = intent
-        isPresentingIntentPicker = false
-
-        createGoal()
-    }
-
-    // MARK: - Goal Lifecycle
+    // MARK: - Deletion
 
     @MainActor
     func removeGoal(_ goal: GoalEntity) {
@@ -80,46 +75,5 @@ final class GoalsViewModel: ObservableObject {
             print("GoalsViewModel.removeGoal error:", error)
         }
     }
-
-    // MARK: - Creation
-
-    @MainActor
-    private func createGoal() {
-        guard
-            let context,
-            let category = selectedCategory,
-            let tagName = selectedTagName,
-            let type = pendingGoalType
-        else { return }
-
-        let newGoal = GoalEntity(
-            type: type,
-            categoryID: category.id,
-            tagName: tagName,
-            intent: selectedIntent
-        )
-
-        context.insert(newGoal)
-
-        do {
-            try context.save()
-        } catch {
-            print("GoalsViewModel.createGoal error:", error)
-        }
-
-        resetFlow()
-    }
-
-    // MARK: - Reset
-
-    @MainActor
-    private func resetFlow() {
-        pendingGoalType = nil
-        selectedCategory = nil
-        selectedTagName = nil
-        selectedIntent = nil
-
-        isPresentingTagPicker = false
-        isPresentingIntentPicker = false
-    }
 }
+

@@ -18,7 +18,6 @@ struct GoalsPanel: View {
 
     @State private var isEditing: Bool = false
 
-    // Inline creation state
     @State private var isAddingGoal: Bool = false
     @State private var addingType: GoalTypeRaw = .raga
     @State private var selectedTagName: String?
@@ -259,7 +258,7 @@ private extension GoalsPanel {
 
     func tagOptions() -> [String] {
         categories
-            .filter { addingType == .raga ? $0.name == "Raga" : $0.name != "Raga" }
+            .filter { addingType == .raga ? $0.name == "Raga" : $0.name == "Technique" }
             .flatMap { $0.tags }
             .sorted()
     }
