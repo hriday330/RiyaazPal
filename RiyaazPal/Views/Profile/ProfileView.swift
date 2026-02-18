@@ -141,3 +141,13 @@ private struct ProfileCategoryRow: View {
     .modelContainer(container)
     .preferredColorScheme(.light)
 }
+
+#Preview("Profile – Dark") {
+    let container = PreviewModelContainer.make()
+
+    return NavigationStack {
+        ProfileView()
+    }
+    .modelContainer(container)
+    .preferredColorScheme(.dark)
+}
