@@ -11,6 +11,7 @@ import SwiftData
 
 enum SetupStep: Int, CaseIterable {
     case welcome
+    case goals
     case ragas
     case talas
     case sections
@@ -31,6 +32,9 @@ struct SetupView: View {
 
     @Query(sort: \TagCategoryModel.order)
     private var categories: [TagCategoryModel]
+    
+    @Query(filter: #Predicate<GoalEntity> { $0.isActive == true })
+    private var activeGoals: [GoalEntity]
 
     var body: some View {
         NavigationStack {
@@ -45,7 +49,17 @@ struct SetupView: View {
             SetupWelcomeView {
                 advance()
             }
-
+        
+        case .goals:
+            GoalsSetupStepView(
+                title: "Define your focus",
+                subtitle: "Tell us what your current goals are musically",
+                goals: activeGoals,
+                onContinue: advance,
+                onSkip: advance
+            )
+            
+        
         case .ragas:
             if let category = getCategory(named: "Raga") {
                 CategorySetupStepView(
@@ -119,7 +133,7 @@ struct SetupView: View {
 
 #Preview("Setup Flow") {
     let container = try! ModelContainer(
-        for: TagCategoryModel.self,
+        for: TagCategoryModel.self, GoalEntity.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
 
