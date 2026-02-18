@@ -26,6 +26,7 @@ struct InsightsView: View {
     
     @StateObject private var insightsViewModel = InsightsViewModel()
     @State private var mode: InsightsMode = .practice
+    @State private var showProfile = false
     
     private var categorizer: TagCategorizer {
         TagCategorizer(categories: tagCategories)
@@ -107,6 +108,22 @@ struct InsightsView: View {
         }
 
         .navigationTitle("Insights")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showProfile = true
+                } label: {
+                    Image(systemName: "person.crop.circle")
+                        .imageScale(.large)
+                }
+            }
+        }.sheet(isPresented: $showProfile) {
+            NavigationStack {
+                ProfileView()
+            }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 
