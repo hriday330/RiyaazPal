@@ -32,7 +32,8 @@ struct RiyaazPalApp: App {
         }
         .modelContainer(for: [
             PracticeSession.self,
-            TagCategoryModel.self
+            TagCategoryModel.self,
+            GoalEntity.self
         ])
     }
 }
