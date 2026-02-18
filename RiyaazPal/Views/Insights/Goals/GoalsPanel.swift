@@ -23,6 +23,7 @@ struct GoalsPanel: View {
     @State private var selectedTagName: String?
     @State private var selectedIntent: GoalIntentRaw = .increaseComfort
     @State private var showIntentSelector = false
+    @State private var showInlineDuplicateMessage = false
 
     @Query(sort: \TagCategoryModel.order)
     private var categories: [TagCategoryModel]
@@ -42,6 +43,8 @@ struct GoalsPanel: View {
             } else {
                 populatedState
             }
+    
+
         }
         .insightCard()
         .shadow(color: .black.opacity(0.08), radius: 10)
@@ -52,7 +55,23 @@ struct GoalsPanel: View {
             Button("OK", role: .cancel) { }
         } message: {
             Text("You can keep up to 3 active goals at a time.")
+        }.onChange(of: viewModel.showDuplicateAlert) { _, newValue in
+            if newValue {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showInlineDuplicateMessage = true
+                }
+
+                // auto-hide after short delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        showInlineDuplicateMessage = false
+                    }
+                }
+
+                viewModel.showDuplicateAlert = false
+            }
         }
+
     }
 }
 
@@ -111,7 +130,7 @@ private extension GoalsPanel {
             if !techniques.isEmpty || isEditing {
                 section(title: "Technique", goals: techniques)
             }
-
+            
             if isAddingGoal {
                 inlineCreator
             }
@@ -134,8 +153,10 @@ private extension GoalsPanel {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     if (isEditing) {
                         saveGoal()
+                    } else {
+                        isEditing.toggle()
                     }
-                    isEditing.toggle()
+                    
                 }
             }
             .font(.subheadline)
@@ -217,7 +238,15 @@ private extension GoalsPanel {
                 saveGoal()
             }
             .disabled(selectedTagName == nil)
-        }
+            
+            if showInlineDuplicateMessage {
+                Text("This focus is already in your goals.")
+                    .font(.caption)
+                    .foregroundStyle(Color.red)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+            
+                    }
         .padding(.top, 6)
     }
 }
@@ -274,21 +303,22 @@ private extension GoalsPanel {
             let category = categories.first(where: { $0.tags.contains(tagName) })
         else { return }
 
-        let newGoal = GoalEntity(
+        var res = viewModel.createGoal(
             type: addingType,
-            categoryID: category.id,
+            category: category,
             tagName: tagName,
-            intent: selectedIntent
+            intent: selectedIntent,
+            currentGoals: goals
         )
 
-        context.insert(newGoal)
-        try? context.save()
-
-        withAnimation {
-            isAddingGoal = false
-            selectedTagName = nil
-            selectedIntent = .increaseComfort
-            showIntentSelector = false
+        if (res) {
+            withAnimation {
+                isAddingGoal = false
+                isEditing = false
+                selectedTagName = nil
+                selectedIntent = .increaseComfort
+                showIntentSelector = false
+            }
         }
     }
 }

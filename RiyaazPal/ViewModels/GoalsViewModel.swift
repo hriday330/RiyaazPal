@@ -14,6 +14,8 @@ final class GoalsViewModel: ObservableObject {
     private let maxActiveGoals = 3
 
     @Published var showLimitAlert = false
+    
+    @Published var showDuplicateAlert = false
 
     private var context: ModelContext?
 
@@ -28,22 +30,27 @@ final class GoalsViewModel: ObservableObject {
         tagName: String,
         intent: GoalIntentRaw?,
         currentGoals: [GoalEntity]
-    ) {
-        guard let context else { return }
+    ) -> Bool {
+
+        guard let context else { return false }
+
+        let activeGoals = currentGoals.filter { $0.isActive }
 
         // enforce max goals
-        let activeGoals = currentGoals.filter { $0.isActive }
         guard activeGoals.count < maxActiveGoals else {
             showLimitAlert = true
-            return
+            return false
         }
 
         // prevent duplicates
         let alreadyExists = activeGoals.contains {
-            $0.tagName == tagName && $0.type == type
+            $0.tagName.caseInsensitiveCompare(tagName) == .orderedSame && $0.type == type
         }
 
-        guard !alreadyExists else { return }
+        guard !alreadyExists else {
+            showDuplicateAlert = true
+            return false
+        }
 
         let newGoal = GoalEntity(
             type: type,
@@ -56,10 +63,13 @@ final class GoalsViewModel: ObservableObject {
 
         do {
             try context.save()
+            return true
         } catch {
             print("GoalsViewModel.createGoal error:", error)
+            return false
         }
     }
+
 
     // MARK: - Deletion
 
