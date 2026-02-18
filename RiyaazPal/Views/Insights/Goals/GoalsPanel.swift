@@ -14,10 +14,11 @@ struct GoalsPanel: View {
     let goals: [GoalEntity]
 
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    
     @StateObject private var viewModel = GoalsViewModel()
 
     @State private var isEditing: Bool = false
-
     @State private var isAddingGoal: Bool = false
     @State private var addingType: GoalTypeRaw = .raga
     @State private var selectedTagName: String?
@@ -37,17 +38,21 @@ struct GoalsPanel: View {
     }
 
     var body: some View {
-        Group {
-            if goals.isEmpty {
-                emptyState
-            } else {
-                populatedState
+        ScrollView {
+            Group {
+                if goals.isEmpty {
+                    emptyState
+                } else {
+                    populatedState
+                }
             }
-    
-
+            .insightCard()
+            .shadow(color: .black.opacity(0.08), radius: 10)
+            .padding()
         }
-        .insightCard()
-        .shadow(color: .black.opacity(0.08), radius: 10)
+        .background(Color("AppBackground").ignoresSafeArea())
+        .navigationTitle("Goals")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.attachContext(context)
         }
@@ -55,13 +60,13 @@ struct GoalsPanel: View {
             Button("OK", role: .cancel) { }
         } message: {
             Text("You can keep up to 3 active goals at a time.")
-        }.onChange(of: viewModel.showDuplicateAlert) { _, newValue in
+        }
+        .onChange(of: viewModel.showDuplicateAlert) { _, newValue in
             if newValue {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     showInlineDuplicateMessage = true
                 }
 
-                // auto-hide after short delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         showInlineDuplicateMessage = false
@@ -71,11 +76,12 @@ struct GoalsPanel: View {
                 viewModel.showDuplicateAlert = false
             }
         }
-
     }
 }
 
+//
 // MARK: - Card Styling
+//
 
 private extension View {
     func insightCard(background: Color = Color("CardBackground")) -> some View {
@@ -89,7 +95,9 @@ private extension View {
     }
 }
 
+//
 // MARK: - Empty State
+//
 
 private extension GoalsPanel {
 
@@ -114,7 +122,9 @@ private extension GoalsPanel {
     }
 }
 
+//
 // MARK: - Populated State
+//
 
 private extension GoalsPanel {
 
@@ -138,7 +148,9 @@ private extension GoalsPanel {
     }
 }
 
+//
 // MARK: - Header
+//
 
 private extension GoalsPanel {
 
@@ -151,12 +163,11 @@ private extension GoalsPanel {
 
             Button(isEditing ? "Done" : "Edit") {
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    if (isEditing) {
+                    if isEditing {
                         saveGoal()
                     } else {
                         isEditing.toggle()
                     }
-                    
                 }
             }
             .font(.subheadline)
@@ -164,7 +175,9 @@ private extension GoalsPanel {
     }
 }
 
+//
 // MARK: - Sections
+//
 
 private extension GoalsPanel {
 
@@ -197,7 +210,9 @@ private extension GoalsPanel {
     }
 }
 
+//
 // MARK: - Inline Goal Creator
+//
 
 private extension GoalsPanel {
 
@@ -245,13 +260,14 @@ private extension GoalsPanel {
                     .foregroundStyle(Color.red)
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
-            
-                    }
+        }
         .padding(.top, 6)
     }
 }
 
+//
 // MARK: - Goal Row
+//
 
 private extension GoalsPanel {
 
@@ -281,7 +297,9 @@ private extension GoalsPanel {
     }
 }
 
+//
 // MARK: - Tag Options
+//
 
 private extension GoalsPanel {
 
@@ -293,7 +311,9 @@ private extension GoalsPanel {
     }
 }
 
+//
 // MARK: - Save Goal
+//
 
 private extension GoalsPanel {
 
@@ -303,7 +323,7 @@ private extension GoalsPanel {
             let category = categories.first(where: { $0.tags.contains(tagName) })
         else { return }
 
-        var res = viewModel.createGoal(
+        let res = viewModel.createGoal(
             type: addingType,
             category: category,
             tagName: tagName,
@@ -311,7 +331,7 @@ private extension GoalsPanel {
             currentGoals: goals
         )
 
-        if (res) {
+        if res {
             withAnimation {
                 isAddingGoal = false
                 isEditing = false
@@ -323,7 +343,9 @@ private extension GoalsPanel {
     }
 }
 
+//
 // MARK: - Intent Labels
+//
 
 private extension GoalsPanel {
 
@@ -340,7 +362,10 @@ private extension GoalsPanel {
 }
 
 #if DEBUG
+
+//
 // MARK: - Preview Host
+//
 
 private struct GoalsPanelPreviewHost: View {
 
@@ -349,11 +374,12 @@ private struct GoalsPanelPreviewHost: View {
 
     var body: some View {
         GoalsPanel(goals: activeGoals)
-            .padding()
     }
 }
 
+//
 // MARK: - Previews
+//
 
 #Preview("GoalsPanel – Empty – Light") {
     let container = PreviewModelContainer.make()
@@ -446,4 +472,5 @@ private struct GoalsPanelPreviewHost: View {
     .modelContainer(container)
     .preferredColorScheme(.dark)
 }
+
 #endif
