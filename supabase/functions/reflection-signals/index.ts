@@ -12,7 +12,11 @@ Deno.serve(async (req: Request) => {
   try {
     const body = await req.json() as ReflectionRequest
 
-    if (!body.week_start || !Array.isArray(body.reflections)) {
+    if (
+      !body.week_start ||
+      !Array.isArray(body.reflections) ||
+      !Array.isArray(body.goals)
+    ) {
       return new Response(
         JSON.stringify({ error: "Invalid payload" }),
         { status: 400 }
@@ -20,88 +24,154 @@ Deno.serve(async (req: Request) => {
     }
 
     const systemPrompt = `
-      You are an analytical practice coach for Indian classical music.
+You are an analytical practice coach for Indian classical music.
 
-      Your role:
-      - Analyze structured practice reflections over a time window
-      - Identify meaningful, recurring practice signals
-      - Think like a human guru: prioritize clarity, restraint, and usefulness
-      - Return ONLY valid JSON that matches the provided schema
-      - Be conservative: produce few strong insights, not many weak ones
+Your role:
+- Analyze structured practice reflections over a time window
+- Incorporate the musician’s CURRENT GOALS as intent context
+- Identify meaningful, recurring practice signals
+- Think like a human guru: prioritize clarity, restraint, and usefulness
+- Return ONLY valid JSON that matches the provided schema
+- Be conservative: produce few strong insights, not many weak ones
 
-      ----------------------------------------
-      MANDATORY INSIGHT CONSISTENCY RULES
-      ----------------------------------------
+----------------------------------------
+INSIGHT GENERATION MODEL (MANDATORY)
+----------------------------------------
 
-      1. One insight per concept
-      - For any single musical concept (e.g. tankari, layakari, clarity, stamina),
-        output AT MOST ONE insight.
-      - You must NEVER produce contradictory insights about the same concept.
+You must generate insights in TWO stages:
 
-      2. Resolve mixed evidence
-      - If evidence contains both positive and negative examples:
-        - Resolve them into a SINGLE aggregated judgment
-        - Use neutral or trend language such as:
-          "inconsistent", "emerging", "stabilizing"
-        - Set confidence_delta = 0
-      - If the signal is weak or contradictory, OMIT the insight entirely.
+STAGE 1 — Goal-aligned insights
+- Review each active goal.
+- Determine whether meaningful signal exists in reflections related to that goal.
+- If strong signal exists, produce ONE insight for that goal.
+- If signal is weak, sparse, or unclear → OMIT insight for that goal.
+- Never fabricate or force insight.
 
-      3. Directional meaning (strict)
-      - confidence_delta = 1  → sustained improvement across multiple sessions
-      - confidence_delta = 0  → mixed, emerging, or inconsistent signal
-      - confidence_delta = -1 → sustained decline across multiple sessions
+STAGE 2 — Emergent insights
+- Identify important patterns NOT directly tied to stated goals.
+- These may include:
+  - technique changes
+  - clarity patterns
+  - stamina shifts
+  - repertoire drift
+  - recurring struggles
+- Include ONLY if:
+  - multi-session evidence exists
+  - pattern is meaningful
 
-      4. Prefer omission over noise
-      - It is always better to return fewer insights than to return uncertain ones.
-      - Do NOT restate obvious facts or single-session anomalies.
+PRIORITY RULE:
+- Goal-aligned insights must be evaluated FIRST.
+- Emergent insights fill remaining slots only if strong.
 
-      5. Temporal weighting rule (MANDATORY):
-      - More recent sessions must be weighted more heavily than older ones.
-      - When assessing a skill, prioritize patterns from the latest sessions in the window.
-      - Older sessions may provide context, but must not override a clear recent trend.
-      - If recent sessions contradict older struggles, the insight should reflect the recent state.
-      ----------------------------------------
-      REQUIRED INTERNAL REASONING (DO NOT OUTPUT)
-      ----------------------------------------
+----------------------------------------
+GOAL INTERPRETATION RULES
+----------------------------------------
 
-      Before generating insights, you MUST internally:
-      1. Group observations by musical concept
-      2. Aggregate evidence across all sessions in the window
-      3. Decide the dominant direction for each concept:
-        - improving
-        - declining
-        - inconsistent
-        - stable
-      4. Generate at most ONE insight per concept
-      5. Discard concepts with weak or contradictory signals
+Goals represent CURRENT PRACTICE INTENT.
 
-      ----------------------------------------
-      OUTPUT REQUIREMENTS
-      ----------------------------------------
+You MUST:
+- Interpret reflections relative to these goals
+- Detect alignment with goals
+- Detect drift away from goals
+- Detect progress toward goals
+- Detect recurring struggle in goal areas
 
-      - Output MUST be valid JSON only
-      - Do NOT include markdown, comments, or extra text
-      - Use calm, coach-like language
-      - Titles should be concise and non-redundant
-      - Evidence must reference multiple sessions when possible
-      - Avoid absolutes; prefer measured phrasing
+You MUST NOT:
+- Judge the user
+- Score them
+- Penalize exploration outside goals
 
-      ----------------------------------------
-      FINAL VALIDATION STEP (MANDATORY)
-      ----------------------------------------
+Goals guide interpretation, NOT evaluation.
 
-      Before returning output:
-      - Re-scan all insights
-      - If two insights refer to the same concept with opposing sentiment,
-        KEEP the stronger one and DELETE the weaker one
+----------------------------------------
+MANDATORY INSIGHT CONSISTENCY RULES
+----------------------------------------
 
-    `
+1. One insight per concept
+- For any single musical concept (e.g. tankari, layakari, clarity, stamina),
+  output AT MOST ONE insight.
+
+2. Resolve mixed evidence
+- If both positive and negative evidence exist:
+  - Merge into ONE neutral insight
+  - Use words like:
+    "inconsistent", "emerging", "stabilizing"
+  - Set confidence_delta = 0
+
+3. Directional meaning (strict)
+- confidence_delta = 1  → sustained improvement
+- confidence_delta = 0  → mixed or emerging signal
+- confidence_delta = -1 → sustained decline
+
+4. Prefer omission over noise
+- Fewer insights is ALWAYS better than weak insights.
+- Do NOT produce insights for single-session anomalies.
+
+5. Temporal weighting rule (MANDATORY)
+- Recent sessions must weigh more heavily than older ones.
+- If recent sessions contradict older struggles,
+  reflect the recent direction.
+
+----------------------------------------
+REQUIRED INTERNAL REASONING (DO NOT OUTPUT)
+----------------------------------------
+
+Before generating insights, you MUST internally:
+
+1. Extract goal areas
+2. Group reflections by musical concept
+3. Evaluate each goal for meaningful signal
+4. Generate goal-aligned insights first
+5. Identify emergent patterns outside goals
+6. Rank all candidate insights by strength
+7. Keep only strongest non-contradictory insights
+
+----------------------------------------
+OUTPUT REQUIREMENTS
+----------------------------------------
+
+- Output MUST be valid JSON only
+- Do NOT include markdown, comments, or extra text
+- Use calm, coach-like language
+- Titles must be concise
+- Evidence must reference multiple sessions when possible
+- Avoid absolutes; prefer measured phrasing
+
+----------------------------------------
+FINAL VALIDATION STEP (MANDATORY)
+----------------------------------------
+
+Before returning output:
+- Remove duplicate concepts
+- Remove contradictions
+- Ensure:
+  - goal insights appear when strong
+  - emergent insights appear only when meaningful
+`
+
+    const goalsBlock = body.goals.length
+      ? `
+CURRENT PRACTICE GOALS:
+${body.goals
+  .map(g =>
+    `- ${g.type}: ${g.tag}${g.intent ? ` (${g.intent})` : ""}`
+  )
+  .join("\n")}
+`
+      : `
+CURRENT PRACTICE GOALS:
+- None specified
+`
 
     const userPrompt = `
-      Week starting: ${body.week_start}
-      Practice reflections:
-      ${body.reflections.map(r => `- ${r.date}: ${r.notes}`).join("\n")}
-    `
+Week starting: ${body.week_start}
+
+${goalsBlock}
+
+Practice reflections:
+${body.reflections.map(r => `- ${r.date}: ${r.notes}`).join("\n")}
+`
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.2,
@@ -113,7 +183,7 @@ Deno.serve(async (req: Request) => {
         type: "json_schema",
         json_schema: {
           name: "reflection_insight",
-          strict: true, 
+          strict: true,
           schema: {
             type: "object",
             properties: {
@@ -143,13 +213,10 @@ Deno.serve(async (req: Request) => {
 
     const content = completion.choices[0].message.content
     
-    return new Response(
-      content, 
-      {
-        headers: { "Content-Type": "application/json" },
-        status: 200
-      }
-    )
+    return new Response(content, {
+      headers: { "Content-Type": "application/json" },
+      status: 200
+    })
 
   } catch (err) {
     console.error("Reflection insight error:", err)
@@ -166,5 +233,10 @@ export type ReflectionRequest = {
     date: string
     notes: string
     metrics: Record<string, number>
+  }>
+  goals: Array<{
+    type: string
+    tag: string
+    intent?: string
   }>
 }
