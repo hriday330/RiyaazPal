@@ -24,6 +24,10 @@ struct InsightsView: View {
     @Query(sort: \TagCategoryModel.order)
         private var tagCategories: [TagCategoryModel]
     
+    @Query(filter: #Predicate<GoalEntity> { $0.isActive == true })
+        private var activeGoals: [GoalEntity]
+
+    
     @StateObject private var insightsViewModel = InsightsViewModel()
     @State private var mode: InsightsMode = .practice
     @State private var showProfile = false
@@ -100,11 +104,12 @@ struct InsightsView: View {
                 .padding()
             }.refreshable {
                 await insightsViewModel.fetchReflectionInsight(
-                    sessions: recentSessions
+                    sessions: recentSessions,
+                    goals: activeGoals
                 )
             }
         }.task(id: insightsVersion) {
-            await insightsViewModel.fetchReflectionInsight(sessions: recentSessions)
+            await insightsViewModel.fetchReflectionInsight(sessions: recentSessions, goals: activeGoals)
         }
 
         .navigationTitle("Insights")

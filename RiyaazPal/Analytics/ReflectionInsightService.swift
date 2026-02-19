@@ -11,16 +11,19 @@ enum ReflectionInsightService {
 
     static func generateInsight(
         sessions: [PracticeSession],
+        goals: [GoalEntity],
         window: DateRange
     ) async throws -> ReflectionInsight {
 
         let requestBody = try buildRequest(
             sessions: sessions,
+            goals: goals,
             window: window
         )
 
         return try await callEdgeFunction(body: requestBody)
     }
+
 
 }
 
@@ -37,18 +40,27 @@ struct InsightItem: Decodable {
 private struct ReflectionRequestBody: Encodable {
     let week_start: String
     let reflections: [ReflectionEntry]
+    let goals: [GoalEntry]
 
     struct ReflectionEntry: Encodable {
         let date: String
         let notes: String
         let metrics: [String: Double]
     }
+
+    struct GoalEntry: Encodable {
+        let type: String
+        let tag: String
+        let intent: String?
+    }
 }
+
 
 private extension ReflectionInsightService {
 
     static func buildRequest(
         sessions: [PracticeSession],
+        goals: [GoalEntity],
         window: DateRange
     ) throws -> ReflectionRequestBody {
 
@@ -69,7 +81,7 @@ private extension ReflectionInsightService {
                 return .init(
                     date: dateTimeFormatter.string(from: session.startTime),
                     notes: notes,
-                    metrics: [:] // TODO: add additional signals here if needed
+                    metrics: [:]
                 )
             }
 
@@ -77,11 +89,23 @@ private extension ReflectionInsightService {
             throw InsightError.noValidReflections
         }
 
+        let goalEntries = goals
+            .filter { $0.isActive }
+            .map {
+                ReflectionRequestBody.GoalEntry(
+                    type: $0.type.rawValue,
+                    tag: $0.tagName,
+                    intent: $0.intent?.rawValue
+                )
+            }
+
         return ReflectionRequestBody(
             week_start: fullDateFormatter.string(from: window.start),
-            reflections: reflections
+            reflections: reflections,
+            goals: goalEntries
         )
     }
+
 }
 
 enum InsightError: LocalizedError {
