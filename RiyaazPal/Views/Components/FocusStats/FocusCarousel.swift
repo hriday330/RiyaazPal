@@ -41,7 +41,7 @@ struct FocusCarousel: View {
                     }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 180)
+            .frame(height: 300)
 
             dotsIndicator
         }.padding(10)

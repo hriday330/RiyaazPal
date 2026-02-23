@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Charts
 
 struct FocusBreakdownCard: View {
 
@@ -37,19 +38,67 @@ struct FocusBreakdownCard: View {
             if totalSessions == 0 {
                 emptyState
             } else {
-                VStack(spacing: 8) {
-                    ForEach(sortedTags, id: \.tag) { entry in
-                        focusRow(
-                            label: entry.tag,
-                            percent: percentage(for: entry.count)
-                        )
-                    }
+                HStack(spacing: 20) {
+                    chartView
+                        .frame(width: 160, height: 240)
+                    legendView
                 }
             }
         }
     }
 }
 
+private extension FocusBreakdownCard {
+
+    var chartView: some View {
+        Chart(sortedTags, id: \.tag) { entry in
+            SectorMark(
+                angle: .value("Count", entry.count),
+                innerRadius: .ratio(0.6),   // makes it donut style
+                angularInset: 2
+            )
+            .foregroundStyle(by: .value("Tag", entry.tag))
+        }
+        .chartLegend(.hidden)
+    }
+}
+
+private extension FocusBreakdownCard {
+
+    var legendView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(sortedTags, id: \.tag) { entry in
+                HStack(spacing: 8) {
+
+                    Circle()
+                        .fill(color(for: entry.tag))
+                        .frame(width: 10, height: 10)
+
+                    Text(entry.tag.capitalized)
+                        .font(.subheadline)
+
+                    Spacer()
+
+                    Text("\(percentage(for: entry.count))%")
+                        .font(.subheadline)
+                        .foregroundStyle(Color("SecondaryText"))
+                }
+            }
+        }
+    }
+
+    func color(for tag: String) -> Color {
+        let index = sortedTags.firstIndex(where: { $0.tag == tag }) ?? 0
+        let palette: [Color] = [
+            Color("AccentColor"),
+            .blue,
+            .green,
+            .orange,
+            .purple
+        ]
+        return palette[index % palette.count]
+    }
+}
 private extension FocusBreakdownCard {
 
     var title: String {
