@@ -105,11 +105,16 @@ struct InsightsView: View {
             }.refreshable {
                 await insightsViewModel.fetchReflectionInsight(
                     sessions: recentSessions,
-                    goals: activeGoals
+                    goals: activeGoals,
+                    categories: tagCategories
                 )
             }
         }.task(id: insightsVersion) {
-            await insightsViewModel.fetchReflectionInsight(sessions: recentSessions, goals: activeGoals)
+            await insightsViewModel.fetchReflectionInsight(
+                sessions: recentSessions,
+                goals: activeGoals,
+                categories: tagCategories
+            )
         }
 
         .navigationTitle("Insights")

@@ -12,18 +12,19 @@ enum ReflectionInsightService {
     static func generateInsight(
         sessions: [PracticeSession],
         goals: [GoalEntity],
+        categories: [TagCategoryModel],
         window: DateRange
     ) async throws -> ReflectionInsight {
 
         let requestBody = try buildRequest(
             sessions: sessions,
             goals: goals,
+            categories: categories,
             window: window
         )
 
         return try await callEdgeFunction(body: requestBody)
     }
-
 
 }
 
@@ -41,6 +42,7 @@ private struct ReflectionRequestBody: Encodable {
     let week_start: String
     let reflections: [ReflectionEntry]
     let goals: [GoalEntry]
+    let categories: [CategoryEntry]
 
     struct ReflectionEntry: Encodable {
         let date: String
@@ -53,6 +55,11 @@ private struct ReflectionRequestBody: Encodable {
         let tag: String
         let intent: String?
     }
+    
+    struct CategoryEntry: Encodable {
+        let name: String
+        let tags: [String]
+    }
 }
 
 
@@ -61,6 +68,7 @@ private extension ReflectionInsightService {
     static func buildRequest(
         sessions: [PracticeSession],
         goals: [GoalEntity],
+        categories: [TagCategoryModel],
         window: DateRange
     ) throws -> ReflectionRequestBody {
 
@@ -99,10 +107,17 @@ private extension ReflectionInsightService {
                 )
             }
 
+        let categoryEntries = categories.map {
+            ReflectionRequestBody.CategoryEntry(
+                name: $0.name,
+                tags: $0.tags
+            )
+        }
         return ReflectionRequestBody(
             week_start: fullDateFormatter.string(from: window.start),
             reflections: reflections,
-            goals: goalEntries
+            goals: goalEntries,
+            categories: categoryEntries
         )
     }
 

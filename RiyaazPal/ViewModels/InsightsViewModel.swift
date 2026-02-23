@@ -58,7 +58,7 @@ final class InsightsViewModel: ObservableObject {
     private var insightTask: Task<Void, Never>?
     
     @MainActor
-    func fetchReflectionInsight(sessions: [PracticeSession], goals: [GoalEntity]) async {
+    func fetchReflectionInsight(sessions: [PracticeSession], goals: [GoalEntity], categories: [TagCategoryModel]) async {
         insightTask?.cancel()
         
         guard !sessions.isEmpty else {
@@ -73,6 +73,7 @@ final class InsightsViewModel: ObservableObject {
                 let insight = try await ReflectionInsightService.generateInsight(
                     sessions: sessions,
                     goals: goals,
+                    categories: categories,
                     window: currentWindow
                 )
                 try Task.checkCancellation()
