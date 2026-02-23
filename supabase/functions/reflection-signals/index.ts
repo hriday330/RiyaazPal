@@ -15,7 +15,8 @@ Deno.serve(async (req: Request) => {
     if (
       !body.week_start ||
       !Array.isArray(body.reflections) ||
-      !Array.isArray(body.goals)
+      !Array.isArray(body.goals) ||
+      !Array.isArray(body.categories)
     ) {
       return new Response(
         JSON.stringify({ error: "Invalid payload" }),
@@ -33,6 +34,12 @@ Your role:
 - Think like a human guru: prioritize clarity, restraint, and usefulness
 - Return ONLY valid JSON that matches the provided schema
 - Be conservative: produce few strong insights, not many weak ones
+
+IMPORTANT:
+- Reflection insights must remain grounded in the reflections.
+- When referencing ragas, sections, techniques, taals, or other musical entities,
+  ONLY use items from the provided PRACTICE CATEGORIES.
+- Do not invent or assume entities outside those categories.
 
 ----------------------------------------
 INSIGHT GENERATION MODEL (MANDATORY)
@@ -163,10 +170,27 @@ CURRENT PRACTICE GOALS:
 - None specified
 `
 
+    // NEW — categories context (minimal, factual only)
+    const categoriesBlock = body.categories.length
+      ? `
+PRACTICE CATEGORIES:
+${body.categories
+  .map(cat =>
+    `${cat.name}:\n${cat.tags.map(t => `- ${t}`).join("\n")}`
+  )
+  .join("\n\n")}
+`
+      : `
+PRACTICE CATEGORIES:
+- Not provided
+`
+
     const userPrompt = `
 Week starting: ${body.week_start}
 
 ${goalsBlock}
+
+${categoriesBlock}
 
 Practice reflections:
 ${body.reflections.map(r => `- ${r.date}: ${r.notes}`).join("\n")}
@@ -238,5 +262,9 @@ export type ReflectionRequest = {
     type: string
     tag: string
     intent?: string
+  }>
+  categories: Array<{
+    name: string
+    tags: string[]
   }>
 }
