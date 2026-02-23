@@ -23,200 +23,212 @@ Deno.serve(async (req: Request) => {
       )
     }
 
-    const systemPrompt = `
-You are an analytical practice coach for Indian classical music.
+    // ------------------------------------------------------------
+    // STEP 1 — Normalize reflections
+    // ------------------------------------------------------------
 
-Your role:
-- Analyze structured practice reflections over a time window
-- Incorporate the musician’s CURRENT GOALS as intent context
-- Identify meaningful, recurring practice signals
-- Think like a human guru: prioritize clarity, restraint, and usefulness
-- Return ONLY valid JSON that matches the provided schema
-- Be conservative: produce few strong insights, not many weak ones
+    const normalizedReflections = body.reflections.map(r => ({
+      ...r,
+      tagsLower: (r.tags ?? []).map(t => t.toLowerCase())
+    }))
 
-----------------------------------------
-INSIGHT GENERATION MODEL (MANDATORY)
-----------------------------------------
+    // ------------------------------------------------------------
+    // STEP 2 — Deterministic goal → reflection matching via tags
+    // ------------------------------------------------------------
 
-You must generate insights in TWO stages:
+    const goalEvidence = body.goals.map(goal => {
+      const tagLower = goal.tag.toLowerCase()
 
-STAGE 1 — Goal-aligned insights
-- Review each active goal.
-- Determine whether meaningful signal exists in reflections related to that goal.
-- If strong signal exists, produce ONE insight for that goal.
-- If signal is weak, sparse, or unclear → OMIT insight for that goal.
-- Never fabricate or force insight.
+      const matching = normalizedReflections.filter(r =>
+        r.tagsLower.includes(tagLower)
+      )
 
-STAGE 2 — Emergent insights
-- Identify important patterns NOT directly tied to stated goals.
-- These may include:
-  - technique changes
-  - clarity patterns
-  - stamina shifts
-  - repertoire drift
-  - recurring struggles
-- Include ONLY if:
-  - multi-session evidence exists
-  - pattern is meaningful
-
-PRIORITY RULE:
-- Goal-aligned insights must be evaluated FIRST.
-- Emergent insights fill remaining slots only if strong.
-
-----------------------------------------
-GOAL INTERPRETATION RULES
-----------------------------------------
-
-Goals represent CURRENT PRACTICE INTENT.
-
-You MUST:
-- Interpret reflections relative to these goals
-- Detect alignment with goals
-- Detect drift away from goals
-- Detect progress toward goals
-- Detect recurring struggle in goal areas
-
-You MUST NOT:
-- Judge the user
-- Score them
-- Penalize exploration outside goals
-
-Goals guide interpretation, NOT evaluation.
-
-----------------------------------------
-MANDATORY INSIGHT CONSISTENCY RULES
-----------------------------------------
-
-1. One insight per concept
-- For any single musical concept (e.g. tankari, layakari, clarity, stamina),
-  output AT MOST ONE insight.
-
-2. Resolve mixed evidence
-- If both positive and negative evidence exist:
-  - Merge into ONE neutral insight
-  - Use words like:
-    "inconsistent", "emerging", "stabilizing"
-  - Set confidence_delta = 0
-
-3. Directional meaning (strict)
-- confidence_delta = 1  → sustained improvement
-- confidence_delta = 0  → mixed or emerging signal
-- confidence_delta = -1 → sustained decline
-
-4. Prefer omission over noise
-- Fewer insights is ALWAYS better than weak insights.
-- Do NOT produce insights for single-session anomalies.
-
-5. Temporal weighting rule (MANDATORY)
-- Recent sessions must weigh more heavily than older ones.
-- If recent sessions contradict older struggles,
-  reflect the recent direction.
-
-----------------------------------------
-REQUIRED INTERNAL REASONING (DO NOT OUTPUT)
-----------------------------------------
-
-Before generating insights, you MUST internally:
-
-1. Extract goal areas
-2. Group reflections by musical concept
-3. Evaluate each goal for meaningful signal
-4. Generate goal-aligned insights first
-5. Identify emergent patterns outside goals
-6. Rank all candidate insights by strength
-7. Keep only strongest non-contradictory insights
-
-----------------------------------------
-OUTPUT REQUIREMENTS
-----------------------------------------
-
-- Output MUST be valid JSON only
-- Do NOT include markdown, comments, or extra text
-- Use calm, coach-like language
-- Titles must be concise
-- Evidence must reference multiple sessions when possible
-- Avoid absolutes; prefer measured phrasing
-
-----------------------------------------
-FINAL VALIDATION STEP (MANDATORY)
-----------------------------------------
-
-Before returning output:
-- Remove duplicate concepts
-- Remove contradictions
-- Ensure:
-  - goal insights appear when strong
-  - emergent insights appear only when meaningful
-`
-
-    const goalsBlock = body.goals.length
-      ? `
-CURRENT PRACTICE GOALS:
-${body.goals
-  .map(g =>
-    `- ${g.type}: ${g.tag}${g.intent ? ` (${g.intent})` : ""}`
-  )
-  .join("\n")}
-`
-      : `
-CURRENT PRACTICE GOALS:
-- None specified
-`
-
-    const userPrompt = `
-Week starting: ${body.week_start}
-
-${goalsBlock}
-
-Practice reflections:
-${body.reflections.map(r => `- ${r.date}: ${r.notes}`).join("\n")}
-`
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "reflection_insight",
-          strict: true,
-          schema: {
-            type: "object",
-            properties: {
-              items: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    item: { type: "string" },
-                    confidence_delta: {
-                      type: "number",
-                      enum: [-1, 0, 1]
-                    },
-                    evidence: { type: "string" }
-                  },
-                  required: ["item", "confidence_delta", "evidence"],
-                  additionalProperties: false
-                }
-              }
-            },
-            required: ["items"],
-            additionalProperties: false
-          }
-        }
+      return {
+        goal,
+        reflections: matching
       }
     })
 
-    const content = completion.choices[0].message.content
-    
-    return new Response(content, {
-      headers: { "Content-Type": "application/json" },
-      status: 200
-    })
+    // ------------------------------------------------------------
+    // STEP 3 — Prepare insights array
+    // ------------------------------------------------------------
+
+    const insights: InsightItem[] = []
+
+    // ------------------------------------------------------------
+    // STEP 4 — Deterministic handling per goal
+    // ------------------------------------------------------------
+
+    for (const entry of goalEvidence) {
+      const { goal, reflections } = entry
+
+      // --------------------------------------------------------
+      // CASE A — No sessions tagged with this goal
+      // deterministic neutral insight
+      // --------------------------------------------------------
+
+      if (reflections.length === 0) {
+        insights.push({
+          item: `No sessions tagged with ${goal.tag} were found in this period.`,
+          confidence_delta: 0,
+          evidence: `No practice sessions were explicitly tagged with ${goal.tag}.`
+        })
+        continue
+      }
+
+      function extractGoalContexts(notes: string, goalTag: string, windowSize = 80): string[] {
+        const lowerNotes = notes.toLowerCase()
+        const lowerTag = goalTag.toLowerCase()
+
+        const contexts: string[] = []
+
+        let index = 0
+        while ((index = lowerNotes.indexOf(lowerTag, index)) !== -1) {
+          const start = Math.max(0, index - windowSize)
+          const end = Math.min(notes.length, index + lowerTag.length + windowSize)
+
+          contexts.push(notes.slice(start, end).trim())
+
+          index += lowerTag.length
+        }
+
+        return contexts
+      }
+      // --------------------------------------------------------
+      // CASE B — Evidence exists → call LLM for interpretation
+      // --------------------------------------------------------
+
+      const systemPrompt = `
+        You are an analytical practice coach for Indian classical music.
+
+        Your task is to generate ONE goal-specific insight.
+
+        You will receive:
+
+        - ONE practice goal
+        - ONLY reflections from sessions explicitly tagged with that goal
+
+        You must:
+
+        - Analyze only these reflections.
+        - Do NOT introduce other ragas or techniques.
+        - Do NOT infer related repertoire.
+        - Use notes only to interpret qualitative signal.
+
+        ----------------------------------------
+        TEMPORAL RULES
+        ----------------------------------------
+
+        - All reflections belong to a rolling time window.
+        - Weight recent reflections more heavily.
+
+        ----------------------------------------
+        INSIGHT RULES
+        ----------------------------------------
+
+        Determine the direction of signal:
+
+        improvement → confidence_delta = 1  
+        mixed/inconsistent → confidence_delta = 0  
+        decline → confidence_delta = -1  
+
+        Signals come from qualitative descriptions:
+        clarity, comfort, control, struggle, tone, stability, confidence.
+
+        Frequency alone does not determine progress.
+
+        ----------------------------------------
+        OUTPUT REQUIREMENTS
+        ----------------------------------------
+
+        Return valid JSON only:
+
+        {
+          "item": "string",
+          "confidence_delta": -1 | 0 | 1,
+          "evidence": "string"
+        }
+
+        
+        The insight must refer ONLY to the provided goal tag.
+
+        FORMAT REQUIREMENT:
+
+        The "item" string MUST begin with:
+
+        <Goal Tag>: <short assessment sentence>
+
+        Examples:
+        "Puriya Dhanashri: Stability has improved in recent sessions."
+        "Bol Taan: Control appears inconsistent."
+        "Marwa: Tone clarity has declined slightly."
+
+        Do not include introductory phrases.
+        Do not restate the goal separately.
+        Do not include coaching advice.
+        Keep the assessment concise and factual
+        `
+
+              const userPrompt = `
+        GOAL:
+        ${goal.type}: ${goal.tag}${goal.intent ? ` (${goal.intent})` : ""}
+
+        REFLECTIONS FROM TAGGED SESSIONS:
+       ${reflections
+          .flatMap(r =>
+            extractGoalContexts(r.notes, goal.tag)
+              .map(ctx => `- ${r.date}: ${ctx}`)
+          )
+          .join("\n")}
+        `
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        temperature: 0.2,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "goal_insight",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                item: { type: "string" },
+                confidence_delta: {
+                  type: "number",
+                  enum: [-1, 0, 1]
+                },
+                evidence: { type: "string" }
+              },
+              required: ["item", "confidence_delta", "evidence"],
+              additionalProperties: false
+            }
+          }
+        }
+      })
+
+      const content = completion.choices[0].message.content
+
+      if (content) {
+        insights.push(JSON.parse(content))
+      }
+    }
+
+    // ------------------------------------------------------------
+    // STEP 5 — Return final structured result
+    // ------------------------------------------------------------
+
+    return new Response(
+      JSON.stringify({ items: insights }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 200
+      }
+    )
 
   } catch (err) {
     console.error("Reflection insight error:", err)
@@ -227,11 +239,17 @@ ${body.reflections.map(r => `- ${r.date}: ${r.notes}`).join("\n")}
   }
 })
 
+
+// ------------------------------------------------------------
+// Types
+// ------------------------------------------------------------
+
 export type ReflectionRequest = {
   week_start: string
   reflections: Array<{
     date: string
     notes: string
+    tags: string[]          // ← REQUIRED now
     metrics: Record<string, number>
   }>
   goals: Array<{
@@ -239,4 +257,10 @@ export type ReflectionRequest = {
     tag: string
     intent?: string
   }>
+}
+
+type InsightItem = {
+  item: string
+  confidence_delta: -1 | 0 | 1
+  evidence: string
 }
