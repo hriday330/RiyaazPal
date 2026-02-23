@@ -158,7 +158,10 @@ private extension InsightsView {
             ReflectionInsightSection(
                 insight: insightsViewModel.reflectionInsight,
                 isLoading: insightsViewModel.isLoadingInsight,
-                error: insightsViewModel.insightError
+                error: insightsViewModel.insightError,
+                onAddGoalsTapped: {
+                    showProfile = true
+                }
             )
             ConsistencySummarySection(consistencyStats: consistencyStats)
                 .insightCard()

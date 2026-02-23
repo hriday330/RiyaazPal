@@ -7,11 +7,16 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 struct ReflectionInsightSection: View {
     let insight: ReflectionInsight?
     let isLoading: Bool
     let error: String?
+    let onAddGoalsTapped: () -> Void
+
+    @Query(filter: #Predicate<GoalEntity> { $0.isActive == true })
+    private var activeGoals: [GoalEntity]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -25,7 +30,10 @@ struct ReflectionInsightSection: View {
 
     @ViewBuilder
     private var content: some View {
-        if isLoading {
+        if activeGoals.isEmpty {
+            NoGoalsState(onAddGoalsTapped: onAddGoalsTapped)
+
+        } else if isLoading {
             LoadingState()
 
         } else if let insight {
@@ -36,6 +44,37 @@ struct ReflectionInsightSection: View {
 
         } else {
             EmptyState()
+        }
+    }
+}
+
+private struct NoGoalsState: View {
+    let onAddGoalsTapped: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Set a goal to unlock reflection insights.")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color("PrimaryText"))
+
+            Text("Insights are generated relative to what you're working toward.")
+                .font(.footnote)
+                .foregroundStyle(Color("SecondaryText"))
+
+            Button(action: onAddGoalsTapped) {
+                Text("Add Practice Goals")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        Capsule()
+                            .fill(Color("AccentColor"))
+                    )
+                    .foregroundStyle(.white)
+            }
+            .padding(.top, 4)
         }
     }
 }
@@ -147,7 +186,8 @@ private struct ErrorState: View {
             ]
         ),
         isLoading: false,
-        error: nil
+        error: nil,
+        onAddGoalsTapped: {}
     )
     .padding()
     .background(Color("AppBackground"))
@@ -157,7 +197,8 @@ private struct ErrorState: View {
     ReflectionInsightSection(
         insight: nil,
         isLoading: true,
-        error: nil
+        error: nil,
+        onAddGoalsTapped: {}
     )
     .padding()
     .background(Color("AppBackground"))
@@ -167,7 +208,8 @@ private struct ErrorState: View {
     ReflectionInsightSection(
         insight: nil,
         isLoading: false,
-        error: nil
+        error: nil,
+        onAddGoalsTapped: {}
     )
     .padding()
     .background(Color("AppBackground"))
@@ -177,7 +219,8 @@ private struct ErrorState: View {
     ReflectionInsightSection(
         insight: nil,
         isLoading: false,
-        error: "Unable to analyze reflections. Please try again."
+        error: "Unable to analyze reflections. Please try again.",
+        onAddGoalsTapped: {}
     )
     .padding()
     .background(Color("AppBackground"))

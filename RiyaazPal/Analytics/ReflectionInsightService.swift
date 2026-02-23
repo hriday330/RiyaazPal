@@ -45,6 +45,7 @@ private struct ReflectionRequestBody: Encodable {
     struct ReflectionEntry: Encodable {
         let date: String
         let notes: String
+        let tags: [String]
         let metrics: [String: Double]
     }
 
@@ -72,6 +73,7 @@ private extension ReflectionInsightService {
 
         let reflections = sessions
             .filter { window.contains($0.startTime) }
+            .filter { $0.resolvedSessionType == .practice }
             .compactMap { session -> ReflectionRequestBody.ReflectionEntry? in
                 let notes = session.detailedNotes
                     .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -81,6 +83,7 @@ private extension ReflectionInsightService {
                 return .init(
                     date: dateTimeFormatter.string(from: session.startTime),
                     notes: notes,
+                    tags: session.tags,
                     metrics: [:]
                 )
             }
@@ -98,7 +101,6 @@ private extension ReflectionInsightService {
                     intent: $0.intent?.rawValue
                 )
             }
-
         return ReflectionRequestBody(
             week_start: fullDateFormatter.string(from: window.start),
             reflections: reflections,
