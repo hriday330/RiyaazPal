@@ -239,17 +239,12 @@ Deno.serve(async (req: Request) => {
   }
 })
 
-
-// ------------------------------------------------------------
-// Types
-// ------------------------------------------------------------
-
 export type ReflectionRequest = {
   week_start: string
   reflections: Array<{
     date: string
     notes: string
-    tags: string[]          // ← REQUIRED now
+    tags: string[]          
     metrics: Record<string, number>
   }>
   goals: Array<{
