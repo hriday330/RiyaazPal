@@ -13,7 +13,7 @@ struct FocusBreakdownCard: View {
 
     let focusStats: FocusStats
     let category: TagCategory
-    let maxRows: Int = 3
+    let maxLegendRows: Int = 3
 
     private var histogram: [String: Int] {
         focusStats.histogramsByCategory[category] ?? [:]
@@ -23,11 +23,21 @@ struct FocusBreakdownCard: View {
         histogram.values.reduce(0, +)
     }
 
-    private var sortedTags: [(tag: String, count: Int)] {
-        histogram
+ 
+    private var displayData: [(tag: String, count: Int)] {
+        let sorted = histogram
             .sorted { $0.value > $1.value }
-            .prefix(maxRows)
-            .map { ($0.key, $0.value) }
+            .map { (tag: $0.key, count: $0.value) }
+
+        guard sorted.count > maxLegendRows else {
+            return sorted
+        }
+
+        let top = Array(sorted.prefix(maxLegendRows))
+        let remaining = sorted.dropFirst(maxLegendRows)
+        let otherCount = remaining.reduce(0) { $0 + $1.count }
+
+        return top + [(tag: "Other", count: otherCount)]
     }
 
     var body: some View {
@@ -40,7 +50,8 @@ struct FocusBreakdownCard: View {
             } else {
                 HStack(spacing: 20) {
                     chartView
-                        .frame(width: 160, height: 240)
+                        .frame(width: 160, height: 200)
+
                     legendView
                 }
             }
@@ -48,16 +59,17 @@ struct FocusBreakdownCard: View {
     }
 }
 
+
 private extension FocusBreakdownCard {
 
     var chartView: some View {
-        Chart(sortedTags, id: \.tag) { entry in
+        Chart(displayData, id: \.tag) { entry in
             SectorMark(
                 angle: .value("Count", entry.count),
-                innerRadius: .ratio(0.6),   // makes it donut style
+                innerRadius: .ratio(0.6),
                 angularInset: 2
             )
-            .foregroundStyle(by: .value("Tag", entry.tag))
+            .foregroundStyle(color(for: entry.tag))
         }
         .chartLegend(.hidden)
     }
@@ -67,7 +79,7 @@ private extension FocusBreakdownCard {
 
     var legendView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ForEach(sortedTags, id: \.tag) { entry in
+            ForEach(displayData, id: \.tag) { entry in
                 HStack(spacing: 8) {
 
                     Circle()
@@ -86,54 +98,50 @@ private extension FocusBreakdownCard {
             }
         }
     }
-
-    func color(for tag: String) -> Color {
-        let index = sortedTags.firstIndex(where: { $0.tag == tag }) ?? 0
-        let palette: [Color] = [
-            Color("AccentColor"),
-            .blue,
-            .green,
-            .orange,
-            .purple
-        ]
-        return palette[index % palette.count]
-    }
 }
+
 private extension FocusBreakdownCard {
 
     var title: String {
         switch category.name {
-            case "Section":
-                return "Section Focus"
-            case "Technique":
-                return "Technique Focus"
-            default:
-                return "Focus Breakdown"
-            }
+        case "Section": return "Section Focus"
+        case "Technique": return "Technique Focus"
+        default: return "Focus Breakdown"
         }
-    
+    }
+
     func percentage(for count: Int) -> Int {
         guard totalSessions > 0 else { return 0 }
         return Int(round((Double(count) / Double(totalSessions)) * 100))
     }
+
     var emptyState: some View {
         Text("Add tags to your sessions to view focus data")
             .font(.subheadline)
             .foregroundStyle(Color("SecondaryText"))
     }
 
-    func focusRow(label: String, percent: Int) -> some View {
-        HStack {
-            Text(label.capitalized)
-                .font(.subheadline)
-                .foregroundStyle(Color("PrimaryText"))
-
-            Spacer()
-
-            Text("\(percent)%")
-                .font(.subheadline)
-                .foregroundStyle(Color("SecondaryText"))
+    func color(for tag: String) -> Color {
+        if tag == "Other" {
+            return Color.gray.opacity(0.4)
         }
+
+        let palette: [Color] = [
+            .red,
+            .blue,
+            .green,
+            .orange,
+            .purple,
+            .pink,
+            .teal,
+            .indigo
+        ]
+
+        guard let index = displayData.firstIndex(where: { $0.tag == tag }) else {
+            return palette[0]
+        }
+
+        return palette[index % palette.count]
     }
 }
 
@@ -150,6 +158,37 @@ private extension FocusBreakdownCard {
                 "alap": 4,
                 "taan": 2,
                 "jor": 1
+            ]
+        ]
+    )
+
+    return FocusBreakdownCard(
+        focusStats: focusStats,
+        category: section
+    )
+    .padding()
+    .background(Color("AppBackground"))
+    .preferredColorScheme(.light)
+}
+
+#Preview("Focus Breakdown – Section (Other Visible)") {
+    let section = TagCategory(
+        id: UUID(),
+        name: "Section",
+        isFocusRelevant: true
+    )
+
+    let focusStats = FocusStats(
+        histogramsByCategory: [
+            section: [
+                "alap": 7,
+                "taan": 4,
+                "jor": 3,
+                "jhala": 2,
+                "vilambit": 2,
+                "drut": 1,
+                "sargam": 1,
+                "bol": 1
             ]
         ]
     )
