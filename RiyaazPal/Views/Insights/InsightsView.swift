@@ -44,9 +44,15 @@ struct InsightsView: View {
         recentSessions.filter { $0.resolvedSessionType == .practice }
     }
 
-    private var concertSessions: [PracticeSession] {
+    private var recentConcertSessions: [PracticeSession] {
         recentSessions.filter { $0.resolvedSessionType == .concert }
     }
+    
+    private var concertSessions: [PracticeSession] {
+        sessions.filter { $0.resolvedSessionType == .concert }
+    }
+    
+    
 
 
     private var focusStats: FocusStats {
@@ -179,9 +185,10 @@ private extension InsightsView {
     
     var concertInsightsContent: some View {
         VStack(spacing: 16) {
-            ConcertFrequencyCard(concerts: concertSessions)
-            RepertoireRepeatCard(sessions: concertSessions, categorizer: categorizer)
-            RepertoireNeglectCard(practiceSessions: practiceSessions, concertSessions: concertSessions, categorizer: categorizer)
+            ConcertFrequencyCard(concerts: recentConcertSessions)
+            ConcertConfidenceTrendCard(sessions: concertSessions)
+            RepertoireRepeatCard(sessions: recentConcertSessions, categorizer: categorizer)
+            RepertoireNeglectCard(practiceSessions: practiceSessions, concertSessions: recentConcertSessions, categorizer: categorizer)
         }
     }
 
