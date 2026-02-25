@@ -35,7 +35,8 @@ final class EditSessionViewModel: ObservableObject {
             notes: session.notes,
             tags: session.tags,
             detailedNotes: session.detailedNotes,
-            sessionType: session.resolvedSessionType
+            sessionType: session.resolvedSessionType,
+            confidence: session.resolvedConfidence
             
         )
         setupSuggestionDebounce()
@@ -99,6 +100,7 @@ extension EditSessionViewModel {
         session.startTime = draft.startTime
         session.lastModified = .now
         session.sessionType = draft.sessionType
+        session.confidence = draft.confidence
     }
 
     private func normalizeTag(_ tag: String) -> String {
@@ -173,4 +175,10 @@ struct PracticeSessionDraft {
     var tags: [String]
     var detailedNotes: String
     var sessionType: SessionType = .practice
+    var confidence: Int?
+    // for slider binding
+    var resolvedConfidence: Int {
+        get { min(max(confidence ?? 5, 1), 10) }
+        set { confidence = min(max(newValue, 1), 10) }
+    }
 }
