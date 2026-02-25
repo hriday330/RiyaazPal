@@ -79,7 +79,7 @@ struct ConcertConfidenceTrendCard: View {
                     }
                 }
                 .chartXAxis {
-                    AxisMarks(values: .automatic) { value in
+                    AxisMarks(values: xAxisValues) { value in
                         AxisValueLabel(format: xAxisFormat)
                     }
                 }
@@ -114,6 +114,37 @@ struct ConcertConfidenceTrendCard: View {
         default:
             return "Confidence has remained steady across recent concerts."
         }
+    }
+    
+    private var xAxisValues: [Date] {
+        guard let first = recentConfidence.first?.date,
+              let last = recentConfidence.last?.date else { return [] }
+
+        var calendar = Calendar.current
+
+        // If span > 6 months → show yearly ticks
+        if let range = dateRange, range > 60 * 60 * 24 * 180 {
+            let startYear = calendar.date(from: calendar.dateComponents([.year], from: first))!
+            var ticks: [Date] = []
+
+            var current = startYear
+            while current <= last {
+                ticks.append(current)
+                current = calendar.date(byAdding: .year, value: 1, to: current)!
+            }
+            return ticks
+        }
+
+        let startMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: first))!
+        var ticks: [Date] = []
+
+        var current = startMonth
+        while current <= last {
+            ticks.append(current)
+            current = calendar.date(byAdding: .month, value: 1, to: current)!
+        }
+
+        return ticks
     }
 }
 
