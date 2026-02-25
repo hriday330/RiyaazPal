@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 final class EditSessionViewModel: ObservableObject {
 
@@ -17,6 +18,13 @@ final class EditSessionViewModel: ObservableObject {
 
     @Published var showingDurationPicker = false
     @Published var showingStartTimePicker = false
+
+    @Published var suggestedTags: [String] = []
+
+    private var tagProvider: CategoryTagProvider?
+    private var cancellables = Set<AnyCancellable>()
+    private let suggestionTrigger = PassthroughSubject<Void, Never>()
+
 
     init(session: PracticeSession) {
         self.session = session
@@ -30,6 +38,7 @@ final class EditSessionViewModel: ObservableObject {
             sessionType: session.resolvedSessionType
             
         )
+        setupSuggestionDebounce()
     }
 }
 
@@ -95,6 +104,65 @@ extension EditSessionViewModel {
     private func normalizeTag(_ tag: String) -> String {
         tag.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
+}
+
+extension EditSessionViewModel {
+
+    private static let suggester = TagSuggester()
+
+    func configureTagSource(categories: [TagCategoryModel]) {
+        self.tagProvider = CategoryTagProvider(categories: categories)
+        computeSuggestions()
+    }
+
+    func computeSuggestions() {
+        guard let tagProvider else { return }
+
+        suggestedTags = Self.suggester.suggestions(
+            title: draft.notes,
+            details: draft.detailedNotes,
+            existingTags: draft.tags,
+            candidateTags: tagProvider.allTags()
+        )
+    }
+    
+    func addSuggestedTag(_ tag: String) {
+        let normalized = normalizeTag(tag)
+
+        let exists = draft.tags
+            .map(normalizeTag)
+            .contains(normalized)
+
+        guard !exists else {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            return
+        }
+
+        draft.tags.append(tag)
+        computeSuggestions()
+    }
+
+    // MARK: - Hooks from editing
+
+    func updateNotes(_ text: String) {
+        draft.notes = text
+        suggestionTrigger.send()
+    }
+
+    func updateDetailedNotes(_ text: String) {
+        draft.detailedNotes = text
+        suggestionTrigger.send()
+    }
+    
+    private func setupSuggestionDebounce() {
+        suggestionTrigger
+            .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
+            .sink { [weak self] in
+                self?.computeSuggestions()
+            }
+            .store(in: &cancellables)
+    }
+    
 }
 
 struct PracticeSessionDraft {

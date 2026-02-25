@@ -14,6 +14,9 @@ struct EditSessionView: View {
 
     private let session: PracticeSession
     @StateObject private var editSessionViewModel: EditSessionViewModel
+    
+    @Query(sort: \TagCategoryModel.order)
+    private var categories: [TagCategoryModel]
 
 
     init(session: PracticeSession) {
@@ -35,7 +38,10 @@ struct EditSessionView: View {
                         VStack(spacing: 8) {
                             TextField(
                                 "Practice Session",
-                                text: $editSessionViewModel.draft.notes
+                                text: Binding(
+                                    get: { editSessionViewModel.draft.notes },
+                                    set: { editSessionViewModel.updateNotes($0) }
+                                )
                             )
                             .font(.title2)
                             .fontWeight(.semibold)
@@ -62,9 +68,25 @@ struct EditSessionView: View {
                             .padding(.top, 16)
                         EditSessionTagsSection(tags: $editSessionViewModel.draft.tags, newTag: $editSessionViewModel.newTag, onAddTag: editSessionViewModel.addTag)
                             .padding(.top, 16)
-                        EditSessionNotesEditor(notes: $editSessionViewModel.draft.detailedNotes)
-                            .padding(.top, 20)
-                            .padding(.bottom, 20)
+                        if !editSessionViewModel.suggestedTags.isEmpty {
+                            TagSuggestionsSection(
+                                suggestions: editSessionViewModel.suggestedTags,
+                                onTap: { tag in
+                                    editSessionViewModel.addSuggestedTag(tag)
+                                }
+                            )
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                        }
+
+                        EditSessionNotesEditor(
+                            notes: Binding(
+                                get: { editSessionViewModel.draft.detailedNotes },
+                                set: { editSessionViewModel.updateDetailedNotes($0) }
+                            )
+                        )
+                        .padding(.top, 20)
+                        .padding(.bottom, 20)
                     }
                 }
                 
@@ -74,6 +96,9 @@ struct EditSessionView: View {
                         Color("AppBackground")
                             .shadow(.drop(radius: 1, y: -1))
                     )
+            }
+            .onAppear {
+                editSessionViewModel.configureTagSource(categories: categories)
             }
             .background(Color("AppBackground"))
             .navigationBarTitleDisplayMode(.inline)
