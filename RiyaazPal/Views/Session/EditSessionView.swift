@@ -66,6 +66,11 @@ struct EditSessionView: View {
                         SessionTypePicker(sessionType: $editSessionViewModel.draft.sessionType)
                             .padding(.horizontal)
                             .padding(.top, 16)
+                        if editSessionViewModel.draft.sessionType == .concert {
+                            confidenceSection
+                                .padding(.horizontal)
+                                .padding(.top, 16)
+                        }
                         EditSessionTagsSection(tags: $editSessionViewModel.draft.tags, newTag: $editSessionViewModel.newTag, onAddTag: editSessionViewModel.addTag)
                             .padding(.top, 16)
                         if !editSessionViewModel.suggestedTags.isEmpty {
@@ -233,6 +238,63 @@ private extension EditSessionView {
     }
 }
 
+private extension EditSessionView {
+    private var confidenceSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+
+            HStack {
+                Text("Performance Confidence")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                Spacer()
+
+                Text("\(editSessionViewModel.draft.resolvedConfidence)/10")
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
+
+            Slider(
+                value: Binding(
+                    get: { Double(editSessionViewModel.draft.resolvedConfidence) },
+                    set: { editSessionViewModel.draft.resolvedConfidence = Int($0) }
+                ),
+                in: 1...10,
+                step: 1
+            )
+            .tint(Color("AccentColor"))
+
+            Text(confidenceLabel)
+                .font(.caption)
+                .foregroundStyle(Color("SecondaryText"))
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color("EditorBackground"))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color("EditorBorder"), lineWidth: 1)
+        )
+    }
+    
+    private var confidenceLabel: String {
+        switch editSessionViewModel.draft.resolvedConfidence {
+        case 1...3:
+            return "Low confidence"
+        case 4...6:
+            return "Moderate confidence"
+        case 7...8:
+            return "Strong confidence"
+        case 9...10:
+            return "Very confident"
+        default:
+            return ""
+        }
+    }
+}
 #Preview("Edit Session – Light") {
     let container = PreviewModelContainer.make()
     let context = container.mainContext
