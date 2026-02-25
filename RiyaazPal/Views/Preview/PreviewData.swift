@@ -193,5 +193,73 @@ enum PreviewData {
             context.insert(session)
         }
     }
+    
+    static func insertConcertImbalance(into context: ModelContext) {
+        let now = Date()
+
+        // PRACTICE SESSIONS — heavily focused on specific ragas
+        let practiceSessions: [PracticeSession] = [
+            PracticeSession(
+                startTime: now.addingTimeInterval(-1 * 24 * 60 * 60),
+                duration: 60 * 60,
+                notes: "Deep riyaz in Multani",
+                tags: ["Multani"]
+            ),
+            PracticeSession(
+                startTime: now.addingTimeInterval(-2 * 24 * 60 * 60),
+                duration: 70 * 60,
+                notes: "Working on Multani meend",
+                tags: ["Multani"]
+            ),
+            PracticeSession(
+                startTime: now.addingTimeInterval(-3 * 24 * 60 * 60),
+                duration: 65 * 60,
+                notes: "Exploring Bageshree",
+                tags: ["Bageshree"]
+            ),
+            PracticeSession(
+                startTime: now.addingTimeInterval(-4 * 24 * 60 * 60),
+                duration: 55 * 60,
+                notes: "Bageshree taans",
+                tags: ["Bageshree"]
+            ),
+            PracticeSession(
+                startTime: now.addingTimeInterval(-5 * 24 * 60 * 60),
+                duration: 50 * 60,
+                notes: "More Multani development",
+                tags: ["Multani"]
+            )
+        ]
+
+        // CONCERT SESSIONS — performing totally different ragas
+        let concertSessions: [PracticeSession] = [
+            PracticeSession(
+                startTime: now.addingTimeInterval(-6 * 24 * 60 * 60),
+                duration: 45 * 60,
+                notes: "Concert – Yaman alap",
+                tags: ["Yaman"],
+                sessionType: .concert
+            ),
+            PracticeSession(
+                startTime: now.addingTimeInterval(-8 * 24 * 60 * 60),
+                duration: 50 * 60,
+                notes: "Concert – Darbari performance",
+                tags: ["Darbari"],
+                sessionType: .concert
+            ),
+            PracticeSession(
+                startTime: now.addingTimeInterval(-10 * 24 * 60 * 60),
+                duration: 55 * 60,
+                notes: "Concert – Bhairav",
+                tags: ["Bhairav"],
+                sessionType: .concert
+            )
+        ]
+
+        // Insert into context
+        for session in practiceSessions + concertSessions {
+            context.insert(session)
+        }
+    }
 
 }

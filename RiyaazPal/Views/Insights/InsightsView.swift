@@ -181,6 +181,7 @@ private extension InsightsView {
         VStack(spacing: 16) {
             ConcertFrequencyCard(concerts: concertSessions)
             RepertoireRepeatCard(sessions: concertSessions, categorizer: categorizer)
+            RepertoireNeglectCard(practiceSessions: practiceSessions, concertSessions: concertSessions, categorizer: categorizer)
         }
     }
 
@@ -327,4 +328,16 @@ private extension InsightsView {
     }
     .modelContainer(container)
     .preferredColorScheme(.dark)
+}
+
+#Preview("Insights – Concert Imbalance") {
+    let container = PreviewModelContainer.make()
+    let context = container.mainContext
+
+    PreviewData.insertConcertImbalance(into: context)
+
+    return NavigationStack {
+        InsightsView()
+    }
+    .modelContainer(container)
 }
