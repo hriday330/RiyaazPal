@@ -15,6 +15,7 @@
 		C060F6FE2F4EEC11008946CA /* CategoryTagProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C060F6FD2F4EEC11008946CA /* CategoryTagProvider.swift */; };
 		C060F7002F4EEC23008946CA /* TagSuggester.swift in Sources */ = {isa = PBXBuildFile; fileRef = C060F6FF2F4EEC23008946CA /* TagSuggester.swift */; };
 		C060F7022F4EEE07008946CA /* TagSuggestionsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C060F7012F4EEE07008946CA /* TagSuggestionsSection.swift */; };
+		C060F7042F4F6D5D008946CA /* RepertoireNeglectCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C060F7032F4F6D5D008946CA /* RepertoireNeglectCard.swift */; };
 		C066A28D2F0F38E4005A5D44 /* FocusStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A28C2F0F38E4005A5D44 /* FocusStats.swift */; };
 		C066A2902F0F3A68005A5D44 /* FocusBreakdownCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A28F2F0F3A68005A5D44 /* FocusBreakdownCard.swift */; };
 		C066A2922F0F3DF9005A5D44 /* InsightWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066A2912F0F3DF9005A5D44 /* InsightWindow.swift */; };
@@ -81,6 +82,7 @@
 		C060F6FD2F4EEC11008946CA /* CategoryTagProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryTagProvider.swift; sourceTree = "<group>"; };
 		C060F6FF2F4EEC23008946CA /* TagSuggester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSuggester.swift; sourceTree = "<group>"; };
 		C060F7012F4EEE07008946CA /* TagSuggestionsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSuggestionsSection.swift; sourceTree = "<group>"; };
+		C060F7032F4F6D5D008946CA /* RepertoireNeglectCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepertoireNeglectCard.swift; sourceTree = "<group>"; };
 		C066A28C2F0F38E4005A5D44 /* FocusStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusStats.swift; sourceTree = "<group>"; };
 		C066A28F2F0F3A68005A5D44 /* FocusBreakdownCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusBreakdownCard.swift; sourceTree = "<group>"; };
 		C066A2912F0F3DF9005A5D44 /* InsightWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightWindow.swift; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 				C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */,
 				C091E6382F42ADC900271B6E /* ConcertFrequencyCard.swift */,
 				C091E63A2F42B0F500271B6E /* RepertoireRepeatCard.swift */,
+				C060F7032F4F6D5D008946CA /* RepertoireNeglectCard.swift */,
 			);
 			path = Insights;
 			sourceTree = "<group>";
@@ -469,6 +472,7 @@
 				C066A2A02F14F2F6005A5D44 /* DurationPickerSheet.swift in Sources */,
 				C00066932F0F101000BC930C /* PracticeScoreMeter.swift in Sources */,
 				C066A28D2F0F38E4005A5D44 /* FocusStats.swift in Sources */,
+				C060F7042F4F6D5D008946CA /* RepertoireNeglectCard.swift in Sources */,
 				C04482E52F273BE500068D74 /* SetupCompleteView.swift in Sources */,
 				C060F7022F4EEE07008946CA /* TagSuggestionsSection.swift in Sources */,
 				C0742B9E2F445749004E7697 /* GoalsPanel.swift in Sources */,
