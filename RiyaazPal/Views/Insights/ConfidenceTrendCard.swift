@@ -99,21 +99,48 @@ struct ConcertConfidenceTrendCard: View {
     private var insightText: String? {
         guard recentConfidence.count >= 3 else { return nil }
 
-        let values = recentConfidence.map(\.value)
+        let values = recentConfidence.map { Double($0.value) }
 
-        guard let first = values.first,
-              let last = values.last else { return nil }
+        let first = values.first!
+        let last = values.last!
+        let trend = last - first
 
-        let diff = last - first
+        let mean = values.reduce(0, +) / Double(values.count)
 
-        switch diff {
-        case 3...:
-            return "Your recent concerts show increasing confidence."
-        case ..<(-3):
-            return "Confidence has dipped in recent performances."
-        default:
-            return "Confidence has remained steady across recent concerts."
+        let variance = values
+            .map { pow($0 - mean, 2) }
+            .reduce(0, +) / Double(values.count)
+
+        let stdDev = sqrt(variance)
+
+        // realistic thresholds for 1–10 scale
+        let isStable = stdDev < 1.2
+        let isVeryStable = stdDev < 0.7
+
+        // MARK: Trend + stability logic
+
+        if trend >= 2 {
+            return isStable
+            ? "Confidence is trending upward across recent concerts."
+            : "Confidence is improving, though performances vary."
         }
+
+        if trend <= -2 {
+            return isStable
+            ? "Confidence has gradually dipped in recent concerts."
+            : "Confidence has been inconsistent and trending downward."
+        }
+
+        if isVeryStable {
+            return "Confidence has remained steady across performances."
+        }
+
+        if !isStable {
+            return "Confidence varies from concert to concert."
+        }
+
+        // fallback — always return something
+        return "Confidence has remained fairly consistent overall."
     }
     
     private var xAxisValues: [Date] {
