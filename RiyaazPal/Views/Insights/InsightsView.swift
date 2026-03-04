@@ -187,8 +187,10 @@ private extension InsightsView {
         VStack(spacing: 16) {
             ConcertFrequencyCard(concerts: recentConcertSessions)
             ConcertConfidenceTrendCard(sessions: concertSessions)
+            ConfidenceByRagaCard(sessions: concertSessions, categorizer: categorizer)
             RepertoireRepeatCard(sessions: recentConcertSessions, categorizer: categorizer)
             RepertoireNeglectCard(practiceSessions: practiceSessions, concertSessions: recentConcertSessions, categorizer: categorizer)
+            
         }
     }
 

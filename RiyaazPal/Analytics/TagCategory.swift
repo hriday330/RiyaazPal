@@ -103,4 +103,8 @@ final class TagCategorizer {
     func isRaga(for tag: String) -> Bool {
         return category(for:tag).name == "Raga"
     }
+    
+    func isSection(for tag: String) -> Bool {
+        return category(for:tag).name == "Section"
+    }
 }
