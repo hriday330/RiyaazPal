@@ -22,6 +22,10 @@ final class PracticeSessionViewModel: ObservableObject {
 
     private var startTime: Date?
     private var timer: Timer?
+    
+    init() {
+        checkActiveSession()
+    }
 
     // MARK: - Public API
 
@@ -33,6 +37,7 @@ final class PracticeSessionViewModel: ObservableObject {
         elapsedTime = 0
 
         startTimer()
+        UserDefaults.standard.set(startTime, forKey: "session_start_time")
         startLiveActivity()
     }
 
@@ -56,6 +61,19 @@ final class PracticeSessionViewModel: ObservableObject {
         return session
     }
 
+    
+
+    private func checkActiveSession() {
+        if let activity = Activity<PracticeTimerActivityAttributes>.activities.first {
+            isSessionActive = true
+            startTime = UserDefaults.standard.object(forKey: "session_start_time") as? Date
+            if let start = startTime {
+                self.elapsedTime = Date().timeIntervalSince(start)
+                startTimer()
+            }
+        }
+    }
+    
     // MARK: - Timer
 
     private func startTimer() {
