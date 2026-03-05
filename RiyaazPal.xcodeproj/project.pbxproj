@@ -55,6 +55,15 @@
 		C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */; };
 		C0A430EF2F098F9000C2401C /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430EE2F098F9000C2401C /* PreviewData.swift */; };
 		C0C123362F583349009163E1 /* ConfidenceByAreaCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C123352F583349009163E1 /* ConfidenceByAreaCard.swift */; };
+		C0C123592F58B3CE009163E1 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C0C1233D2F58B358009163E1 /* WidgetKit.framework */; };
+		C0C1235A2F58B3CE009163E1 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C0C1233F2F58B358009163E1 /* SwiftUI.framework */; };
+		C0C1235D2F58B3CE009163E1 /* PracticeTimerActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C1235C2F58B3CE009163E1 /* PracticeTimerActivityBundle.swift */; };
+		C0C1235F2F58B3CE009163E1 /* PracticeTimerActivityLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C1235E2F58B3CE009163E1 /* PracticeTimerActivityLiveActivity.swift */; };
+		C0C123612F58B3CE009163E1 /* PracticeTimerActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C123602F58B3CE009163E1 /* PracticeTimerActivity.swift */; };
+		C0C123632F58B3CE009163E1 /* AppIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C123622F58B3CE009163E1 /* AppIntent.swift */; };
+		C0C123652F58B3CF009163E1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0C123642F58B3CF009163E1 /* Assets.xcassets */; };
+		C0C123692F58B3CF009163E1 /* PracticeTimerActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C0C123582F58B3CE009163E1 /* PracticeTimerActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C0C1236E2F58B3F8009163E1 /* PracticeTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C1236D2F58B3F8009163E1 /* PracticeTimerAttributes.swift */; };
 		C0D82F152F249E2E00B4E0E8 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D82F142F249E2E00B4E0E8 /* SetupView.swift */; };
 		C0D82F172F249F4200B4E0E8 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D82F162F249F4200B4E0E8 /* Preferences.swift */; };
 		C0E130B12F1F825600C005F5 /* CategoryItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */; };
@@ -68,12 +77,38 @@
 		C0E580502F1DD1EB00571C5E /* SessionActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E5804F2F1DD1EB00571C5E /* SessionActionButton.swift */; };
 		C0E580522F1DD36300571C5E /* ActiveSessionBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580512F1DD36300571C5E /* ActiveSessionBar.swift */; };
 		C0E580542F1EB45700571C5E /* TagCategoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E580532F1EB45700571C5E /* TagCategoryModel.swift */; };
+		C0ED46102F58BBF10071ECF6 /* PracticeTimerActivityLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C1235E2F58B3CE009163E1 /* PracticeTimerActivityLiveActivity.swift */; };
+		C0ED46112F58BC200071ECF6 /* PracticeTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C1236D2F58B3F8009163E1 /* PracticeTimerAttributes.swift */; };
 		C0F593742F1F6560009F6A0D /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F593732F1F6560009F6A0D /* ProfileView.swift */; };
 		C0F593772F1F6593009F6A0D /* CategoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F593762F1F6593009F6A0D /* CategoryDetailView.swift */; };
 		C0FFBDE42F366DED00F84DFA /* SessionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE32F366DED00F84DFA /* SessionType.swift */; };
 		C0FFBDE62F36722200F84DFA /* SessionTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE52F36722200F84DFA /* SessionTypePicker.swift */; };
 		C0FFBDE82F3675D000F84DFA /* SessionTypeChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE72F3675D000F84DFA /* SessionTypeChip.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C0C123672F58B3CF009163E1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C0A430B12F03494200C2401C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C0C123572F58B3CE009163E1;
+			remoteInfo = PracticeTimerActivityExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C0C123502F58B35A009163E1 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C0C123692F58B3CF009163E1 /* PracticeTimerActivityExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C000668F2F0EF8D500BC930C /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
@@ -126,6 +161,16 @@
 		C0A430EC2F098F5000C2401C /* PreviewModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModelContainer.swift; sourceTree = "<group>"; };
 		C0A430EE2F098F9000C2401C /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		C0C123352F583349009163E1 /* ConfidenceByAreaCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfidenceByAreaCard.swift; sourceTree = "<group>"; };
+		C0C1233D2F58B358009163E1 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		C0C1233F2F58B358009163E1 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		C0C123582F58B3CE009163E1 /* PracticeTimerActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PracticeTimerActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0C1235C2F58B3CE009163E1 /* PracticeTimerActivityBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimerActivityBundle.swift; sourceTree = "<group>"; };
+		C0C1235E2F58B3CE009163E1 /* PracticeTimerActivityLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimerActivityLiveActivity.swift; sourceTree = "<group>"; };
+		C0C123602F58B3CE009163E1 /* PracticeTimerActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimerActivity.swift; sourceTree = "<group>"; };
+		C0C123622F58B3CE009163E1 /* AppIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntent.swift; sourceTree = "<group>"; };
+		C0C123642F58B3CF009163E1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C0C123662F58B3CF009163E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0C1236D2F58B3F8009163E1 /* PracticeTimerAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PracticeTimerAttributes.swift; path = RiyaazPal/PracticeTimerAttributes.swift; sourceTree = SOURCE_ROOT; };
 		C0D82F142F249E2E00B4E0E8 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		C0D82F162F249F4200B4E0E8 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		C0E130B02F1F825600C005F5 /* CategoryItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryItemRow.swift; sourceTree = "<group>"; };
@@ -151,6 +196,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0C123552F58B3CE009163E1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0C1235A2F58B3CE009163E1 /* SwiftUI.framework in Frameworks */,
+				C0C123592F58B3CE009163E1 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,6 +271,8 @@
 			children = (
 				C066A2A52F159D25005A5D44 /* Config */,
 				C0A430BB2F03494200C2401C /* RiyaazPal */,
+				C0C1235B2F58B3CE009163E1 /* PracticeTimerActivity */,
+				C0C1233C2F58B358009163E1 /* Frameworks */,
 				C0A430BA2F03494200C2401C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -225,6 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				C0A430B92F03494200C2401C /* RiyaazPal.app */,
+				C0C123582F58B3CE009163E1 /* PracticeTimerActivityExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -239,6 +296,7 @@
 				C0A430CB2F05990000C2401C /* Models */,
 				C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */,
 				C0A430C02F03494400C2401C /* Assets.xcassets */,
+				C0C1236D2F58B3F8009163E1 /* PracticeTimerAttributes.swift */,
 				C0A430C22F03494400C2401C /* Preview Content */,
 			);
 			path = RiyaazPal;
@@ -345,6 +403,28 @@
 			path = Preview;
 			sourceTree = "<group>";
 		};
+		C0C1233C2F58B358009163E1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C0C1233D2F58B358009163E1 /* WidgetKit.framework */,
+				C0C1233F2F58B358009163E1 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C0C1235B2F58B3CE009163E1 /* PracticeTimerActivity */ = {
+			isa = PBXGroup;
+			children = (
+				C0C1235C2F58B3CE009163E1 /* PracticeTimerActivityBundle.swift */,
+				C0C1235E2F58B3CE009163E1 /* PracticeTimerActivityLiveActivity.swift */,
+				C0C123602F58B3CE009163E1 /* PracticeTimerActivity.swift */,
+				C0C123622F58B3CE009163E1 /* AppIntent.swift */,
+				C0C123642F58B3CF009163E1 /* Assets.xcassets */,
+				C0C123662F58B3CF009163E1 /* Info.plist */,
+			);
+			path = PracticeTimerActivity;
+			sourceTree = "<group>";
+		};
 		C0D82F132F249E1F00B4E0E8 /* Setup */ = {
 			isa = PBXGroup;
 			children = (
@@ -385,15 +465,34 @@
 				C0A430B52F03494200C2401C /* Sources */,
 				C0A430B62F03494200C2401C /* Frameworks */,
 				C0A430B72F03494200C2401C /* Resources */,
+				C0C123502F58B35A009163E1 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C0C123682F58B3CF009163E1 /* PBXTargetDependency */,
 			);
 			name = RiyaazPal;
 			productName = RiyaazPal;
 			productReference = C0A430B92F03494200C2401C /* RiyaazPal.app */;
 			productType = "com.apple.product-type.application";
+		};
+		C0C123572F58B3CE009163E1 /* PracticeTimerActivityExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0C1236A2F58B3CF009163E1 /* Build configuration list for PBXNativeTarget "PracticeTimerActivityExtension" */;
+			buildPhases = (
+				C0C123542F58B3CE009163E1 /* Sources */,
+				C0C123552F58B3CE009163E1 /* Frameworks */,
+				C0C123562F58B3CE009163E1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PracticeTimerActivityExtension;
+			productName = PracticeTimerActivityExtension;
+			productReference = C0C123582F58B3CE009163E1 /* PracticeTimerActivityExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -406,6 +505,9 @@
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					C0A430B82F03494200C2401C = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					C0C123572F58B3CE009163E1 = {
 						CreatedOnToolsVersion = 15.4;
 					};
 				};
@@ -424,6 +526,7 @@
 			projectRoot = "";
 			targets = (
 				C0A430B82F03494200C2401C /* RiyaazPal */,
+				C0C123572F58B3CE009163E1 /* PracticeTimerActivityExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -435,6 +538,14 @@
 			files = (
 				C0A430C42F03494400C2401C /* Preview Assets.xcassets in Resources */,
 				C0A430C12F03494400C2401C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0C123562F58B3CE009163E1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0C123652F58B3CF009163E1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +562,7 @@
 				C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */,
 				C0E5804A2F1AE85400571C5E /* EditSessionTagsSection.swift in Sources */,
 				C091E6392F42ADC900271B6E /* ConcertFrequencyCard.swift in Sources */,
+				C0C1236E2F58B3F8009163E1 /* PracticeTimerAttributes.swift in Sources */,
 				C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */,
 				C0A430D52F0599CD00C2401C /* PracticeSessionViewModel.swift in Sources */,
 				C066A2922F0F3DF9005A5D44 /* InsightWindow.swift in Sources */,
@@ -464,6 +576,7 @@
 				C0E580442F1A40C700571C5E /* PracticeTimelineEmptyState.swift in Sources */,
 				C066A2982F104854005A5D44 /* ConsistencyStats.swift in Sources */,
 				C066A2B02F18893E005A5D44 /* InsightsViewModel.swift in Sources */,
+				C0ED46102F58BBF10071ECF6 /* PracticeTimerActivityLiveActivity.swift in Sources */,
 				C0742B9B2F44566A004E7697 /* GoalModel.swift in Sources */,
 				C0F593772F1F6593009F6A0D /* CategoryDetailView.swift in Sources */,
 				C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */,
@@ -512,7 +625,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C0C123542F58B3CE009163E1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0C1235F2F58B3CE009163E1 /* PracticeTimerActivityLiveActivity.swift in Sources */,
+				C0ED46112F58BC200071ECF6 /* PracticeTimerAttributes.swift in Sources */,
+				C0C123632F58B3CE009163E1 /* AppIntent.swift in Sources */,
+				C0C1235D2F58B3CE009163E1 /* PracticeTimerActivityBundle.swift in Sources */,
+				C0C123612F58B3CE009163E1 /* PracticeTimerActivity.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C0C123682F58B3CF009163E1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C0C123572F58B3CE009163E1 /* PracticeTimerActivityExtension */;
+			targetProxy = C0C123672F58B3CF009163E1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		C0A430C52F03494400C2401C /* Debug */ = {
@@ -637,6 +770,7 @@
 		C0A430C82F03494400C2401C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -647,6 +781,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RiyaazPal/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -667,6 +803,7 @@
 		C0A430C92F03494400C2401C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -676,6 +813,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RiyaazPal/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -687,6 +826,60 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hridaybuddhdev.RiyaazPal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C0C1236B2F58B3CF009163E1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 65QCBL5R9T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PracticeTimerActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PracticeTimerActivity;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hridaybuddhdev.RiyaazPal.PracticeTimerActivityExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C0C1236C2F58B3CF009163E1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 65QCBL5R9T;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PracticeTimerActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PracticeTimerActivity;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hridaybuddhdev.RiyaazPal.PracticeTimerActivityExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -710,6 +903,15 @@
 			buildConfigurations = (
 				C0A430C82F03494400C2401C /* Debug */,
 				C0A430C92F03494400C2401C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C0C1236A2F58B3CF009163E1 /* Build configuration list for PBXNativeTarget "PracticeTimerActivityExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0C1236B2F58B3CF009163E1 /* Debug */,
+				C0C1236C2F58B3CF009163E1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

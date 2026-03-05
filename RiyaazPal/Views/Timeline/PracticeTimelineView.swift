@@ -64,6 +64,9 @@ struct PracticeTimelineView: View {
                     }
                 }
             }
+            .onOpenURL { url in
+                handleDeepLink(url)
+            }
             .searchableIf(
                 !sessions.isEmpty || sessionViewModel.isSessionActive,
                 text: $timelineFilterViewModel.searchText,
@@ -95,6 +98,17 @@ struct PracticeTimelineView: View {
 
 private extension PracticeTimelineView {
     
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "riyaazpal" else { return }
+
+        switch url.host {
+        case "stop":
+           handleSessionAction()
+        default:
+            break
+        }
+    }
+
     func handleSessionAction() {
         if sessionViewModel.isSessionActive {
             if let session = sessionViewModel.endSession() {
