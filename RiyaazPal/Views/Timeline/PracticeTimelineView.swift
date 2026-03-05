@@ -64,6 +64,9 @@ struct PracticeTimelineView: View {
                     }
                 }
             }
+            .onOpenURL { url in
+                handleDeepLink(url)
+            }
             .searchableIf(
                 !sessions.isEmpty || sessionViewModel.isSessionActive,
                 text: $timelineFilterViewModel.searchText,
@@ -95,6 +98,18 @@ struct PracticeTimelineView: View {
 
 private extension PracticeTimelineView {
     
+    private func handleDeepLink(_ url: URL) {
+        print(url)
+        guard url.scheme == "riyaazpal" else { return }
+
+        switch url.host {
+        case "stop":
+           handleSessionAction()
+        default:
+            break
+        }
+    }
+
     func handleSessionAction() {
         if sessionViewModel.isSessionActive {
             if let session = sessionViewModel.endSession() {
@@ -102,6 +117,7 @@ private extension PracticeTimelineView {
                 context.insert(session)
                 do {
                     try context.save()
+                    print("Session saved")
                 } catch {
                     // TODO: alert if failed to save
                     print("Failed to save session: \(error.localizedDescription)")

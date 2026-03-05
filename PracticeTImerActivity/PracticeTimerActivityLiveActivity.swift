@@ -18,7 +18,7 @@ struct PracticeTimerActivityLiveActivity: Widget {
                 Text(context.attributes.title)
                     .font(.headline)
 
-                Text(timerInterval: context.state.startTime...Date(), countsDown: false)
+                Text(timerInterval: context.state.startTime...Date.distantFuture, countsDown: false)
                     .font(.title)
                     .monospacedDigit()
             }
@@ -26,16 +26,15 @@ struct PracticeTimerActivityLiveActivity: Widget {
         } dynamicIsland: { context in
             DynamicIsland {
 
-                DynamicIslandExpandedRegion(.center) {
-
-                    VStack {
-
-                        Text("Practice")
-                            .font(.headline)
+                DynamicIslandExpandedRegion(.bottom) {
+                    HStack(spacing: 20) {
                         
-                        Text(timerInterval: context.state.startTime...Date.distantFuture, countsDown: false)
-                       
+                        Link(destination: URL(string: "riyaazpal://stop")!) {
+                            Label("Stop", systemImage: "stop.fill")
+                                .font(.headline)
+                        }
                     }
+                    .padding(.top, 10)
                 }
 
             } compactLeading: {
