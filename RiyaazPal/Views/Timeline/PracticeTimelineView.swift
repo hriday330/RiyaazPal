@@ -99,7 +99,6 @@ struct PracticeTimelineView: View {
 private extension PracticeTimelineView {
     
     private func handleDeepLink(_ url: URL) {
-        print(url)
         guard url.scheme == "riyaazpal" else { return }
 
         switch url.host {
@@ -117,7 +116,6 @@ private extension PracticeTimelineView {
                 context.insert(session)
                 do {
                     try context.save()
-                    print("Session saved")
                 } catch {
                     // TODO: alert if failed to save
                     print("Failed to save session: \(error.localizedDescription)")

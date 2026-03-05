@@ -136,8 +136,6 @@ final class PracticeSessionViewModel: ObservableObject {
                 attributes: attributes,
                 content: content
             )
-            print("Started Live Activity:", activity.id)
-
         } catch {
             print("Failed to start Live Activity:", error)
         }
