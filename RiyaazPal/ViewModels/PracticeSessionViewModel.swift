@@ -102,6 +102,8 @@ final class PracticeSessionViewModel: ObservableObject {
         elapsedTime = 0
         notes = ""
         tags = []
+        UserDefaults.standard.removeObject(forKey: "session_start_time")
+
     }
     
     private func defaultTitle(for startTime: Date) -> String {
