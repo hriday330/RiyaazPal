@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ActivityKit
 
 @MainActor
 final class PracticeSessionViewModel: ObservableObject {
@@ -32,6 +33,7 @@ final class PracticeSessionViewModel: ObservableObject {
         elapsedTime = 0
 
         startTimer()
+        startLiveActivity()
     }
 
     func endSession() -> PracticeSession? {
@@ -40,6 +42,9 @@ final class PracticeSessionViewModel: ObservableObject {
         stopTimer()
         isSessionActive = false
 
+        Task {
+            await endLiveActivity()
+            }
         let session = PracticeSession(
             startTime: startTime,
             duration: elapsedTime,
@@ -86,5 +91,57 @@ final class PracticeSessionViewModel: ObservableObject {
         formatter.dateFormat = "MMM d, h:mm:ss a"
         return "Practice – \(formatter.string(from: startTime))"
     }
+    
+    private func startLiveActivity() {
+
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            return
+        }
+
+        let attributes = PracticeTimerActivityAttributes(
+            title: "Practice Session"
+        )
+
+        let state = PracticeTimerActivityAttributes.ContentState(
+            startTime: Date()
+        )
+
+        let content = ActivityContent(
+            state: state,
+            staleDate: nil
+        )
+
+        do {
+            let activity = try Activity.request(
+                attributes: attributes,
+                content: content
+            )
+            print("Started Live Activity:", activity.id)
+
+        } catch {
+            print("Failed to start Live Activity:", error)
+        }
+    }
+
+    private func endLiveActivity() async {
+
+        for activity in Activity<PracticeTimerActivityAttributes>.activities {
+
+            let finalState = PracticeTimerActivityAttributes.ContentState(
+                startTime: Date()
+            )
+
+            let finalContent = ActivityContent(
+                state: finalState,
+                staleDate: nil
+            )
+
+            await activity.end(
+                finalContent,
+                dismissalPolicy: .immediate
+            )
+        }
+    }
 
 }
+
