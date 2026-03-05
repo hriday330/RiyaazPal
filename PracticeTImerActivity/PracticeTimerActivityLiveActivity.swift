@@ -26,15 +26,27 @@ struct PracticeTimerActivityLiveActivity: Widget {
         } dynamicIsland: { context in
             DynamicIsland {
 
+                DynamicIslandExpandedRegion(.center) {
+                    Text(timerInterval: context.state.startTime...Date.distantFuture, countsDown: false)
+                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .multilineTextAlignment(.center)
+                }
+                
+                DynamicIslandExpandedRegion(.leading) {
+                    Image(systemName: "timer")
+                        .foregroundColor(.purple)
+                }
+               
                 DynamicIslandExpandedRegion(.bottom) {
-                    HStack(spacing: 20) {
-                        
-                        Link(destination: URL(string: "riyaazpal://stop")!) {
-                            Label("Stop", systemImage: "stop.fill")
-                                .font(.headline)
-                        }
+                    Link(destination: URL(string: "riyaazpal://stop")!) {
+                        Label("Stop Session", systemImage: "stop.circle.fill")
+                            .font(.subheadline.bold())
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .background(Color("ActiveCardBackground").opacity(0.9))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
                     }
-                    .padding(.top, 10)
                 }
 
             } compactLeading: {
