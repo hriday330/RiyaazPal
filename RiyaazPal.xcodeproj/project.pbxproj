@@ -35,6 +35,7 @@
 		C0742B9E2F445749004E7697 /* GoalsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0742B9D2F445749004E7697 /* GoalsPanel.swift */; };
 		C0742BA02F4504A8004E7697 /* GoalsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0742B9F2F4504A8004E7697 /* GoalsViewModel.swift */; };
 		C0742BA22F4660A3004E7697 /* GoalsSetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0742BA12F4660A3004E7697 /* GoalsSetupStepView.swift */; };
+		C0864B112F9B1000006E5F6A /* PracticeAreaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B102F9B1000006E5F6A /* PracticeAreaModel.swift */; };
 		C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */; };
 		C091E6352F42580200271B6E /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6342F42580200271B6E /* FilterChip.swift */; };
 		C091E6372F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */; };
@@ -105,6 +106,7 @@
 		C0742B9D2F445749004E7697 /* GoalsPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsPanel.swift; sourceTree = "<group>"; };
 		C0742B9F2F4504A8004E7697 /* GoalsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsViewModel.swift; sourceTree = "<group>"; };
 		C0742BA12F4660A3004E7697 /* GoalsSetupStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsSetupStepView.swift; sourceTree = "<group>"; };
+		C0864B102F9B1000006E5F6A /* PracticeAreaModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaModel.swift; sourceTree = "<group>"; };
 		C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencySummarySection.swift; sourceTree = "<group>"; };
 		C091E6342F42580200271B6E /* FilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChip.swift; sourceTree = "<group>"; };
 		C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineTypeEmptyState.swift; sourceTree = "<group>"; };
@@ -259,6 +261,7 @@
 				C0E580532F1EB45700571C5E /* TagCategoryModel.swift */,
 				C0FFBDE32F366DED00F84DFA /* SessionType.swift */,
 				C0742B9A2F44566A004E7697 /* GoalModel.swift */,
+				C0864B102F9B1000006E5F6A /* PracticeAreaModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -471,6 +474,7 @@
 				C091E63B2F42B0F500271B6E /* RepertoireRepeatCard.swift in Sources */,
 				C066A2962F0FAE24005A5D44 /* FocusCarousel.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
+				C0864B112F9B1000006E5F6A /* PracticeAreaModel.swift in Sources */,
 				C091E6352F42580200271B6E /* FilterChip.swift in Sources */,
 				C0E5804E2F1DCF8B00571C5E /* MonthStepper.swift in Sources */,
 				C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */,

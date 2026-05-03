@@ -16,7 +16,9 @@ enum PreviewModelContainer {
             for:
                 PracticeSession.self,
                 TagCategoryModel.self,
-                GoalEntity.self
+                GoalEntity.self,
+                PracticeAreaEntity.self,
+                PracticeAreaRatingEntity.self
             ,
             configurations: ModelConfiguration(
                 isStoredInMemoryOnly: true
@@ -29,4 +31,3 @@ enum PreviewModelContainer {
         return container
     }
 }
-
