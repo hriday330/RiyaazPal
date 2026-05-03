@@ -40,7 +40,9 @@ final class PracticeAreaRatingEntity {
 
     var sessionID: UUID
     var practiceAreaID: UUID
-    var score: Int
+    var areaName: String
+    var didPractice: Bool
+    var score: Int?
     var createdAt: Date
     var lastModified: Date
 
@@ -48,14 +50,18 @@ final class PracticeAreaRatingEntity {
         id: UUID = UUID(),
         sessionID: UUID,
         practiceAreaID: UUID,
-        score: Int,
+        areaName: String,
+        didPractice: Bool,
+        score: Int?,
         createdAt: Date = .now,
         lastModified: Date = .now
     ) {
         self.id = id
         self.sessionID = sessionID
         self.practiceAreaID = practiceAreaID
-        self.score = Self.clampedScore(score)
+        self.areaName = areaName
+        self.didPractice = didPractice
+        self.score = didPractice ? score.map(Self.clampedScore) : nil
         self.createdAt = createdAt
         self.lastModified = lastModified
     }
