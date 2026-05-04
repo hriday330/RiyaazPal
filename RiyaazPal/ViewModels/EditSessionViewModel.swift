@@ -215,7 +215,7 @@ extension EditSessionViewModel {
             .filter(\.isActive)
             .sorted { $0.order < $1.order }
 
-        practiceAreaDrafts = activeAreas.map { area in
+        let activeDrafts = activeAreas.map { area in
             if let existing = existingByAreaID[area.id] {
                 return PracticeAreaQuestionnaireDraft(
                     sessionID: session.id,
@@ -235,6 +235,20 @@ extension EditSessionViewModel {
             )
         }
 
+        let activeAreaIDs = Set(activeAreas.map(\.id))
+        let historicalDrafts = existingRatings
+            .filter { !activeAreaIDs.contains($0.practiceAreaID) }
+            .map { rating in
+                PracticeAreaQuestionnaireDraft(
+                    sessionID: session.id,
+                    practiceAreaID: rating.practiceAreaID,
+                    areaName: rating.areaName,
+                    didPractice: rating.didPractice,
+                    score: rating.score
+                )
+            }
+
+        practiceAreaDrafts = activeDrafts + historicalDrafts
         hasPracticeAreaReflection = !existingRatings.isEmpty
     }
 
