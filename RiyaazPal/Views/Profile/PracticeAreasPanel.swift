@@ -68,7 +68,7 @@ struct PracticeAreasPanel: View {
 
             Section {
                 HStack(spacing: 10) {
-                    TextField("New practice area", text: $newAreaName)
+                    TextField("Add practice area", text: $newAreaName)
                         .submitLabel(.done)
                         .onSubmit(addArea)
 
