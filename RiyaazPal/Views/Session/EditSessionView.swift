@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftData 
 
 struct EditSessionView: View {
+    @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
 
     private let session: PracticeSession
@@ -18,6 +19,13 @@ struct EditSessionView: View {
     @Query(sort: \TagCategoryModel.order)
     private var categories: [TagCategoryModel]
 
+    @Query(sort: \PracticeAreaEntity.order)
+    private var practiceAreas: [PracticeAreaEntity]
+
+    @Query(sort: \PracticeAreaRatingEntity.createdAt)
+    private var practiceAreaRatings: [PracticeAreaRatingEntity]
+
+    @State private var showPracticeAreaQuestionnaire = false
 
     init(session: PracticeSession) {
         self.session = session
@@ -84,6 +92,12 @@ struct EditSessionView: View {
                             .padding(.top, 8)
                         }
 
+                        if editSessionViewModel.draft.sessionType == .practice {
+                            reflectOnSessionButton
+                                .padding(.horizontal)
+                                .padding(.top, 20)
+                        }
+
                         EditSessionNotesEditor(
                             notes: Binding(
                                 get: { editSessionViewModel.draft.detailedNotes },
@@ -104,18 +118,53 @@ struct EditSessionView: View {
             }
             .onAppear {
                 editSessionViewModel.configureTagSource(categories: categories)
+                editSessionViewModel.configurePracticeAreaQuestionnaire(
+                    practiceAreas: practiceAreas,
+                    existingRatings: sessionPracticeAreaRatings
+                )
             }
             .background(Color("AppBackground"))
             .navigationBarTitleDisplayMode(.inline)
+            .fullScreenCover(isPresented: $showPracticeAreaQuestionnaire) {
+                PracticeAreaQuestionnaireFlow(
+                    drafts: editSessionViewModel.practiceAreaDrafts,
+                    onScoreChanged: { draftID, score in
+                        editSessionViewModel.updatePracticeAreaScore(
+                            for: draftID,
+                            score: score
+                        )
+                    },
+                    onNotPracticed: { draftID in
+                        editSessionViewModel.markPracticeAreaNotPracticed(
+                            draftID: draftID
+                        )
+                    },
+                    onDone: {
+                        showPracticeAreaQuestionnaire = false
+                    }
+                )
+                .onAppear {
+                    editSessionViewModel.markPracticeAreaReflectionStarted()
+                }
+            }
         }
     }
 }
 
 private extension EditSessionView {
+    var sessionPracticeAreaRatings: [PracticeAreaRatingEntity] {
+        practiceAreaRatings.filter { $0.sessionID == session.id }
+    }
+
     var saveAndCancelButtons: some View {
         VStack(spacing: 12) {
             Button {
                 editSessionViewModel.commit()
+                editSessionViewModel.commitPracticeAreaRatings(
+                    context: context,
+                    existingRatings: sessionPracticeAreaRatings
+                )
+                try? context.save()
                 dismiss()
             } label: {
                 Text("Save Changes")
@@ -137,6 +186,63 @@ private extension EditSessionView {
                     .foregroundStyle(Color("SecondaryText"))
             }
         }
+    }
+
+    var reflectOnSessionButton: some View {
+        Button {
+            showPracticeAreaQuestionnaire = true
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "slider.horizontal.3")
+                    .foregroundStyle(Color("AccentColor"))
+                    .frame(width: 22)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Reflect on Session")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color("PrimaryText"))
+
+                    Text(reflectionStatusText)
+                        .font(.caption)
+                        .foregroundStyle(Color("SecondaryText"))
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color("EditorBackground"))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color("EditorBorder"), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    var reflectionStatusText: String {
+        guard !editSessionViewModel.practiceAreaDrafts.isEmpty else {
+            return "Add practice areas from Profile"
+        }
+
+        guard editSessionViewModel.hasPracticeAreaReflection else {
+            return "Not started"
+        }
+
+        let practicedCount = editSessionViewModel.practicedAreaCount
+
+        if practicedCount == 0 {
+            return "All areas marked not practiced"
+        }
+
+        return "\(practicedCount) of \(editSessionViewModel.practiceAreaDrafts.count) areas practiced"
     }
     
     var startDateTimePicker: some View {
