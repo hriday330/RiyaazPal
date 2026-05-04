@@ -14,9 +14,9 @@ struct ProfileView: View {
 
     @Query(sort: \TagCategoryModel.order)
     private var categories: [TagCategoryModel]
-    
-    @Query(filter: #Predicate<GoalEntity> { $0.isActive == true })
-    private var activeGoals: [GoalEntity]
+
+    @Query(sort: \PracticeAreaEntity.order)
+    private var practiceAreas: [PracticeAreaEntity]
     
     @Environment(\.dismiss)
     private var dismiss
@@ -28,17 +28,17 @@ struct ProfileView: View {
 
             List {
                 
-                // MARK: Goals Section
+                // MARK: Practice Areas Section
                 Section {
                     NavigationLink {
-                        GoalsPanel(goals: activeGoals)
+                        PracticeAreasPanel()
                     } label: {
-                        GoalsRow(goals: activeGoals)
+                        PracticeAreasRow(areas: practiceAreas)
                     }
                 } header: {
-                    Text("Goals")
+                    Text("Practice Areas")
                 } footer: {
-                    Text("Define what you're actively working toward in your riyaz.")
+                    Text("Define the skill areas you'll rate after practice sessions.")
                 }
 
                 // MARK: Practice Setup Section
@@ -80,22 +80,26 @@ struct ProfileView: View {
     }
 }
 
-private struct GoalsRow: View {
-    let goals: [GoalEntity]
+private struct PracticeAreasRow: View {
+    let areas: [PracticeAreaEntity]
+
+    private var activeAreas: [PracticeAreaEntity] {
+        areas.filter(\.isActive)
+    }
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Active Goals")
+                Text("Active Practice Areas")
                     .font(.body)
                     .fontWeight(.medium)
 
-                if goals.isEmpty {
-                    Text("No goals set")
+                if activeAreas.isEmpty {
+                    Text("No areas set")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text("\(goals.count) active")
+                    Text("\(activeAreas.count) active")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -103,7 +107,7 @@ private struct GoalsRow: View {
 
             Spacer()
 
-            Image(systemName: "target")
+            Image(systemName: "slider.horizontal.3")
                 .foregroundStyle(Color("AccentColor"))
         }
         .padding(.vertical, 4)
