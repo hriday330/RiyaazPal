@@ -36,6 +36,8 @@
 		C0742BA02F4504A8004E7697 /* GoalsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0742B9F2F4504A8004E7697 /* GoalsViewModel.swift */; };
 		C0742BA22F4660A3004E7697 /* GoalsSetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0742BA12F4660A3004E7697 /* GoalsSetupStepView.swift */; };
 		C0864B112F9B1000006E5F6A /* PracticeAreaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B102F9B1000006E5F6A /* PracticeAreaModel.swift */; };
+		C0864B132F9F3000006E5F6A /* PracticeAreasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B122F9F3000006E5F6A /* PracticeAreasViewModel.swift */; };
+		C0864B152F9F3010006E5F6A /* PracticeAreasPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B142F9F3010006E5F6A /* PracticeAreasPanel.swift */; };
 		C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */; };
 		C091E6352F42580200271B6E /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6342F42580200271B6E /* FilterChip.swift */; };
 		C091E6372F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */; };
@@ -107,6 +109,8 @@
 		C0742B9F2F4504A8004E7697 /* GoalsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsViewModel.swift; sourceTree = "<group>"; };
 		C0742BA12F4660A3004E7697 /* GoalsSetupStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsSetupStepView.swift; sourceTree = "<group>"; };
 		C0864B102F9B1000006E5F6A /* PracticeAreaModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaModel.swift; sourceTree = "<group>"; };
+		C0864B122F9F3000006E5F6A /* PracticeAreasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreasViewModel.swift; sourceTree = "<group>"; };
+		C0864B142F9F3010006E5F6A /* PracticeAreasPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreasPanel.swift; sourceTree = "<group>"; };
 		C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencySummarySection.swift; sourceTree = "<group>"; };
 		C091E6342F42580200271B6E /* FilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChip.swift; sourceTree = "<group>"; };
 		C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineTypeEmptyState.swift; sourceTree = "<group>"; };
@@ -275,6 +279,7 @@
 				C0E580412F19EDD400571C5E /* TimelineFilterViewModel.swift */,
 				C0E5804B2F1B00FF00571C5E /* EditSessionViewModel.swift */,
 				C0742B9F2F4504A8004E7697 /* GoalsViewModel.swift */,
+				C0864B122F9F3000006E5F6A /* PracticeAreasViewModel.swift */,
 				C060F6FD2F4EEC11008946CA /* CategoryTagProvider.swift */,
 				C060F6FF2F4EEC23008946CA /* TagSuggester.swift */,
 			);
@@ -365,6 +370,7 @@
 			isa = PBXGroup;
 			children = (
 				C0F593732F1F6560009F6A0D /* ProfileView.swift */,
+				C0864B142F9F3010006E5F6A /* PracticeAreasPanel.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -468,6 +474,7 @@
 				C066A2982F104854005A5D44 /* ConsistencyStats.swift in Sources */,
 				C066A2B02F18893E005A5D44 /* InsightsViewModel.swift in Sources */,
 				C0742B9B2F44566A004E7697 /* GoalModel.swift in Sources */,
+				C0864B132F9F3000006E5F6A /* PracticeAreasViewModel.swift in Sources */,
 				C0F593772F1F6593009F6A0D /* CategoryDetailView.swift in Sources */,
 				C0E580462F1A450D00571C5E /* PracticeTimelineFilteredEmptyState.swift in Sources */,
 				C060F6FE2F4EEC11008946CA /* CategoryTagProvider.swift in Sources */,
@@ -487,6 +494,7 @@
 				C04482E52F273BE500068D74 /* SetupCompleteView.swift in Sources */,
 				C060F7022F4EEE07008946CA /* TagSuggestionsSection.swift in Sources */,
 				C0742B9E2F445749004E7697 /* GoalsPanel.swift in Sources */,
+				C0864B152F9F3010006E5F6A /* PracticeAreasPanel.swift in Sources */,
 				C0A430BF2F03494200C2401C /* PracticeTimelineView.swift in Sources */,
 				C04482E12F273B7A00068D74 /* CategorySetupStepView.swift in Sources */,
 				C066A2902F0F3A68005A5D44 /* FocusBreakdownCard.swift in Sources */,
