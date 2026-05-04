@@ -39,6 +39,7 @@
 		C0864B132F9F3000006E5F6A /* PracticeAreasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B122F9F3000006E5F6A /* PracticeAreasViewModel.swift */; };
 		C0864B152F9F3010006E5F6A /* PracticeAreasPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B142F9F3010006E5F6A /* PracticeAreasPanel.swift */; };
 		C0864B172FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B162FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift */; };
+		C0864B192FA82300006E5F6A /* PracticeAreaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */; };
 		C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */; };
 		C091E6352F42580200271B6E /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6342F42580200271B6E /* FilterChip.swift */; };
 		C091E6372F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */; };
@@ -113,6 +114,7 @@
 		C0864B122F9F3000006E5F6A /* PracticeAreasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreasViewModel.swift; sourceTree = "<group>"; };
 		C0864B142F9F3010006E5F6A /* PracticeAreasPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreasPanel.swift; sourceTree = "<group>"; };
 		C0864B162FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaQuestionnaireFlow.swift; sourceTree = "<group>"; };
+		C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaMetrics.swift; sourceTree = "<group>"; };
 		C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencySummarySection.swift; sourceTree = "<group>"; };
 		C091E6342F42580200271B6E /* FilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChip.swift; sourceTree = "<group>"; };
 		C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineTypeEmptyState.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 				C066A2972F104854005A5D44 /* ConsistencyStats.swift */,
 				C066A2992F1087AA005A5D44 /* PracticePatterns.swift */,
 				C066A29B2F118912005A5D44 /* PracticeScoreCalculator.swift */,
+				C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */,
 				C066A2A32F159C39005A5D44 /* ReflectionInsightService.swift */,
 			);
 			path = Analytics;
@@ -485,6 +488,7 @@
 				C066A2962F0FAE24005A5D44 /* FocusCarousel.swift in Sources */,
 				C0A430CF2F05993400C2401C /* PracticeSession.swift in Sources */,
 				C0864B112F9B1000006E5F6A /* PracticeAreaModel.swift in Sources */,
+				C0864B192FA82300006E5F6A /* PracticeAreaMetrics.swift in Sources */,
 				C091E6352F42580200271B6E /* FilterChip.swift in Sources */,
 				C0E5804E2F1DCF8B00571C5E /* MonthStepper.swift in Sources */,
 				C0A430ED2F098F5000C2401C /* PreviewModelContainer.swift in Sources */,
