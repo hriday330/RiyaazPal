@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import SwiftData
 
 final class EditSessionViewModel: ObservableObject {
 
@@ -20,6 +21,8 @@ final class EditSessionViewModel: ObservableObject {
     @Published var showingStartTimePicker = false
 
     @Published var suggestedTags: [String] = []
+    @Published var practiceAreaDrafts: [PracticeAreaQuestionnaireDraft] = []
+    @Published var hasPracticeAreaReflection = false
 
     private var tagProvider: CategoryTagProvider?
     private var cancellables = Set<AnyCancellable>()
@@ -103,6 +106,45 @@ extension EditSessionViewModel {
         session.confidence = draft.confidence
     }
 
+    func commitPracticeAreaRatings(
+        context: ModelContext,
+        existingRatings: [PracticeAreaRatingEntity]
+    ) {
+        guard hasPracticeAreaReflection else { return }
+
+        let ratingsByAreaID = Dictionary(
+            existingRatings.map { ($0.practiceAreaID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        let ratingsByAreaName = Dictionary(
+            existingRatings.map { (Self.normalizedAreaName($0.areaName), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        for draft in practiceAreaDrafts {
+            let existingRating = ratingsByAreaID[draft.practiceAreaID]
+                ?? ratingsByAreaName[Self.normalizedAreaName(draft.areaName)]
+
+            if let rating = existingRating {
+                rating.practiceAreaID = draft.practiceAreaID
+                rating.areaName = draft.areaName
+                rating.didPractice = draft.didPractice
+                rating.score = draft.didPractice ? draft.score.map(PracticeAreaRatingEntity.clampedScore) : nil
+                rating.lastModified = .now
+            } else {
+                let rating = PracticeAreaRatingEntity(
+                    sessionID: draft.sessionID,
+                    practiceAreaID: draft.practiceAreaID,
+                    areaName: draft.areaName,
+                    didPractice: draft.didPractice,
+                    score: draft.score
+                )
+                context.insert(rating)
+            }
+        }
+    }
+
     private func normalizeTag(_ tag: String) -> String {
         tag.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
@@ -167,6 +209,108 @@ extension EditSessionViewModel {
     
 }
 
+extension EditSessionViewModel {
+
+    func configurePracticeAreaQuestionnaire(
+        practiceAreas: [PracticeAreaEntity],
+        existingRatings: [PracticeAreaRatingEntity]
+    ) {
+        let existingByAreaID = Dictionary(
+            existingRatings.map { ($0.practiceAreaID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        let existingByAreaName = Dictionary(
+            existingRatings.map { (Self.normalizedAreaName($0.areaName), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        let activeAreas = practiceAreas
+            .filter(\.isActive)
+            .sorted { $0.order < $1.order }
+
+        let activeDrafts = activeAreas.map { area in
+            let existing = existingByAreaID[area.id]
+                ?? existingByAreaName[Self.normalizedAreaName(area.name)]
+
+            if let existing {
+                return PracticeAreaQuestionnaireDraft(
+                    sessionID: session.id,
+                    practiceAreaID: area.id,
+                    areaName: area.name,
+                    didPractice: existing.didPractice,
+                    score: existing.score
+                )
+            }
+
+            return PracticeAreaQuestionnaireDraft(
+                sessionID: session.id,
+                practiceAreaID: area.id,
+                areaName: area.name,
+                didPractice: false,
+                score: nil
+            )
+        }
+
+        let activeAreaIDs = Set(activeAreas.map(\.id))
+        let activeAreaNames = Set(activeAreas.map { Self.normalizedAreaName($0.name) })
+        let historicalDrafts = existingRatings
+            .filter {
+                !activeAreaIDs.contains($0.practiceAreaID) &&
+                !activeAreaNames.contains(Self.normalizedAreaName($0.areaName))
+            }
+            .map { rating in
+                PracticeAreaQuestionnaireDraft(
+                    sessionID: session.id,
+                    practiceAreaID: rating.practiceAreaID,
+                    areaName: rating.areaName,
+                    didPractice: rating.didPractice,
+                    score: rating.score
+                )
+            }
+
+        practiceAreaDrafts = activeDrafts + historicalDrafts
+        hasPracticeAreaReflection = !existingRatings.isEmpty
+    }
+
+    func markPracticeAreaReflectionStarted() {
+        hasPracticeAreaReflection = true
+    }
+
+    func updatePracticeAreaScore(
+        for draftID: UUID,
+        score: Int
+    ) {
+        guard let index = practiceAreaDrafts.firstIndex(where: { $0.id == draftID }) else {
+            return
+        }
+
+        practiceAreaDrafts[index].didPractice = true
+        practiceAreaDrafts[index].score = PracticeAreaRatingEntity.clampedScore(score)
+        hasPracticeAreaReflection = true
+    }
+
+    func markPracticeAreaNotPracticed(
+        draftID: UUID
+    ) {
+        guard let index = practiceAreaDrafts.firstIndex(where: { $0.id == draftID }) else {
+            return
+        }
+
+        practiceAreaDrafts[index].didPractice = false
+        practiceAreaDrafts[index].score = nil
+        hasPracticeAreaReflection = true
+    }
+
+    var practicedAreaCount: Int {
+        practiceAreaDrafts.filter(\.didPractice).count
+    }
+
+    static func normalizedAreaName(_ name: String) -> String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+}
+
 struct PracticeSessionDraft {
     let id: UUID
     var startTime: Date
@@ -180,5 +324,19 @@ struct PracticeSessionDraft {
     var resolvedConfidence: Int {
         get { min(max(confidence ?? 5, 1), 10) }
         set { confidence = min(max(newValue, 1), 10) }
+    }
+}
+
+struct PracticeAreaQuestionnaireDraft: Identifiable, Hashable {
+    var id: UUID { practiceAreaID }
+
+    let sessionID: UUID
+    let practiceAreaID: UUID
+    var areaName: String
+    var didPractice: Bool
+    var score: Int?
+
+    var resolvedScore: Int {
+        score ?? 5
     }
 }
