@@ -117,8 +117,17 @@ extension EditSessionViewModel {
             uniquingKeysWith: { first, _ in first }
         )
 
+        let ratingsByAreaName = Dictionary(
+            existingRatings.map { (Self.normalizedAreaName($0.areaName), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         for draft in practiceAreaDrafts {
-            if let rating = ratingsByAreaID[draft.practiceAreaID] {
+            let existingRating = ratingsByAreaID[draft.practiceAreaID]
+                ?? ratingsByAreaName[Self.normalizedAreaName(draft.areaName)]
+
+            if let rating = existingRating {
+                rating.practiceAreaID = draft.practiceAreaID
                 rating.areaName = draft.areaName
                 rating.didPractice = draft.didPractice
                 rating.score = draft.didPractice ? draft.score.map(PracticeAreaRatingEntity.clampedScore) : nil
@@ -211,16 +220,24 @@ extension EditSessionViewModel {
             uniquingKeysWith: { first, _ in first }
         )
 
+        let existingByAreaName = Dictionary(
+            existingRatings.map { (Self.normalizedAreaName($0.areaName), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         let activeAreas = practiceAreas
             .filter(\.isActive)
             .sorted { $0.order < $1.order }
 
         let activeDrafts = activeAreas.map { area in
-            if let existing = existingByAreaID[area.id] {
+            let existing = existingByAreaID[area.id]
+                ?? existingByAreaName[Self.normalizedAreaName(area.name)]
+
+            if let existing {
                 return PracticeAreaQuestionnaireDraft(
                     sessionID: session.id,
                     practiceAreaID: area.id,
-                    areaName: existing.areaName,
+                    areaName: area.name,
                     didPractice: existing.didPractice,
                     score: existing.score
                 )
@@ -236,8 +253,12 @@ extension EditSessionViewModel {
         }
 
         let activeAreaIDs = Set(activeAreas.map(\.id))
+        let activeAreaNames = Set(activeAreas.map { Self.normalizedAreaName($0.name) })
         let historicalDrafts = existingRatings
-            .filter { !activeAreaIDs.contains($0.practiceAreaID) }
+            .filter {
+                !activeAreaIDs.contains($0.practiceAreaID) &&
+                !activeAreaNames.contains(Self.normalizedAreaName($0.areaName))
+            }
             .map { rating in
                 PracticeAreaQuestionnaireDraft(
                     sessionID: session.id,
@@ -283,6 +304,10 @@ extension EditSessionViewModel {
 
     var practicedAreaCount: Int {
         practiceAreaDrafts.filter(\.didPractice).count
+    }
+
+    static func normalizedAreaName(_ name: String) -> String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 }
 
