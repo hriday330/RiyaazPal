@@ -127,7 +127,7 @@ private struct PracticeAreaOverviewCard: View {
                         .font(.headline)
                         .foregroundStyle(Color("PrimaryText"))
 
-                    Text("Latest questionnaire score trends across active areas.")
+                    Text("Average of the latest scores for active practice areas.")
                         .font(.caption)
                         .foregroundStyle(Color("SecondaryText"))
                 }
