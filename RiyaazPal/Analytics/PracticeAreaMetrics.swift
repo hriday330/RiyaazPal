@@ -52,6 +52,7 @@ enum PracticeAreaTrendDirection: Equatable {
 
 enum PracticeAreaPerformanceTransferStatus: Equatable {
     case significantDrop
+    case concertLift
     case maintained
     case inconclusive
     case insufficientData
@@ -63,6 +64,7 @@ enum PracticeAreaMetricsCalculator {
     static let minimumPracticeScoresForTransfer = 4
     static let minimumConcertScoresForTransfer = 3
     static let significantDropDelta = -1.5
+    static let concertLiftDelta = 1.5
     static let maintainedDeltaMagnitude = 1.0
 
     static func compute(
@@ -340,6 +342,8 @@ private extension PracticeAreaMetricsCalculator {
         let status: PracticeAreaPerformanceTransferStatus
         if delta <= significantDropDelta {
             status = .significantDrop
+        } else if delta >= concertLiftDelta {
+            status = .concertLift
         } else if abs(delta) < maintainedDeltaMagnitude {
             status = .maintained
         } else {

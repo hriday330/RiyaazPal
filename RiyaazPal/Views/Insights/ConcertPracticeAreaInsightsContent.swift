@@ -43,6 +43,14 @@ struct ConcertPracticeAreaInsightsContent: View {
             }
     }
 
+    private var liftMetrics: [PracticeAreaMetric] {
+        transferReadyMetrics
+            .filter { $0.performanceTransfer.status == .concertLift }
+            .sorted { lhs, rhs in
+                (lhs.performanceTransfer.delta ?? 0) > (rhs.performanceTransfer.delta ?? 0)
+            }
+    }
+
     var body: some View {
         VStack(spacing: 16) {
             if activePracticeAreaCount == 0 {
@@ -65,9 +73,10 @@ struct ConcertPracticeAreaInsightsContent: View {
                     concertCount: concertCount
                 )
 
-                if !dropMetrics.isEmpty || !maintainedMetrics.isEmpty {
+                if !dropMetrics.isEmpty || !liftMetrics.isEmpty || !maintainedMetrics.isEmpty {
                     ConcertPracticeAreaHighlightsCard(
                         dropMetrics: Array(dropMetrics.prefix(3)),
+                        liftMetrics: Array(liftMetrics.prefix(3)),
                         maintainedMetrics: Array(maintainedMetrics.prefix(3))
                     )
                 }
@@ -106,9 +115,9 @@ private struct ConcertPracticeAreaOverviewCard: View {
         }.count
     }
 
-    private var maintainedCount: Int {
+    private var liftCount: Int {
         metrics.filter {
-            $0.performanceTransfer.status == .maintained
+            $0.performanceTransfer.status == .concertLift
         }.count
     }
 
@@ -137,7 +146,7 @@ private struct ConcertPracticeAreaOverviewCard: View {
                 overviewMetric(value: "\(concertCount)", label: "Concerts")
                 overviewMetric(value: "\(concertRatedAreaCount)", label: "Rated areas")
                 overviewMetric(value: "\(significantDropCount)", label: "Drops")
-                overviewMetric(value: "\(maintainedCount)", label: "Maintained")
+                overviewMetric(value: "\(liftCount)", label: "Lifts")
             }
         }
         .insightCard()
@@ -168,6 +177,7 @@ private struct ConcertPracticeAreaOverviewCard: View {
 
 private struct ConcertPracticeAreaHighlightsCard: View {
     let dropMetrics: [PracticeAreaMetric]
+    let liftMetrics: [PracticeAreaMetric]
     let maintainedMetrics: [PracticeAreaMetric]
 
     var body: some View {
@@ -193,6 +203,15 @@ private struct ConcertPracticeAreaHighlightsCard: View {
                     summary: maintainedSummary
                 )
             }
+
+            if !liftMetrics.isEmpty {
+                ConcertPracticeAreaHighlightGroup(
+                    icon: "arrow.up.forward.circle.fill",
+                    title: "Stronger in concert",
+                    metrics: liftMetrics,
+                    summary: liftSummary
+                )
+            }
         }
         .insightCard()
         .shadow(color: .black.opacity(0.08), radius: 10)
@@ -204,6 +223,14 @@ private struct ConcertPracticeAreaHighlightsCard: View {
         }
 
         return "\(abs(delta).formatted(.number.precision(.fractionLength(1)))) lower than practice."
+    }
+
+    private func liftSummary(for metric: PracticeAreaMetric) -> String {
+        guard let delta = metric.performanceTransfer.delta else {
+            return "Concert average is higher than practice."
+        }
+
+        return "\(delta.formatted(.number.precision(.fractionLength(1)))) higher than practice."
     }
 
     private func maintainedSummary(for metric: PracticeAreaMetric) -> String {
@@ -448,6 +475,8 @@ private extension PracticeAreaPerformanceTransferStatus {
         switch self {
         case .significantDrop:
             return "Concert drop"
+        case .concertLift:
+            return "Concert lift"
         case .maintained:
             return "Maintained"
         case .inconclusive:
@@ -461,6 +490,8 @@ private extension PracticeAreaPerformanceTransferStatus {
         switch self {
         case .significantDrop:
             return "exclamationmark.triangle.fill"
+        case .concertLift:
+            return "arrow.up.forward.circle.fill"
         case .maintained:
             return "checkmark.circle.fill"
         case .inconclusive:
@@ -474,6 +505,8 @@ private extension PracticeAreaPerformanceTransferStatus {
         switch self {
         case .significantDrop:
             return .red
+        case .concertLift:
+            return .green
         case .maintained:
             return .green
         case .inconclusive:

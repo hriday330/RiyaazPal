@@ -570,6 +570,8 @@ private extension PracticeAreaPerformanceTransferStatus {
         switch self {
         case .significantDrop:
             return "Concert drop detected"
+        case .concertLift:
+            return "Concert execution stronger"
         case .maintained:
             return "Concert execution maintained"
         case .inconclusive:
@@ -583,6 +585,8 @@ private extension PracticeAreaPerformanceTransferStatus {
         switch self {
         case .significantDrop:
             return "exclamationmark.triangle.fill"
+        case .concertLift:
+            return "arrow.up.forward.circle.fill"
         case .maintained:
             return "checkmark.circle.fill"
         case .inconclusive:
@@ -596,6 +600,8 @@ private extension PracticeAreaPerformanceTransferStatus {
         switch self {
         case .significantDrop:
             return .red
+        case .concertLift:
+            return .green
         case .maintained:
             return .green
         case .inconclusive:
