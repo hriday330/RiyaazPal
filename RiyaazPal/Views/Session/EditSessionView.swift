@@ -93,11 +93,9 @@ struct EditSessionView: View {
                             .padding(.top, 8)
                         }
 
-                        if editSessionViewModel.draft.sessionType == .practice {
-                            reflectOnSessionButton
-                                .padding(.horizontal)
-                                .padding(.top, 20)
-                        }
+                        reflectOnSessionButton
+                            .padding(.horizontal)
+                            .padding(.top, 20)
 
                         EditSessionNotesEditor(
                             notes: Binding(
@@ -130,6 +128,7 @@ struct EditSessionView: View {
             .fullScreenCover(isPresented: $showPracticeAreaQuestionnaire) {
                 PracticeAreaQuestionnaireFlow(
                     drafts: editSessionViewModel.practiceAreaDrafts,
+                    sessionType: editSessionViewModel.draft.sessionType,
                     onScoreChanged: { draftID, score in
                         editSessionViewModel.updatePracticeAreaScore(
                             for: draftID,
@@ -228,7 +227,7 @@ private extension EditSessionView {
                     .frame(width: 22)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Reflect on Session")
+                    Text(reflectionButtonTitle)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(Color("PrimaryText"))
@@ -259,7 +258,7 @@ private extension EditSessionView {
 
     var reflectionStatusText: String {
         guard !editSessionViewModel.practiceAreaDrafts.isEmpty else {
-            return "Add practice areas from Profile"
+            return "Add practice areas to reflect"
         }
 
         guard editSessionViewModel.hasPracticeAreaReflection else {
@@ -269,10 +268,22 @@ private extension EditSessionView {
         let practicedCount = editSessionViewModel.practicedAreaCount
 
         if practicedCount == 0 {
-            return "All areas marked not practiced"
+            return editSessionViewModel.draft.sessionType == .concert
+                ? "All areas marked not performed"
+                : "All areas marked not practiced"
         }
 
-        return "\(practicedCount) of \(editSessionViewModel.practiceAreaDrafts.count) areas practiced"
+        let verb = editSessionViewModel.draft.sessionType == .concert
+            ? "performed"
+            : "practiced"
+
+        return "\(practicedCount) of \(editSessionViewModel.practiceAreaDrafts.count) areas \(verb)"
+    }
+
+    var reflectionButtonTitle: String {
+        editSessionViewModel.draft.sessionType == .concert
+            ? "Reflect on Concert"
+            : "Reflect on Session"
     }
     
     var startDateTimePicker: some View {
