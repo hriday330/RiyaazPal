@@ -24,8 +24,11 @@ struct InsightsView: View {
     @Query(sort: \TagCategoryModel.order)
         private var tagCategories: [TagCategoryModel]
     
-    @Query(filter: #Predicate<GoalEntity> { $0.isActive == true })
-        private var activeGoals: [GoalEntity]
+    @Query(sort: \PracticeAreaEntity.order)
+        private var practiceAreas: [PracticeAreaEntity]
+
+    @Query(sort: \PracticeAreaRatingEntity.createdAt)
+        private var practiceAreaRatings: [PracticeAreaRatingEntity]
 
     
     @StateObject private var insightsViewModel = InsightsViewModel()
@@ -51,37 +54,14 @@ struct InsightsView: View {
     private var concertSessions: [PracticeSession] {
         sessions.filter { $0.resolvedSessionType == .concert }
     }
-    
-    
 
-
-    private var focusStats: FocusStats {
-        insightsViewModel.focusStats(from: recentSessions, categorizer: categorizer)
-    }
-    
-    private var consistencyStats: ConsistencyStats {
-        insightsViewModel.consistencyStats(from: recentSessions)
-    }
-    
-    private var patterns: [PracticePattern] {
-        insightsViewModel.patterns(from: recentSessions, focusStats: focusStats, categorizer: categorizer)
-    }
-    
-    private var practiceScore: Int {
-        insightsViewModel.practiceScore(consistency: consistencyStats, patterns: patterns)
-    }
-
-    private var focusCategories: [TagCategory] {
-        tagCategories
-            .filter { $0.isFocusRelevant }
-            .sorted { $0.order < $1.order }
-            .map {
-                TagCategory(
-                    id: $0.id,
-                    name: $0.name,
-                    isFocusRelevant: $0.isFocusRelevant
-                )
-            }
+    private var practiceAreaMetrics: [PracticeAreaMetric] {
+        PracticeAreaMetricsCalculator.compute(
+            practiceAreas: practiceAreas,
+            ratings: practiceAreaRatings,
+            sessions: sessions,
+            now: insightsViewModel.currentWindow.end
+        )
     }
 
     var body: some View {
@@ -108,14 +88,7 @@ struct InsightsView: View {
                 }
                 
                 .padding()
-            }.refreshable {
-                await insightsViewModel.fetchReflectionInsight(
-                    sessions: recentSessions,
-                    goals: activeGoals
-                )
             }
-        }.task(id: insightsVersion) {
-            await insightsViewModel.fetchReflectionInsight(sessions: recentSessions, goals: activeGoals)
         }
 
         .navigationTitle("Insights")
@@ -157,30 +130,13 @@ private extension InsightsView {
 
 private extension InsightsView {
     var practiceInsightsContent: some View {
-        VStack{
-            PracticeScoreMeter(
-                score: practiceScore
-            )
-            ReflectionInsightSection(
-                insight: insightsViewModel.reflectionInsight,
-                isLoading: insightsViewModel.isLoadingInsight,
-                error: insightsViewModel.insightError,
-                onAddGoalsTapped: {
-                    showProfile = true
-                }
-            )
-            ConsistencySummarySection(consistencyStats: consistencyStats)
-                .insightCard()
-                .shadow(color: .black.opacity(0.08), radius: 10)
-            FocusCarousel(focusStats: focusStats, categories: focusCategories)
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color("CardBackground"))
-                )
-                .shadow(color: .black.opacity(0.08), radius: 10)
-            
-            notablePatterns
-        }
+        PracticeAreaInsightsContent(
+            metrics: practiceAreaMetrics,
+            activePracticeAreaCount: practiceAreas.filter(\.isActive).count,
+            onManagePracticeAreas: {
+                showProfile = true
+            }
+        )
     }
     
     var concertInsightsContent: some View {
@@ -195,56 +151,6 @@ private extension InsightsView {
     }
 
 
-}
-private extension InsightsView {
-    var notablePatterns: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Notable Patterns")
-                .font(.headline)
-
-            VStack(spacing: 10) {
-                
-                if (patterns.isEmpty) {
-                    Text("No major patterns detected this period. Keep up the balanced riyaz!")
-                        .font(.subheadline)
-                        .foregroundStyle(Color("SecondaryText"))
-                }
-                ForEach(patterns, id:\.id) { pattern in
-                    patternCard(
-                        icon: pattern.icon,
-                        title: pattern.title,
-                        description: pattern.description
-                    ).shadow(color: .black.opacity(0.08), radius: 10)
-                }
-            }
-        }.insightCard()
-    }
-    
-
-    func patternCard(icon: String, title: String, description: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundStyle(Color("AccentColor"))
-                .frame(width: 20, alignment: .top)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-
-                Text(description)
-                    .font(.caption)
-                    .foregroundStyle(Color("SecondaryText"))
-            }
-
-            Spacer(minLength:15)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(Color("CardBackground"))
-        )
-    }
 }
 
 private extension InsightsView {
@@ -291,13 +197,6 @@ private extension InsightsView {
 
         return formatter.string(from: insightsViewModel.currentWindow.start, to: insightsViewModel.currentWindow.end)
     }
-    
-    private var insightsVersion: InsightsVersion {
-        insightsViewModel.insightsVersion(
-            recentSessions: recentSessions
-        )
-    }
-
 }
 
 #Preview("Insights – Light") {
