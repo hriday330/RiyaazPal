@@ -11,6 +11,7 @@ import SwiftUI
 struct PracticeAreaQuestionnaireFlow: View {
 
     let drafts: [PracticeAreaQuestionnaireDraft]
+    let sessionType: SessionType
     let onScoreChanged: (UUID, Int) -> Void
     let onNotPracticed: (UUID) -> Void
     let onAddPracticeArea: (String) -> PracticeAreaInlineAddResult
@@ -75,7 +76,7 @@ private extension PracticeAreaQuestionnaireFlow {
                 .font(.headline)
                 .foregroundStyle(Color("PrimaryText"))
 
-            Text("Add practice areas to reflect on them after each session.")
+            Text(emptyStateMessage)
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Color("SecondaryText"))
@@ -113,7 +114,7 @@ private extension PracticeAreaQuestionnaireFlow {
             Spacer(minLength: 20)
 
             VStack(spacing: 18) {
-                Text("How did \(draft.areaName) go for you today?")
+                Text(questionText(for: draft))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
@@ -141,7 +142,7 @@ private extension PracticeAreaQuestionnaireFlow {
     func scorePanel(_ draft: PracticeAreaQuestionnaireDraft) -> some View {
         VStack(spacing: 18) {
             HStack {
-                Text(draft.didPractice ? "\(draft.resolvedScore)/10" : "Not practiced today")
+                Text(draft.didPractice ? "\(draft.resolvedScore)/10" : inactiveScoreText)
                     .font(.headline)
                     .foregroundStyle(Color("PrimaryText"))
 
@@ -165,7 +166,7 @@ private extension PracticeAreaQuestionnaireFlow {
             } label: {
                 HStack {
                     Image(systemName: draft.didPractice ? "circle" : "checkmark.circle.fill")
-                    Text("I didn't work on this today")
+                    Text(inactiveButtonText)
                 }
                 .font(.subheadline)
                 .fontWeight(.semibold)
@@ -221,6 +222,42 @@ private extension PracticeAreaQuestionnaireFlow {
                     )
                     .foregroundStyle(.white)
             }
+        }
+    }
+
+    var emptyStateMessage: String {
+        switch sessionType {
+        case .practice:
+            return "Add practice areas to reflect on them after each session."
+        case .concert:
+            return "Add practice areas to reflect on them after each concert."
+        }
+    }
+
+    var inactiveScoreText: String {
+        switch sessionType {
+        case .practice:
+            return "Not practiced today"
+        case .concert:
+            return "Not performed today"
+        }
+    }
+
+    var inactiveButtonText: String {
+        switch sessionType {
+        case .practice:
+            return "I didn't work on this today"
+        case .concert:
+            return "I didn't perform this today"
+        }
+    }
+
+    func questionText(for draft: PracticeAreaQuestionnaireDraft) -> String {
+        switch sessionType {
+        case .practice:
+            return "How did \(draft.areaName) go for you today?"
+        case .concert:
+            return "How did \(draft.areaName) go in performance?"
         }
     }
 }
@@ -323,6 +360,26 @@ private struct InlinePracticeAreaAddSheet: View {
                 score: 7
             )
         ],
+        sessionType: .practice,
+        onScoreChanged: { _, _ in },
+        onNotPracticed: { _ in },
+        onAddPracticeArea: { _ in .added },
+        onDone: { }
+    )
+}
+
+#Preview("Concert Questionnaire Flow") {
+    PracticeAreaQuestionnaireFlow(
+        drafts: [
+            PracticeAreaQuestionnaireDraft(
+                sessionID: UUID(),
+                practiceAreaID: UUID(),
+                areaName: "Bol Taans",
+                didPractice: false,
+                score: nil
+            )
+        ],
+        sessionType: .concert,
         onScoreChanged: { _, _ in },
         onNotPracticed: { _ in },
         onAddPracticeArea: { _ in .added },
