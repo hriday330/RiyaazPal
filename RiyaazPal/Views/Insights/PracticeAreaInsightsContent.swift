@@ -70,7 +70,15 @@ struct PracticeAreaInsightsContent: View {
                         .foregroundStyle(Color("PrimaryText"))
 
                     ForEach(metrics) { metric in
-                        PracticeAreaMetricCard(metric: metric)
+                        NavigationLink {
+                            PracticeAreaInsightDetailView(
+                                metric: metric,
+                                mode: .practice
+                            )
+                        } label: {
+                            PracticeAreaMetricCard(metric: metric)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -261,79 +269,52 @@ private struct PracticeAreaMetricCard: View {
     let metric: PracticeAreaMetric
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 8) {
-                        Text(metric.areaName)
-                            .font(.headline)
-                            .foregroundStyle(Color("PrimaryText"))
-
-                        if !metric.isActive {
-                            Text("Archived")
-                                .font(.caption2)
-                                .fontWeight(.semibold)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(
-                                    Capsule()
-                                        .fill(Color("SecondaryText").opacity(0.14))
-                                )
-                                .foregroundStyle(Color("SecondaryText"))
-                        }
-                    }
-
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(Color("SecondaryText"))
-                }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 3) {
-                    Text(latestScoreText)
-                        .font(.title3)
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    Text(metric.areaName)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color("AccentColor"))
+                        .foregroundStyle(Color("PrimaryText"))
 
-                    Text("Latest")
-                        .font(.caption2)
-                        .foregroundStyle(Color("SecondaryText"))
+                    if !metric.isActive {
+                        Text("Archived")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule()
+                                    .fill(Color("SecondaryText").opacity(0.14))
+                            )
+                            .foregroundStyle(Color("SecondaryText"))
+                    }
                 }
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .lineLimit(1)
             }
 
-            HStack(spacing: 10) {
-                PracticeAreaStatPill(label: "7-day", value: averageText(metric.sevenDayAverage))
-                PracticeAreaStatPill(label: "Prev 7", value: averageText(metric.previousSevenDayAverage))
-                PracticeAreaStatPill(label: "30-day", value: averageText(metric.thirtyDayAverage))
-            }
+            Spacer()
 
-            HStack(spacing: 8) {
+            VStack(alignment: .trailing, spacing: 5) {
+                Text(latestScoreText)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("AccentColor"))
+
                 PracticeAreaStatusChip(
                     icon: metric.trendDirection.iconName,
                     text: metric.trendDirection.label,
                     tint: metric.trendDirection.tint
                 )
-
-                PracticeAreaStatusChip(
-                    icon: "waveform.path.ecg",
-                    text: volatilityText,
-                    tint: volatilityTint
-                )
             }
 
-            if metric.practice.ratedSessionCount > 0 || metric.concert.ratedSessionCount > 0 {
-                Divider()
-
-                HStack(spacing: 12) {
-                    contextStat(title: "Practice", context: metric.practice)
-                    contextStat(title: "Concert", context: metric.concert)
-                }
-
-                if metric.performanceTransfer.status != .insufficientData {
-                    PracticeAreaTransferRow(transfer: metric.performanceTransfer)
-                }
-            }
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(Color("SecondaryText"))
         }
         .insightCard()
         .shadow(color: .black.opacity(0.08), radius: 10)
@@ -359,113 +340,6 @@ private struct PracticeAreaMetricCard: View {
         return "\(latestScore)/10"
     }
 
-    private var volatilityText: String {
-        guard let volatility = metric.volatility else { return "Volatility n/a" }
-
-        switch volatility {
-        case ..<0.8:
-            return "Low volatility"
-        case ..<1.6:
-            return "Moderate volatility"
-        default:
-            return "High volatility"
-        }
-    }
-
-    private var volatilityTint: Color {
-        guard let volatility = metric.volatility else { return Color("SecondaryText") }
-
-        switch volatility {
-        case ..<0.8:
-            return .green
-        case ..<1.6:
-            return .orange
-        default:
-            return .red
-        }
-    }
-
-    private func averageText(_ value: Double?) -> String {
-        guard let value else { return "-" }
-        return "\(value.formatted(.number.precision(.fractionLength(1))))/10"
-    }
-
-    private func contextStat(title: String, context: PracticeAreaContextMetric) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(Color("SecondaryText"))
-
-            Text(averageText(context.averageScore))
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(Color("PrimaryText"))
-
-            Text("\(context.ratedSessionCount) scores")
-                .font(.caption2)
-                .foregroundStyle(Color("SecondaryText"))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-private struct PracticeAreaTransferRow: View {
-    let transfer: PracticeAreaPerformanceTransfer
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: transfer.status.iconName)
-                .foregroundStyle(transfer.status.tint)
-
-            Text(transfer.status.label)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(Color("PrimaryText"))
-
-            Spacer()
-
-            if let delta = transfer.delta {
-                Text(deltaText(delta))
-                    .font(.caption)
-                    .foregroundStyle(Color("SecondaryText"))
-            }
-        }
-        .padding(.top, 2)
-    }
-
-    private func deltaText(_ delta: Double) -> String {
-        let formatted = abs(delta).formatted(.number.precision(.fractionLength(1)))
-        if delta < 0 {
-            return "-\(formatted) concert delta"
-        }
-        return "+\(formatted) concert delta"
-    }
-}
-
-private struct PracticeAreaStatPill: View {
-    let label: String
-    let value: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(Color("PrimaryText"))
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(Color("SecondaryText"))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color("AppBackground"))
-        )
-    }
 }
 
 private struct PracticeAreaStatusChip: View {
