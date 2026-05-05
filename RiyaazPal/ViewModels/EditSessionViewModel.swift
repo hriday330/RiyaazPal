@@ -277,6 +277,28 @@ extension EditSessionViewModel {
         hasPracticeAreaReflection = true
     }
 
+    func appendPracticeAreaDraft(for area: PracticeAreaEntity) {
+        let normalizedName = Self.normalizedAreaName(area.name)
+
+        guard !practiceAreaDrafts.contains(where: {
+            $0.practiceAreaID == area.id ||
+            Self.normalizedAreaName($0.areaName) == normalizedName
+        }) else {
+            return
+        }
+
+        practiceAreaDrafts.append(
+            PracticeAreaQuestionnaireDraft(
+                sessionID: session.id,
+                practiceAreaID: area.id,
+                areaName: area.name,
+                didPractice: false,
+                score: nil
+            )
+        )
+        hasPracticeAreaReflection = true
+    }
+
     func updatePracticeAreaScore(
         for draftID: UUID,
         score: Int

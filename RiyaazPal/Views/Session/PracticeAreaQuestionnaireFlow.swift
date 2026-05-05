@@ -13,9 +13,11 @@ struct PracticeAreaQuestionnaireFlow: View {
     let drafts: [PracticeAreaQuestionnaireDraft]
     let onScoreChanged: (UUID, Int) -> Void
     let onNotPracticed: (UUID) -> Void
+    let onAddPracticeArea: (String) -> PracticeAreaInlineAddResult
     let onDone: () -> Void
 
     @State private var currentIndex = 0
+    @State private var showingAddPracticeArea = false
 
     private var currentDraft: PracticeAreaQuestionnaireDraft? {
         guard drafts.indices.contains(currentIndex) else { return nil }
@@ -42,6 +44,21 @@ struct PracticeAreaQuestionnaireFlow: View {
                         .fontWeight(.semibold)
                 }
             }
+            .sheet(isPresented: $showingAddPracticeArea) {
+                InlinePracticeAreaAddSheet(
+                    onAddPracticeArea: onAddPracticeArea
+                )
+                .presentationDetents([.height(260)])
+                .presentationDragIndicator(.visible)
+            }
+            .onChange(of: drafts.count) { _, newCount in
+                guard newCount > 0 else {
+                    currentIndex = 0
+                    return
+                }
+
+                currentIndex = min(currentIndex, newCount - 1)
+            }
         }
     }
 }
@@ -58,17 +75,40 @@ private extension PracticeAreaQuestionnaireFlow {
                 .font(.headline)
                 .foregroundStyle(Color("PrimaryText"))
 
-            Text("Add practice areas from Profile to reflect on them after each session.")
+            Text("Add practice areas to reflect on them after each session.")
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Color("SecondaryText"))
                 .padding(.horizontal, 28)
+
+            Button {
+                showingAddPracticeArea = true
+            } label: {
+                Label("Add Practice Area", systemImage: "plus.circle.fill")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color("AccentColor"))
+            .padding(.top, 4)
         }
     }
 
     func questionContent(_ draft: PracticeAreaQuestionnaireDraft) -> some View {
         VStack(spacing: 24) {
-            progressText
+            HStack(spacing: 12) {
+                progressText
+
+                Button {
+                    showingAddPracticeArea = true
+                } label: {
+                    Label("Add Practice Area", systemImage: "plus.circle.fill")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .labelStyle(.titleAndIcon)
+                }
+                .foregroundStyle(Color("AccentColor"))
+            }
 
             Spacer(minLength: 20)
 
@@ -185,6 +225,86 @@ private extension PracticeAreaQuestionnaireFlow {
     }
 }
 
+enum PracticeAreaInlineAddResult {
+    case added
+    case duplicate
+    case emptyName
+    case failed
+}
+
+private struct InlinePracticeAreaAddSheet: View {
+    let onAddPracticeArea: (String) -> PracticeAreaInlineAddResult
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var message: String?
+    @FocusState private var isFocused
+
+    private var trimmedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Add Practice Area")
+                    .font(.headline)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                TextField("Add practice area", text: $name)
+                    .textFieldStyle(.roundedBorder)
+                    .submitLabel(.done)
+                    .focused($isFocused)
+                    .onSubmit(addPracticeArea)
+
+                if let message {
+                    Text(message)
+                        .font(.caption)
+                        .foregroundStyle(Color.red)
+                }
+
+                Button(action: addPracticeArea) {
+                    Label("Add Practice Area", systemImage: "plus.circle.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color("AccentColor"))
+                .disabled(trimmedName.isEmpty)
+
+                Spacer(minLength: 0)
+            }
+            .padding()
+            .background(Color("AppBackground"))
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                isFocused = true
+            }
+        }
+    }
+
+    private func addPracticeArea() {
+        switch onAddPracticeArea(trimmedName) {
+        case .added:
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            dismiss()
+        case .duplicate:
+            message = "That practice area already exists."
+        case .emptyName:
+            message = "Enter a practice area name."
+        case .failed:
+            message = "Could not add this practice area."
+        }
+    }
+}
+
 #Preview("Questionnaire Flow") {
     PracticeAreaQuestionnaireFlow(
         drafts: [
@@ -205,6 +325,7 @@ private extension PracticeAreaQuestionnaireFlow {
         ],
         onScoreChanged: { _, _ in },
         onNotPracticed: { _ in },
+        onAddPracticeArea: { _ in .added },
         onDone: { }
     )
 }
