@@ -1,0 +1,130 @@
+import OpenAI from "openai"
+
+const openai = new OpenAI({
+  apiKey: Deno.env.get("OPENAI_API_KEY")!
+})
+
+Deno.serve(async (req: Request) => {
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", { status: 405 })
+  }
+
+  try {
+    const body = await req.json() as PracticeRecommendationRequest
+
+    if (!isValidRequest(body)) {
+      return jsonResponse({ error: "Invalid payload" }, 400)
+    }
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.4,
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        {
+          role: "user",
+          content: JSON.stringify(body)
+        }
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "practice_recommendation",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              title: {
+                type: "string",
+                description: "Short notification title, 45 characters or fewer."
+              },
+              body: {
+                type: "string",
+                description: "Friendly notification body, 90 characters or fewer."
+              }
+            },
+            required: ["title", "body"],
+            additionalProperties: false
+          }
+        }
+      }
+    })
+
+    const content = completion.choices[0].message.content
+
+    if (!content) {
+      return jsonResponse({ error: "Recommendation generation failed" }, 500)
+    }
+
+    const copy = JSON.parse(content) as PracticeRecommendationResponse
+
+    return jsonResponse(copy, 200)
+  } catch (err) {
+    console.error("Practice recommendation error:", err)
+    return jsonResponse({ error: "Recommendation generation failed" }, 500)
+  }
+})
+
+const systemPrompt = `
+You write short, warm notification copy for an Indian classical music practice app.
+
+The app has already chosen the practice area deterministically.
+Your job is only to phrase that recommendation.
+
+Rules:
+- Do not choose or change the practice area.
+- Include the exact practice area name in either the title or body.
+- Do not derive new insights, scores, urgency, or conclusions.
+- Do not mention GPT, algorithms, metrics, data, ratings, or notifications.
+- Keep the tone encouraging, calm, and specific.
+- Avoid guilt, pressure, exaggeration, and phrases like "you should".
+- Return one title and one body only.
+- Title must be 45 characters or fewer.
+- Body must be 90 characters or fewer.
+`
+
+function isValidRequest(
+  body: PracticeRecommendationRequest
+): body is PracticeRecommendationRequest {
+  return Boolean(
+    body &&
+      typeof body.area_name === "string" &&
+      body.area_name.trim().length > 0 &&
+      typeof body.primary_reason === "string" &&
+      Array.isArray(body.supporting_reasons)
+  )
+}
+
+function jsonResponse(
+  body: Record<string, unknown>,
+  status: number
+): Response {
+  return new Response(JSON.stringify(body), {
+    headers: { "Content-Type": "application/json" },
+    status
+  })
+}
+
+export type PracticeRecommendationRequest = {
+  area_name: string
+  primary_reason: PracticeSuggestionReasonPayload
+  supporting_reasons: PracticeSuggestionReasonPayload[]
+}
+
+type PracticeSuggestionReasonPayload =
+  | "noRatingsYet"
+  | "neglected"
+  | "dueForPractice"
+  | "concertDrop"
+  | "decliningTrend"
+  | "lowerRecentScore"
+  | "highVolatility"
+  | "steadyMaintenance"
+
+type PracticeRecommendationResponse = {
+  title: string
+  body: string
+}

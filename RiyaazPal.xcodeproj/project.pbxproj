@@ -42,6 +42,7 @@
 		C0864B172FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B162FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift */; };
 		C0864B192FA82300006E5F6A /* PracticeAreaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */; };
 		C0864B212FAD0000006E5F6A /* PracticeSuggestionRecommender.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B202FAD0000006E5F6A /* PracticeSuggestionRecommender.swift */; };
+		C0864B232FAE0000006E5F6A /* PracticeRecommendationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B222FAE0000006E5F6A /* PracticeRecommendationService.swift */; };
 		C091E6332F41CFAB00271B6E /* ConsistencySummarySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */; };
 		C091E6352F42580200271B6E /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6342F42580200271B6E /* FilterChip.swift */; };
 		C091E6372F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */; };
@@ -119,6 +120,7 @@
 		C0864B162FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaQuestionnaireFlow.swift; sourceTree = "<group>"; };
 		C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaMetrics.swift; sourceTree = "<group>"; };
 		C0864B202FAD0000006E5F6A /* PracticeSuggestionRecommender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeSuggestionRecommender.swift; sourceTree = "<group>"; };
+		C0864B222FAE0000006E5F6A /* PracticeRecommendationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeRecommendationService.swift; sourceTree = "<group>"; };
 		C091E6322F41CFAB00271B6E /* ConsistencySummarySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencySummarySection.swift; sourceTree = "<group>"; };
 		C091E6342F42580200271B6E /* FilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChip.swift; sourceTree = "<group>"; };
 		C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineTypeEmptyState.swift; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 				C066A29B2F118912005A5D44 /* PracticeScoreCalculator.swift */,
 				C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */,
 				C0864B202FAD0000006E5F6A /* PracticeSuggestionRecommender.swift */,
+				C0864B222FAE0000006E5F6A /* PracticeRecommendationService.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
@@ -506,6 +509,7 @@
 				C060F7062F4F86D3008946CA /* ConfidenceTrendCard.swift in Sources */,
 				C060F7042F4F6D5D008946CA /* RepertoireNeglectCard.swift in Sources */,
 				C0864B212FAD0000006E5F6A /* PracticeSuggestionRecommender.swift in Sources */,
+				C0864B232FAE0000006E5F6A /* PracticeRecommendationService.swift in Sources */,
 				C04482E52F273BE500068D74 /* SetupCompleteView.swift in Sources */,
 				C060F7022F4EEE07008946CA /* TagSuggestionsSection.swift in Sources */,
 				C0742B9E2F445749004E7697 /* GoalsPanel.swift in Sources */,
