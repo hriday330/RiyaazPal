@@ -54,6 +54,7 @@ struct InsightsView: View {
                 VStack(spacing: 16) {
                     header
                     insightsModeChips
+                    insightSummaryCard
                     if (mode == .practice){
                         practiceInsightsContent
                     } else {
@@ -89,6 +90,15 @@ struct InsightsView: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
+        .task(id: summaryRefreshID) {
+            await insightsViewModel.loadMetricSummary(
+                metrics: practiceAreaMetrics,
+                activePracticeAreaCount: practiceAreas.filter(\.isActive).count,
+                concertCount: concertCount,
+                window: insightsViewModel.currentWindow,
+                requestID: summaryRefreshID
+            )
+        }
     }
 }
 
@@ -110,6 +120,24 @@ private extension InsightsView {
 }
 
 private extension InsightsView {
+    @ViewBuilder
+    var insightSummaryCard: some View {
+        if let summaryText = insightsViewModel.summaryText {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Overall Summary", systemImage: "sparkles")
+                    .font(.headline)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                Text(summaryText)
+                    .font(.subheadline)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .insightCard()
+            .shadow(color: .black.opacity(0.08), radius: 10)
+        }
+    }
+
     var practiceInsightsContent: some View {
         PracticeAreaInsightsContent(
             metrics: practiceAreaMetrics,
@@ -177,6 +205,41 @@ private extension InsightsView {
         formatter.timeStyle = .none
 
         return formatter.string(from: insightsViewModel.currentWindow.start, to: insightsViewModel.currentWindow.end)
+    }
+
+    private var summaryRefreshID: String {
+        let metricValues = practiceAreaMetrics.map { metric in
+            [
+                metric.id,
+                metric.areaName,
+                "\(metric.isActive)",
+                "\(metric.latestScore ?? -1)",
+                "\(metric.sevenDayAverage ?? -1)",
+                "\(metric.previousSevenDayAverage ?? -1)",
+                "\(metric.thirtyDayAverage ?? -1)",
+                "\(metric.trendDirection)",
+                "\(metric.ratedSessionCount)",
+                "\(metric.daysSincePracticed ?? -1)",
+                "\(metric.isNeglected)",
+                "\(metric.volatility ?? -1)",
+                "\(metric.practice.latestScore ?? -1)",
+                "\(metric.practice.averageScore ?? -1)",
+                "\(metric.practice.ratedSessionCount)",
+                "\(metric.concert.latestScore ?? -1)",
+                "\(metric.concert.averageScore ?? -1)",
+                "\(metric.concert.ratedSessionCount)",
+                "\(metric.performanceTransfer.delta ?? -99)",
+                "\(metric.performanceTransfer.status)"
+            ].joined(separator: ":")
+        }.joined(separator: "|")
+
+        return [
+            "\(insightsViewModel.currentWindow.start.timeIntervalSince1970)",
+            "\(insightsViewModel.currentWindow.end.timeIntervalSince1970)",
+            "\(practiceAreas.filter(\.isActive).count)",
+            "\(concertCount)",
+            metricValues
+        ].joined(separator: "#")
     }
 }
 
