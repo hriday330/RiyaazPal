@@ -156,6 +156,13 @@ private extension PracticeAreaInsightDetailView {
                 DetailStatPill(label: "Concert", value: volatilityText(metric.concert.volatility))
             }
 
+            DetailStatusRow(
+                icon: volatilityIcon(metric.volatility),
+                title: stabilityLabel(metric.volatility),
+                value: stabilityExplanation(metric.volatility),
+                tint: volatilityTint(metric.volatility)
+            )
+
             Text("Volatility shows how much the scores move around. Lower volatility means this area is scoring more consistently.")
                 .font(.caption)
                 .foregroundStyle(Color("SecondaryText"))
@@ -255,6 +262,47 @@ private extension PracticeAreaInsightDetailView {
             return .orange
         default:
             return .red
+        }
+    }
+
+    func stabilityLabel(_ value: Double?) -> String {
+        guard let value else { return "Stability needs more data" }
+
+        switch value {
+        case ..<0.8:
+            return "Stable"
+        case ..<1.6:
+            return "Moderately variable"
+        default:
+            return "Highly variable"
+        }
+    }
+
+    func stabilityExplanation(_ value: Double?) -> String {
+        guard let value else {
+            return "At least two scores are needed to measure volatility."
+        }
+
+        switch value {
+        case ..<0.8:
+            return "Scores are staying close together."
+        case ..<1.6:
+            return "Scores move around a bit from session to session."
+        default:
+            return "Scores are swinging noticeably across sessions."
+        }
+    }
+
+    func volatilityIcon(_ value: Double?) -> String {
+        guard let value else { return "questionmark.circle.fill" }
+
+        switch value {
+        case ..<0.8:
+            return "checkmark.circle.fill"
+        case ..<1.6:
+            return "waveform.path.ecg"
+        default:
+            return "exclamationmark.triangle.fill"
         }
     }
 
