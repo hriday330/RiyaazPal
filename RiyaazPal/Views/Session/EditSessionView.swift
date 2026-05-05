@@ -15,6 +15,7 @@ struct EditSessionView: View {
 
     private let session: PracticeSession
     @StateObject private var editSessionViewModel: EditSessionViewModel
+    @StateObject private var practiceAreasViewModel = PracticeAreasViewModel()
     
     @Query(sort: \TagCategoryModel.order)
     private var categories: [TagCategoryModel]
@@ -117,6 +118,7 @@ struct EditSessionView: View {
                     )
             }
             .onAppear {
+                practiceAreasViewModel.attachContext(context)
                 editSessionViewModel.configureTagSource(categories: categories)
                 editSessionViewModel.configurePracticeAreaQuestionnaire(
                     practiceAreas: practiceAreas,
@@ -139,6 +141,9 @@ struct EditSessionView: View {
                             draftID: draftID
                         )
                     },
+                    onAddPracticeArea: { name in
+                        addPracticeAreaFromQuestionnaire(name)
+                    },
                     onDone: {
                         showPracticeAreaQuestionnaire = false
                     }
@@ -154,6 +159,31 @@ struct EditSessionView: View {
 private extension EditSessionView {
     var sessionPracticeAreaRatings: [PracticeAreaRatingEntity] {
         practiceAreaRatings.filter { $0.sessionID == session.id }
+    }
+
+    func addPracticeAreaFromQuestionnaire(_ name: String) -> PracticeAreaInlineAddResult {
+        practiceAreasViewModel.showDuplicateAlert = false
+        practiceAreasViewModel.showEmptyNameAlert = false
+
+        guard let createdArea = practiceAreasViewModel.createArea(
+            name: name,
+            currentAreas: practiceAreas
+        ) else {
+            if practiceAreasViewModel.showEmptyNameAlert {
+                practiceAreasViewModel.showEmptyNameAlert = false
+                return .emptyName
+            }
+
+            if practiceAreasViewModel.showDuplicateAlert {
+                practiceAreasViewModel.showDuplicateAlert = false
+                return .duplicate
+            }
+
+            return .failed
+        }
+
+        editSessionViewModel.appendPracticeAreaDraft(for: createdArea)
+        return .added
     }
 
     var saveAndCancelButtons: some View {
