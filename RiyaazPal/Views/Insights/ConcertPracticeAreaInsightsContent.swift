@@ -87,7 +87,15 @@ struct ConcertPracticeAreaInsightsContent: View {
                         .foregroundStyle(Color("PrimaryText"))
 
                     ForEach(metrics) { metric in
-                        ConcertPracticeAreaMetricCard(metric: metric)
+                        NavigationLink {
+                            PracticeAreaInsightDetailView(
+                                metric: metric,
+                                mode: .concert
+                            )
+                        } label: {
+                            ConcertPracticeAreaMetricCard(metric: metric)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -278,75 +286,52 @@ private struct ConcertPracticeAreaMetricCard: View {
     let metric: PracticeAreaMetric
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 8) {
-                        Text(metric.areaName)
-                            .font(.headline)
-                            .foregroundStyle(Color("PrimaryText"))
-
-                        if !metric.isActive {
-                            Text("Archived")
-                                .font(.caption2)
-                                .fontWeight(.semibold)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(
-                                    Capsule()
-                                        .fill(Color("SecondaryText").opacity(0.14))
-                                )
-                                .foregroundStyle(Color("SecondaryText"))
-                        }
-                    }
-
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(Color("SecondaryText"))
-                }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 3) {
-                    Text(latestConcertScoreText)
-                        .font(.title3)
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    Text(metric.areaName)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color("AccentColor"))
+                        .foregroundStyle(Color("PrimaryText"))
 
-                    Text("Latest concert")
-                        .font(.caption2)
-                        .foregroundStyle(Color("SecondaryText"))
+                    if !metric.isActive {
+                        Text("Archived")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule()
+                                    .fill(Color("SecondaryText").opacity(0.14))
+                            )
+                            .foregroundStyle(Color("SecondaryText"))
+                    }
                 }
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .lineLimit(1)
             }
 
-            HStack(spacing: 10) {
-                ConcertPracticeAreaStatPill(
-                    label: "Concert avg",
-                    value: averageText(metric.concert.averageScore)
-                )
-                ConcertPracticeAreaStatPill(
-                    label: "Practice avg",
-                    value: averageText(metric.practice.averageScore)
-                )
-                ConcertPracticeAreaStatPill(
-                    label: "Delta",
-                    value: deltaText
-                )
-            }
+            Spacer()
 
-            HStack(spacing: 8) {
+            VStack(alignment: .trailing, spacing: 5) {
+                Text(latestConcertScoreText)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("AccentColor"))
+
                 ConcertPracticeAreaStatusChip(
                     icon: metric.performanceTransfer.status.iconName,
                     text: metric.performanceTransfer.status.label,
                     tint: metric.performanceTransfer.status.tint
                 )
-
-                ConcertPracticeAreaStatusChip(
-                    icon: "music.mic",
-                    text: "\(metric.concert.ratedSessionCount) concert scores",
-                    tint: Color("SecondaryText")
-                )
             }
+
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(Color("SecondaryText"))
         }
         .insightCard()
         .shadow(color: .black.opacity(0.08), radius: 10)
@@ -372,46 +357,6 @@ private struct ConcertPracticeAreaMetricCard: View {
         return "\(score)/10"
     }
 
-    private var deltaText: String {
-        guard let delta = metric.performanceTransfer.delta else { return "-" }
-
-        let formatted = abs(delta).formatted(.number.precision(.fractionLength(1)))
-        if delta < 0 {
-            return "-\(formatted)"
-        }
-        return "+\(formatted)"
-    }
-
-    private func averageText(_ value: Double?) -> String {
-        guard let value else { return "-" }
-        return "\(value.formatted(.number.precision(.fractionLength(1))))/10"
-    }
-}
-
-private struct ConcertPracticeAreaStatPill: View {
-    let label: String
-    let value: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(Color("PrimaryText"))
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(Color("SecondaryText"))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color("AppBackground"))
-        )
-    }
 }
 
 private struct ConcertPracticeAreaStatusChip: View {
