@@ -43,14 +43,14 @@ struct PracticeAreaPerformanceTransfer {
     let status: PracticeAreaPerformanceTransferStatus
 }
 
-enum PracticeAreaTrendDirection {
+enum PracticeAreaTrendDirection: Equatable {
     case improving
     case declining
     case stable
     case insufficientData
 }
 
-enum PracticeAreaPerformanceTransferStatus {
+enum PracticeAreaPerformanceTransferStatus: Equatable {
     case significantDrop
     case maintained
     case inconclusive
