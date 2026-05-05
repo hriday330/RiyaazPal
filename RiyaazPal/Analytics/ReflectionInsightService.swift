@@ -75,7 +75,7 @@ private extension ReflectionInsightService {
             .filter { window.contains($0.startTime) }
             .filter { $0.resolvedSessionType == .practice }
             .compactMap { session -> ReflectionRequestBody.ReflectionEntry? in
-                let notes = session.detailedNotes
+                let notes = session.notes
                     .trimmingCharacters(in: .whitespacesAndNewlines)
 
                 guard !notes.isEmpty else { return nil }
