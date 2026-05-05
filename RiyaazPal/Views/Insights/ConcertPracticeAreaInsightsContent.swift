@@ -1,133 +1,135 @@
 //
-//  PracticeAreaInsightsContent.swift
+//  ConcertPracticeAreaInsightsContent.swift
 //  RiyaazPal
 //
-//  Created by Codex on 2026-05-04.
+//  Created by Codex on 2026-05-05.
 //
 
 import SwiftUI
 
-struct PracticeAreaInsightsContent: View {
+struct ConcertPracticeAreaInsightsContent: View {
     let metrics: [PracticeAreaMetric]
     let activePracticeAreaCount: Int
+    let concertCount: Int
     let onManagePracticeAreas: () -> Void
 
     private var activeMetrics: [PracticeAreaMetric] {
         metrics.filter(\.isActive)
     }
 
-    private var ratedMetrics: [PracticeAreaMetric] {
-        metrics.filter { $0.ratedSessionCount > 0 }
+    private var concertRatedMetrics: [PracticeAreaMetric] {
+        metrics.filter { $0.concert.ratedSessionCount > 0 }
     }
 
-    private var attentionMetrics: [PracticeAreaMetric] {
-        activeMetrics
-            .filter { metric in
-                metric.isNeglected
-                || metric.trendDirection == .declining
-                || metric.performanceTransfer.status == .significantDrop
-            }
-            .sorted(by: attentionSort)
+    private var transferReadyMetrics: [PracticeAreaMetric] {
+        activeMetrics.filter {
+            $0.performanceTransfer.status != .insufficientData
+        }
     }
 
-    private var improvingMetrics: [PracticeAreaMetric] {
-        activeMetrics
-            .filter { $0.trendDirection == .improving }
+    private var dropMetrics: [PracticeAreaMetric] {
+        transferReadyMetrics
+            .filter { $0.performanceTransfer.status == .significantDrop }
             .sorted { lhs, rhs in
-                (lhs.sevenDayAverage ?? 0) > (rhs.sevenDayAverage ?? 0)
+                (lhs.performanceTransfer.delta ?? 0) < (rhs.performanceTransfer.delta ?? 0)
+            }
+    }
+
+    private var maintainedMetrics: [PracticeAreaMetric] {
+        transferReadyMetrics
+            .filter { $0.performanceTransfer.status == .maintained }
+            .sorted { lhs, rhs in
+                (lhs.concert.averageScore ?? 0) > (rhs.concert.averageScore ?? 0)
+            }
+    }
+
+    private var liftMetrics: [PracticeAreaMetric] {
+        transferReadyMetrics
+            .filter { $0.performanceTransfer.status == .concertLift }
+            .sorted { lhs, rhs in
+                (lhs.performanceTransfer.delta ?? 0) > (rhs.performanceTransfer.delta ?? 0)
             }
     }
 
     var body: some View {
         VStack(spacing: 16) {
             if activePracticeAreaCount == 0 {
-                PracticeAreaInsightsEmptyState(
+                ConcertPracticeAreaEmptyState(
                     title: "No practice areas yet",
-                    message: "Add practice areas from Profile to start seeing score trends.",
+                    message: "Add practice areas from Profile to compare practice and concert execution.",
                     buttonTitle: "Add Practice Areas",
                     onButtonTapped: onManagePracticeAreas
                 )
-            } else if ratedMetrics.isEmpty {
-                PracticeAreaInsightsEmptyState(
-                    title: "No ratings yet",
-                    message: "Reflect on sessions to build trends for each practice area.",
+            } else if concertRatedMetrics.isEmpty {
+                ConcertPracticeAreaEmptyState(
+                    title: "No concert ratings yet",
+                    message: "Reflect on concerts to see performance scores for each practice area.",
                     buttonTitle: "Manage Practice Areas",
                     onButtonTapped: onManagePracticeAreas
                 )
             } else {
-                PracticeAreaOverviewCard(metrics: activeMetrics)
+                ConcertPracticeAreaOverviewCard(
+                    metrics: activeMetrics,
+                    concertCount: concertCount
+                )
 
-                if !attentionMetrics.isEmpty || !improvingMetrics.isEmpty {
-                    PracticeAreaHighlightsCard(
-                        attentionMetrics: Array(attentionMetrics.prefix(3)),
-                        improvingMetrics: Array(improvingMetrics.prefix(3))
+                if !dropMetrics.isEmpty || !liftMetrics.isEmpty || !maintainedMetrics.isEmpty {
+                    ConcertPracticeAreaHighlightsCard(
+                        dropMetrics: Array(dropMetrics.prefix(3)),
+                        liftMetrics: Array(liftMetrics.prefix(3)),
+                        maintainedMetrics: Array(maintainedMetrics.prefix(3))
                     )
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Practice Areas")
+                    Text("Concert Areas")
                         .font(.headline)
                         .foregroundStyle(Color("PrimaryText"))
 
                     ForEach(metrics) { metric in
-                        PracticeAreaMetricCard(metric: metric)
+                        ConcertPracticeAreaMetricCard(metric: metric)
                     }
                 }
             }
         }
     }
-
-    private func attentionSort(
-        lhs: PracticeAreaMetric,
-        rhs: PracticeAreaMetric
-    ) -> Bool {
-        attentionScore(lhs) > attentionScore(rhs)
-    }
-
-    private func attentionScore(_ metric: PracticeAreaMetric) -> Int {
-        var score = 0
-        if metric.isNeglected { score += 4 }
-        if metric.performanceTransfer.status == .significantDrop { score += 3 }
-        if metric.trendDirection == .declining { score += 2 }
-        if metric.daysSincePracticed ?? 0 > 10 { score += 1 }
-        return score
-    }
 }
 
-private struct PracticeAreaOverviewCard: View {
+private struct ConcertPracticeAreaOverviewCard: View {
     let metrics: [PracticeAreaMetric]
+    let concertCount: Int
 
-    private var latestAverage: Double? {
-        let scores = metrics.compactMap(\.latestScore)
+    private var latestConcertAverage: Double? {
+        let scores = metrics.compactMap(\.concert.latestScore)
         guard !scores.isEmpty else { return nil }
         return Double(scores.reduce(0, +)) / Double(scores.count)
     }
 
-    private var improvingCount: Int {
-        metrics.filter { $0.trendDirection == .improving }.count
+    private var concertRatedAreaCount: Int {
+        metrics.filter { $0.concert.ratedSessionCount > 0 }.count
     }
 
-    private var attentionCount: Int {
+    private var significantDropCount: Int {
         metrics.filter {
-            $0.isNeglected
-            || $0.trendDirection == .declining
-            || $0.performanceTransfer.status == .significantDrop
+            $0.performanceTransfer.status == .significantDrop
         }.count
     }
 
-    private var ratedCount: Int {
-        metrics.filter { $0.ratedSessionCount > 0 }.count
+    private var liftCount: Int {
+        metrics.filter {
+            $0.performanceTransfer.status == .concertLift
+        }.count
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Practice Area Health")
+                    Text("Concert Area Health")
                         .font(.headline)
                         .foregroundStyle(Color("PrimaryText"))
 
-                    Text("Average of the latest scores for active practice areas.")
+                    Text("Average of the latest concert scores for active practice areas.")
                         .font(.caption)
                         .foregroundStyle(Color("SecondaryText"))
                 }
@@ -141,9 +143,10 @@ private struct PracticeAreaOverviewCard: View {
             }
 
             HStack(spacing: 12) {
-                overviewMetric(value: "\(ratedCount)", label: "Rated areas")
-                overviewMetric(value: "\(improvingCount)", label: "Improving")
-                overviewMetric(value: "\(attentionCount)", label: "Needs attention")
+                overviewMetric(value: "\(concertCount)", label: "Concerts")
+                overviewMetric(value: "\(concertRatedAreaCount)", label: "Rated areas")
+                overviewMetric(value: "\(significantDropCount)", label: "Drops")
+                overviewMetric(value: "\(liftCount)", label: "Lifts")
             }
         }
         .insightCard()
@@ -151,8 +154,8 @@ private struct PracticeAreaOverviewCard: View {
     }
 
     private var scoreText: String {
-        guard let latestAverage else { return "-" }
-        return "\(latestAverage.formatted(.number.precision(.fractionLength(1))))/10"
+        guard let latestConcertAverage else { return "-" }
+        return "\(latestConcertAverage.formatted(.number.precision(.fractionLength(1))))/10"
     }
 
     private func overviewMetric(value: String, label: String) -> some View {
@@ -172,31 +175,41 @@ private struct PracticeAreaOverviewCard: View {
     }
 }
 
-private struct PracticeAreaHighlightsCard: View {
-    let attentionMetrics: [PracticeAreaMetric]
-    let improvingMetrics: [PracticeAreaMetric]
+private struct ConcertPracticeAreaHighlightsCard: View {
+    let dropMetrics: [PracticeAreaMetric]
+    let liftMetrics: [PracticeAreaMetric]
+    let maintainedMetrics: [PracticeAreaMetric]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("What To Watch")
+            Text("Practice To Stage")
                 .font(.headline)
                 .foregroundStyle(Color("PrimaryText"))
 
-            if !attentionMetrics.isEmpty {
-                PracticeAreaHighlightGroup(
+            if !dropMetrics.isEmpty {
+                ConcertPracticeAreaHighlightGroup(
                     icon: "exclamationmark.triangle.fill",
-                    title: "Needs attention",
-                    metrics: attentionMetrics,
-                    summary: attentionSummary
+                    title: "Dropping in concert",
+                    metrics: dropMetrics,
+                    summary: dropSummary
                 )
             }
 
-            if !improvingMetrics.isEmpty {
-                PracticeAreaHighlightGroup(
-                    icon: "arrow.up.right.circle.fill",
-                    title: "Moving up",
-                    metrics: improvingMetrics,
-                    summary: improvingSummary
+            if !maintainedMetrics.isEmpty {
+                ConcertPracticeAreaHighlightGroup(
+                    icon: "checkmark.circle.fill",
+                    title: "Holding up in concert",
+                    metrics: maintainedMetrics,
+                    summary: maintainedSummary
+                )
+            }
+
+            if !liftMetrics.isEmpty {
+                ConcertPracticeAreaHighlightGroup(
+                    icon: "arrow.up.forward.circle.fill",
+                    title: "Stronger in concert",
+                    metrics: liftMetrics,
+                    summary: liftSummary
                 )
             }
         }
@@ -204,28 +217,32 @@ private struct PracticeAreaHighlightsCard: View {
         .shadow(color: .black.opacity(0.08), radius: 10)
     }
 
-    private func attentionSummary(for metric: PracticeAreaMetric) -> String {
-        if metric.isNeglected {
-            return "Not practiced in \(metric.daysSincePracticed ?? 0) days."
+    private func dropSummary(for metric: PracticeAreaMetric) -> String {
+        guard let delta = metric.performanceTransfer.delta else {
+            return "Concert average is trailing practice."
         }
 
-        if metric.performanceTransfer.status == .significantDrop {
-            return "Concert execution is trailing practice."
-        }
-
-        return "Recent 7-day average is lower than the previous week."
+        return "\(abs(delta).formatted(.number.precision(.fractionLength(1)))) lower than practice."
     }
 
-    private func improvingSummary(for metric: PracticeAreaMetric) -> String {
-        guard let average = metric.sevenDayAverage else {
-            return "Recent scores are improving."
+    private func liftSummary(for metric: PracticeAreaMetric) -> String {
+        guard let delta = metric.performanceTransfer.delta else {
+            return "Concert average is higher than practice."
         }
 
-        return "Recent average is \(average.formatted(.number.precision(.fractionLength(1))))/10."
+        return "\(delta.formatted(.number.precision(.fractionLength(1)))) higher than practice."
+    }
+
+    private func maintainedSummary(for metric: PracticeAreaMetric) -> String {
+        guard let average = metric.concert.averageScore else {
+            return "Concert scores are holding steady."
+        }
+
+        return "Concert average is \(average.formatted(.number.precision(.fractionLength(1))))/10."
     }
 }
 
-private struct PracticeAreaHighlightGroup: View {
+private struct ConcertPracticeAreaHighlightGroup: View {
     let icon: String
     let title: String
     let metrics: [PracticeAreaMetric]
@@ -257,7 +274,7 @@ private struct PracticeAreaHighlightGroup: View {
     }
 }
 
-private struct PracticeAreaMetricCard: View {
+private struct ConcertPracticeAreaMetricCard: View {
     let metric: PracticeAreaMetric
 
     var body: some View {
@@ -291,48 +308,44 @@ private struct PracticeAreaMetricCard: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 3) {
-                    Text(latestScoreText)
+                    Text(latestConcertScoreText)
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundStyle(Color("AccentColor"))
 
-                    Text("Latest")
+                    Text("Latest concert")
                         .font(.caption2)
                         .foregroundStyle(Color("SecondaryText"))
                 }
             }
 
             HStack(spacing: 10) {
-                PracticeAreaStatPill(label: "7-day", value: averageText(metric.sevenDayAverage))
-                PracticeAreaStatPill(label: "Prev 7", value: averageText(metric.previousSevenDayAverage))
-                PracticeAreaStatPill(label: "30-day", value: averageText(metric.thirtyDayAverage))
+                ConcertPracticeAreaStatPill(
+                    label: "Concert avg",
+                    value: averageText(metric.concert.averageScore)
+                )
+                ConcertPracticeAreaStatPill(
+                    label: "Practice avg",
+                    value: averageText(metric.practice.averageScore)
+                )
+                ConcertPracticeAreaStatPill(
+                    label: "Delta",
+                    value: deltaText
+                )
             }
 
             HStack(spacing: 8) {
-                PracticeAreaStatusChip(
-                    icon: metric.trendDirection.iconName,
-                    text: metric.trendDirection.label,
-                    tint: metric.trendDirection.tint
+                ConcertPracticeAreaStatusChip(
+                    icon: metric.performanceTransfer.status.iconName,
+                    text: metric.performanceTransfer.status.label,
+                    tint: metric.performanceTransfer.status.tint
                 )
 
-                PracticeAreaStatusChip(
-                    icon: "waveform.path.ecg",
-                    text: volatilityText,
-                    tint: volatilityTint
+                ConcertPracticeAreaStatusChip(
+                    icon: "music.mic",
+                    text: "\(metric.concert.ratedSessionCount) concert scores",
+                    tint: Color("SecondaryText")
                 )
-            }
-
-            if metric.practice.ratedSessionCount > 0 || metric.concert.ratedSessionCount > 0 {
-                Divider()
-
-                HStack(spacing: 12) {
-                    contextStat(title: "Practice", context: metric.practice)
-                    contextStat(title: "Concert", context: metric.concert)
-                }
-
-                if metric.performanceTransfer.status != .insufficientData {
-                    PracticeAreaTransferRow(transfer: metric.performanceTransfer)
-                }
             }
         }
         .insightCard()
@@ -340,109 +353,42 @@ private struct PracticeAreaMetricCard: View {
     }
 
     private var subtitle: String {
-        let count = metric.ratedSessionCount
-        let countText = count == 1 ? "1 rated session" : "\(count) rated sessions"
+        let concertCount = metric.concert.ratedSessionCount
 
-        guard let days = metric.daysSincePracticed else {
-            return "\(countText) - not practiced yet"
+        guard concertCount > 0 else {
+            return "No concert ratings yet"
         }
 
-        if days == 0 {
-            return "\(countText) - practiced today"
-        }
+        let noun = concertCount == 1 ? "concert rating" : "concert ratings"
+        let transferStatus = metric.performanceTransfer.status == .insufficientData
+            ? "more data needed for comparison"
+            : "practice comparison ready"
 
-        return "\(countText) - \(days) days since practiced"
+        return "\(concertCount) \(noun) - \(transferStatus)"
     }
 
-    private var latestScoreText: String {
-        guard let latestScore = metric.latestScore else { return "-" }
-        return "\(latestScore)/10"
+    private var latestConcertScoreText: String {
+        guard let score = metric.concert.latestScore else { return "-" }
+        return "\(score)/10"
     }
 
-    private var volatilityText: String {
-        guard let volatility = metric.volatility else { return "Volatility n/a" }
+    private var deltaText: String {
+        guard let delta = metric.performanceTransfer.delta else { return "-" }
 
-        switch volatility {
-        case ..<0.8:
-            return "Low volatility"
-        case ..<1.6:
-            return "Moderate volatility"
-        default:
-            return "High volatility"
+        let formatted = abs(delta).formatted(.number.precision(.fractionLength(1)))
+        if delta < 0 {
+            return "-\(formatted)"
         }
-    }
-
-    private var volatilityTint: Color {
-        guard let volatility = metric.volatility else { return Color("SecondaryText") }
-
-        switch volatility {
-        case ..<0.8:
-            return .green
-        case ..<1.6:
-            return .orange
-        default:
-            return .red
-        }
+        return "+\(formatted)"
     }
 
     private func averageText(_ value: Double?) -> String {
         guard let value else { return "-" }
         return "\(value.formatted(.number.precision(.fractionLength(1))))/10"
     }
-
-    private func contextStat(title: String, context: PracticeAreaContextMetric) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(Color("SecondaryText"))
-
-            Text(averageText(context.averageScore))
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(Color("PrimaryText"))
-
-            Text("\(context.ratedSessionCount) scores")
-                .font(.caption2)
-                .foregroundStyle(Color("SecondaryText"))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
 }
 
-private struct PracticeAreaTransferRow: View {
-    let transfer: PracticeAreaPerformanceTransfer
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: transfer.status.iconName)
-                .foregroundStyle(transfer.status.tint)
-
-            Text(transfer.status.label)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(Color("PrimaryText"))
-
-            Spacer()
-
-            if let delta = transfer.delta {
-                Text(deltaText(delta))
-                    .font(.caption)
-                    .foregroundStyle(Color("SecondaryText"))
-            }
-        }
-        .padding(.top, 2)
-    }
-
-    private func deltaText(_ delta: Double) -> String {
-        let formatted = abs(delta).formatted(.number.precision(.fractionLength(1)))
-        if delta < 0 {
-            return "-\(formatted) concert delta"
-        }
-        return "+\(formatted) concert delta"
-    }
-}
-
-private struct PracticeAreaStatPill: View {
+private struct ConcertPracticeAreaStatPill: View {
     let label: String
     let value: String
 
@@ -468,7 +414,7 @@ private struct PracticeAreaStatPill: View {
     }
 }
 
-private struct PracticeAreaStatusChip: View {
+private struct ConcertPracticeAreaStatusChip: View {
     let icon: String
     let text: String
     let tint: Color
@@ -489,7 +435,7 @@ private struct PracticeAreaStatusChip: View {
     }
 }
 
-private struct PracticeAreaInsightsEmptyState: View {
+private struct ConcertPracticeAreaEmptyState: View {
     let title: String
     let message: String
     let buttonTitle: String
@@ -497,7 +443,7 @@ private struct PracticeAreaInsightsEmptyState: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Image(systemName: "slider.horizontal.3")
+            Image(systemName: "music.mic")
                 .font(.title2)
                 .foregroundStyle(Color("AccentColor"))
 
@@ -524,60 +470,19 @@ private struct PracticeAreaInsightsEmptyState: View {
     }
 }
 
-private extension PracticeAreaTrendDirection {
-    var label: String {
-        switch self {
-        case .improving:
-            return "Improving"
-        case .declining:
-            return "Declining"
-        case .stable:
-            return "Stable"
-        case .insufficientData:
-            return "Need more data"
-        }
-    }
-
-    var iconName: String {
-        switch self {
-        case .improving:
-            return "arrow.up.right"
-        case .declining:
-            return "arrow.down.right"
-        case .stable:
-            return "equal"
-        case .insufficientData:
-            return "chart.line.uptrend.xyaxis"
-        }
-    }
-
-    var tint: Color {
-        switch self {
-        case .improving:
-            return .green
-        case .declining:
-            return .red
-        case .stable:
-            return Color("AccentColor")
-        case .insufficientData:
-            return Color("SecondaryText")
-        }
-    }
-}
-
 private extension PracticeAreaPerformanceTransferStatus {
     var label: String {
         switch self {
         case .significantDrop:
-            return "Concert drop detected"
+            return "Concert drop"
         case .concertLift:
-            return "Concert execution stronger"
+            return "Concert lift"
         case .maintained:
-            return "Concert execution maintained"
+            return "Maintained"
         case .inconclusive:
-            return "Practice vs concert is inconclusive"
+            return "Mixed signal"
         case .insufficientData:
-            return "Need more concert data"
+            return "Need more data"
         }
     }
 
@@ -624,7 +529,7 @@ private extension View {
     }
 }
 
-#Preview("Practice Area Insights") {
+#Preview("Concert Practice Area Insights") {
     let metrics = [
         PracticeAreaMetric(
             id: "alap",
@@ -647,15 +552,15 @@ private extension View {
                 volatility: 0.7
             ),
             concert: PracticeAreaContextMetric(
-                latestScore: 7,
-                averageScore: 7.5,
+                latestScore: 8,
+                averageScore: 7.7,
                 ratedSessionCount: 3,
                 volatility: 0.6
             ),
             performanceTransfer: PracticeAreaPerformanceTransfer(
                 practiceAverage: 8.1,
-                concertAverage: 7.5,
-                delta: -0.6,
+                concertAverage: 7.7,
+                delta: -0.4,
                 status: .maintained
             )
         ),
@@ -674,8 +579,8 @@ private extension View {
             isNeglected: true,
             volatility: 1.9,
             practice: PracticeAreaContextMetric(
-                latestScore: 5,
-                averageScore: 6.2,
+                latestScore: 7,
+                averageScore: 6.4,
                 ratedSessionCount: 5,
                 volatility: 1.4
             ),
@@ -686,18 +591,19 @@ private extension View {
                 volatility: 1.1
             ),
             performanceTransfer: PracticeAreaPerformanceTransfer(
-                practiceAverage: 6.2,
+                practiceAverage: 6.4,
                 concertAverage: 4.1,
-                delta: -2.1,
+                delta: -2.3,
                 status: .significantDrop
             )
         )
     ]
 
     return ScrollView {
-        PracticeAreaInsightsContent(
+        ConcertPracticeAreaInsightsContent(
             metrics: metrics,
             activePracticeAreaCount: 2,
+            concertCount: 4,
             onManagePracticeAreas: {}
         )
         .padding()

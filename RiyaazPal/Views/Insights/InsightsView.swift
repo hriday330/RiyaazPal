@@ -21,9 +21,6 @@ struct InsightsView: View {
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
     
-    @Query(sort: \TagCategoryModel.order)
-        private var tagCategories: [TagCategoryModel]
-    
     @Query(sort: \PracticeAreaEntity.order)
         private var practiceAreas: [PracticeAreaEntity]
 
@@ -35,24 +32,8 @@ struct InsightsView: View {
     @State private var mode: InsightsMode = .practice
     @State private var showProfile = false
     
-    private var categorizer: TagCategorizer {
-        TagCategorizer(categories: tagCategories)
-    }
-    
-    private var recentSessions: [PracticeSession] {
-        insightsViewModel.recentSessions(from: sessions)
-    }
-    
-    private var practiceSessions: [PracticeSession] {
-        recentSessions.filter { $0.resolvedSessionType == .practice }
-    }
-
-    private var recentConcertSessions: [PracticeSession] {
-        recentSessions.filter { $0.resolvedSessionType == .concert }
-    }
-    
-    private var concertSessions: [PracticeSession] {
-        sessions.filter { $0.resolvedSessionType == .concert }
+    private var concertCount: Int {
+        sessions.filter { $0.resolvedSessionType == .concert }.count
     }
 
     private var practiceAreaMetrics: [PracticeAreaMetric] {
@@ -140,14 +121,14 @@ private extension InsightsView {
     }
     
     var concertInsightsContent: some View {
-        VStack(spacing: 16) {
-            ConcertFrequencyCard(concerts: recentConcertSessions)
-            ConcertConfidenceTrendCard(sessions: concertSessions)
-            ConfidenceByRagaCard(sessions: concertSessions, categorizer: categorizer)
-            RepertoireRepeatCard(sessions: recentConcertSessions, categorizer: categorizer)
-            RepertoireNeglectCard(practiceSessions: practiceSessions, concertSessions: recentConcertSessions, categorizer: categorizer)
-            
-        }
+        ConcertPracticeAreaInsightsContent(
+            metrics: practiceAreaMetrics,
+            activePracticeAreaCount: practiceAreas.filter(\.isActive).count,
+            concertCount: concertCount,
+            onManagePracticeAreas: {
+                showProfile = true
+            }
+        )
     }
 
 
