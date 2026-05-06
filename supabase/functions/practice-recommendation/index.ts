@@ -37,6 +37,10 @@ Deno.serve(async (req: Request) => {
           schema: {
             type: "object",
             properties: {
+              selected_id: {
+                type: "string",
+                description: "The id of the selected candidate from the provided shortlist."
+              },
               title: {
                 type: "string",
                 description: "Short notification title, 45 characters or fewer."
@@ -46,7 +50,7 @@ Deno.serve(async (req: Request) => {
                 description: "Friendly notification body, 90 characters or fewer."
               }
             },
-            required: ["title", "body"],
+            required: ["selected_id", "title", "body"],
             additionalProperties: false
           }
         }
@@ -61,6 +65,10 @@ Deno.serve(async (req: Request) => {
 
     const copy = JSON.parse(content) as PracticeRecommendationResponse
 
+    if (!body.candidates.some((candidate) => candidate.id === copy.selected_id)) {
+      return jsonResponse({ error: "Selected candidate was not in the shortlist" }, 500)
+    }
+
     return jsonResponse(copy, 200)
   } catch (err) {
     console.error("Practice recommendation error:", err)
@@ -69,13 +77,15 @@ Deno.serve(async (req: Request) => {
 })
 
 const systemPrompt = `
-You write short, warm notification copy for an Indian classical music practice app.
+You write short, warm practice recommendations for an Indian classical music practice app.
 
-The app has already chosen the practice area deterministically.
-Your job is only to phrase that recommendation.
+The app has already ranked practice areas deterministically.
+Your job is to choose one area from the provided shortlist and phrase that recommendation.
 
 Rules:
-- Do not choose or change the practice area.
+- Choose exactly one candidate from the provided shortlist.
+- Return the selected candidate's exact id as selected_id.
+- Prefer higher-ranked candidates unless a nearby lower-ranked candidate makes the recommendation feel less repetitive or more natural.
 - Include the exact practice area name in either the title or body.
 - Do not derive new insights, scores, urgency, or conclusions.
 - Do not mention GPT, algorithms, metrics, data, ratings, or notifications.
@@ -91,10 +101,25 @@ function isValidRequest(
 ): body is PracticeRecommendationRequest {
   return Boolean(
     body &&
-      typeof body.area_name === "string" &&
-      body.area_name.trim().length > 0 &&
-      typeof body.primary_reason === "string" &&
-      Array.isArray(body.supporting_reasons)
+      Array.isArray(body.candidates) &&
+      body.candidates.length > 0 &&
+      body.candidates.every(isValidCandidate)
+  )
+}
+
+function isValidCandidate(
+  candidate: PracticeRecommendationCandidate
+): candidate is PracticeRecommendationCandidate {
+  return Boolean(
+    candidate &&
+      typeof candidate.id === "string" &&
+      candidate.id.trim().length > 0 &&
+      typeof candidate.area_name === "string" &&
+      candidate.area_name.trim().length > 0 &&
+      typeof candidate.rank === "number" &&
+      typeof candidate.priority_score === "number" &&
+      typeof candidate.primary_reason === "string" &&
+      Array.isArray(candidate.supporting_reasons)
   )
 }
 
@@ -109,7 +134,14 @@ function jsonResponse(
 }
 
 export type PracticeRecommendationRequest = {
+  candidates: PracticeRecommendationCandidate[]
+}
+
+type PracticeRecommendationCandidate = {
+  id: string
   area_name: string
+  rank: number
+  priority_score: number
   primary_reason: PracticeSuggestionReasonPayload
   supporting_reasons: PracticeSuggestionReasonPayload[]
 }
@@ -125,6 +157,7 @@ type PracticeSuggestionReasonPayload =
   | "steadyMaintenance"
 
 type PracticeRecommendationResponse = {
+  selected_id: string
   title: string
   body: string
 }
