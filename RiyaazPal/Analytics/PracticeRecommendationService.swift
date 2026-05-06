@@ -68,33 +68,81 @@ enum PracticeRecommendationService {
         case .noRatingsYet:
             return PracticeRecommendation(
                 recommendation: recommendation,
-                title: "Try \(recommendation.areaName)",
-                body: "A little \(recommendation.areaName) today will help start the pattern."
+                title: "Work on \(recommendation.areaName)",
+                body: "Use today's session to get a first rating for \(recommendation.areaName)."
             )
         case .neglected, .dueForPractice:
             return PracticeRecommendation(
                 recommendation: recommendation,
                 title: "\(recommendation.areaName) today",
-                body: "A short round of \(recommendation.areaName) would be a good place to begin."
+                body: "Spend part of this session on \(recommendation.areaName)."
             )
         case .concertDrop:
             return PracticeRecommendation(
                 recommendation: recommendation,
                 title: "Practice \(recommendation.areaName)",
-                body: "Give \(recommendation.areaName) some calm attention before it goes on stage again."
+                body: "Work on making \(recommendation.areaName) hold up in performance."
             )
         case .decliningTrend, .lowerRecentScore, .highVolatility:
             return PracticeRecommendation(
                 recommendation: recommendation,
                 title: "Focus on \(recommendation.areaName)",
-                body: "Spend a few steady minutes with \(recommendation.areaName) today."
+                body: "Use part of today's practice for \(recommendation.areaName)."
             )
         case .steadyMaintenance:
             return PracticeRecommendation(
                 recommendation: recommendation,
                 title: "Keep \(recommendation.areaName) moving",
-                body: "A light touch of \(recommendation.areaName) will keep it present."
+                body: "Include \(recommendation.areaName) in today's session."
             )
+        }
+    }
+}
+
+@MainActor
+enum PracticeRecommendationSessionCache {
+    private static var cachedRecommendation: PracticeRecommendation?
+    private static var inFlightRecommendationTask: Task<PracticeRecommendation, Error>?
+
+    static var recommendation: PracticeRecommendation? {
+        cachedRecommendation
+    }
+
+    static func store(
+        _ recommendation: PracticeRecommendation
+    ) {
+        cachedRecommendation = recommendation
+    }
+
+    static func generateRecommendation(
+        from recommendations: [PracticeSuggestionRecommendation]
+    ) async throws -> PracticeRecommendation {
+        if let cachedRecommendation {
+            return cachedRecommendation
+        }
+
+        if let inFlightRecommendationTask {
+            let recommendation = try await inFlightRecommendationTask.value
+            cachedRecommendation = recommendation
+            return recommendation
+        }
+
+        let task = Task {
+            try await PracticeRecommendationService.generateRecommendation(
+                from: recommendations
+            )
+        }
+
+        inFlightRecommendationTask = task
+
+        do {
+            let recommendation = try await task.value
+            cachedRecommendation = recommendation
+            inFlightRecommendationTask = nil
+            return recommendation
+        } catch {
+            inFlightRecommendationTask = nil
+            throw error
         }
     }
 }

@@ -77,7 +77,7 @@ Deno.serve(async (req: Request) => {
 })
 
 const systemPrompt = `
-You write short, warm practice recommendations for an Indian classical music practice app.
+You write short, direct practice recommendations for an Indian classical music practice app.
 
 The app has already ranked practice areas deterministically.
 Your job is to choose one area from the provided shortlist and phrase that recommendation.
@@ -89,8 +89,11 @@ Rules:
 - Include the exact practice area name in either the title or body.
 - Do not derive new insights, scores, urgency, or conclusions.
 - Do not mention GPT, algorithms, metrics, data, ratings, or notifications.
-- Keep the tone encouraging, calm, and specific.
-- Avoid guilt, pressure, exaggeration, and phrases like "you should".
+- Keep the tone matter-of-fact and specific.
+- Avoid motivational filler, coaching cliches, and AI-ish encouragement.
+- Avoid vague phrases like "a little time", "calm attention", "keep it present", and "good place to begin".
+- Do not use guilt, pressure, exaggeration, exclamation marks, or phrases like "you should".
+- Prefer concrete wording like "Work on <area> today" or "Spend 10 minutes on <area>".
 - Return one title and one body only.
 - Title must be 45 characters or fewer.
 - Body must be 90 characters or fewer.
