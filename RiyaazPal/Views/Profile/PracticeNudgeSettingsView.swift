@@ -197,54 +197,14 @@ private extension PracticeNudgeSettingsView {
         }
     }
 
-    func currentRecommendation() async -> PracticeRecommendation? {
-        let recommendations = rankedPracticeRecommendations
-
-        guard let fallbackRecommendation = recommendations.first else {
-            return nil
-        }
-
-        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-            return PracticeRecommendationService.fallbackCopy(
-                for: fallbackRecommendation
-            )
-        }
-
-        do {
-            return try await PracticeRecommendationSessionCache.generateRecommendation(
-                from: recommendations
-            )
-        } catch {
-            let fallbackCopy = PracticeRecommendationService.fallbackCopy(
-                for: fallbackRecommendation
-            )
-            await PracticeRecommendationSessionCache.store(fallbackCopy)
-            return fallbackCopy
-        }
-    }
-
     func scheduleDailyNotification() async {
-        guard practiceNudgesEnabled else { return }
-
-        guard authorizationStatus == .authorized || authorizationStatus == .provisional else {
-            return
-        }
-
-        guard let recommendation = await currentRecommendation() else {
-            notificationStatusMessage = "Add a practice area to schedule reminders."
-            return
-        }
-
-        do {
-            try await PracticeNudgeNotificationService.scheduleDailyNudge(
-                recommendation: recommendation,
-                hour: practiceNudgeHour,
-                minute: practiceNudgeMinute
-            )
-            notificationStatusMessage = "Reminder scheduled."
-        } catch {
-            notificationStatusMessage = "Could not schedule reminder."
-        }
+        let result = await PracticeNudgeNotificationService.refreshDailyNudgeIfPossible(
+            isEnabled: practiceNudgesEnabled,
+            recommendations: rankedPracticeRecommendations,
+            hour: practiceNudgeHour,
+            minute: practiceNudgeMinute
+        )
+        notificationStatusMessage = result.settingsStatusMessage
     }
 
     func openSystemSettings() {

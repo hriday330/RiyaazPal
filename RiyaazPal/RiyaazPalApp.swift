@@ -101,8 +101,68 @@ struct RootTabView: View {
         .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
             router.selectedTab = .timeline
         }
+        .background(PracticeNudgeRefreshTask())
     }
 }
+
+private struct PracticeNudgeRefreshTask: View {
+    @Query(sort: \PracticeSession.startTime, order: .reverse)
+    private var sessions: [PracticeSession]
+
+    @Query(sort: \PracticeAreaEntity.order)
+    private var practiceAreas: [PracticeAreaEntity]
+
+    @Query(sort: \PracticeAreaRatingEntity.createdAt)
+    private var practiceAreaRatings: [PracticeAreaRatingEntity]
+
+    @AppStorage("practiceNudgesEnabled")
+    private var practiceNudgesEnabled = false
+
+    @AppStorage("practiceNudgeHour")
+    private var practiceNudgeHour = 9
+
+    @AppStorage("practiceNudgeMinute")
+    private var practiceNudgeMinute = 0
+
+    @State private var hasRefreshed = false
+
+    var body: some View {
+        Color.clear
+            .frame(width: 0, height: 0)
+            .task {
+                await refreshDailyNudgeOnce()
+            }
+    }
+}
+
+private extension PracticeNudgeRefreshTask {
+    var practiceAreaMetrics: [PracticeAreaMetric] {
+        PracticeAreaMetricsCalculator.compute(
+            practiceAreas: practiceAreas,
+            ratings: practiceAreaRatings,
+            sessions: sessions
+        )
+    }
+
+    var rankedPracticeRecommendations: [PracticeSuggestionRecommendation] {
+        PracticeSuggestionRecommender.rankedRecommendations(
+            from: practiceAreaMetrics
+        )
+    }
+
+    func refreshDailyNudgeOnce() async {
+        guard !hasRefreshed else { return }
+        hasRefreshed = true
+
+        _ = await PracticeNudgeNotificationService.refreshDailyNudgeIfPossible(
+            isEnabled: practiceNudgesEnabled,
+            recommendations: rankedPracticeRecommendations,
+            hour: practiceNudgeHour,
+            minute: practiceNudgeMinute
+        )
+    }
+}
+
 struct AppBootstrapView<Content: View>: View {
     @Environment(\.modelContext) private var context
     let content: Content
