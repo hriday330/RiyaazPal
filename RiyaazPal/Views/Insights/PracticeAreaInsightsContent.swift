@@ -17,7 +17,7 @@ struct PracticeAreaInsightsContent: View {
     }
 
     private var ratedMetrics: [PracticeAreaMetric] {
-        metrics.filter { $0.ratedSessionCount > 0 }
+        metrics.filter { $0.practice.ratedSessionCount > 0 }
     }
 
     private var attentionMetrics: [PracticeAreaMetric] {
@@ -56,6 +56,11 @@ struct PracticeAreaInsightsContent: View {
                 )
             } else {
                 PracticeAreaOverviewCard(metrics: activeMetrics)
+
+                PracticeAreaFocusBreakdownCard(
+                    title: "Practice Mix",
+                    metrics: metrics
+                )
 
                 if !attentionMetrics.isEmpty || !improvingMetrics.isEmpty {
                     PracticeAreaHighlightsCard(
