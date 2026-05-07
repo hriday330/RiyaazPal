@@ -8,15 +8,6 @@
 import Foundation
 import SwiftData
 
-// NEW TAG CATEGORY
-
-struct TagCategory: Identifiable, Hashable {
-    let id: UUID
-    let name: String
-    let isFocusRelevant: Bool
-}
-
-
 enum DefaultTagCategories {
 
     static let all: [TagCategoryModel] = [
@@ -74,37 +65,4 @@ func seedDefaultTagCategoriesIfNeeded(context: ModelContext) throws {
     }
 
     try context.save()
-}
-
-final class TagCategorizer {
-
-    private let categories: [TagCategoryModel]
-
-    init(categories: [TagCategoryModel]) {
-        self.categories = categories
-    }
-
-    func category(for tag: String) -> TagCategory {
-        let normalized = tag.lowercased()
-
-        if let match = categories.first(where: {
-            $0.tags.contains(normalized)
-        }) {
-            return TagCategory(id: match.id, name: match.name, isFocusRelevant: match.isFocusRelevant)
-        }
-
-        return TagCategory(
-            id: UUID(),
-            name: "Other",
-            isFocusRelevant: false
-        )
-    }
-    
-    func isRaga(for tag: String) -> Bool {
-        return category(for:tag).name == "Raga"
-    }
-    
-    func isSection(for tag: String) -> Bool {
-        return category(for:tag).name == "Section"
-    }
 }
