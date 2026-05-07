@@ -100,6 +100,9 @@ struct PracticeTimelineView: View {
             .task(id: recommendationRefreshID) {
                 await loadPracticeRecommendation()
             }
+            .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
+                dismissPresentedTimelinePanels()
+            }
             
             
         }
@@ -361,6 +364,11 @@ private extension PracticeTimelineView {
         }
 
         isPracticeRecommendationLoading = false
+    }
+
+    func dismissPresentedTimelinePanels() {
+        selectedSession = nil
+        showProfile = false
     }
 
     func shiftMonth(by delta: Int, proxy: ScrollViewProxy) {
