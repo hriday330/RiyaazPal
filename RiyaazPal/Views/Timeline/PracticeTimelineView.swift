@@ -13,6 +13,12 @@ struct PracticeTimelineView: View {
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
 
+    @Query(sort: \PracticeAreaEntity.order)
+        private var practiceAreas: [PracticeAreaEntity]
+
+    @Query(sort: \PracticeAreaRatingEntity.createdAt)
+        private var practiceAreaRatings: [PracticeAreaRatingEntity]
+
     @StateObject private var timelineViewModel = PracticeTimelineViewModel()
     
     @Environment(\.modelContext)
@@ -27,6 +33,9 @@ struct PracticeTimelineView: View {
     @State private var selectedMonth: Date = Date()
 
     @State private var showProfile = false
+
+    @State private var practiceRecommendation: PracticeRecommendation?
+    @State private var isPracticeRecommendationLoading = false
     
     @State private var isScrollingProgrammatically = false
     
@@ -88,6 +97,9 @@ struct PracticeTimelineView: View {
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
             }
+            .task(id: recommendationRefreshID) {
+                await loadPracticeRecommendation()
+            }
             
             
         }
@@ -110,6 +122,13 @@ private extension PracticeTimelineView {
         } else {
             sessionViewModel.startSession()
         }
+    }
+
+    func handleRecommendationAction() {
+        guard !sessionViewModel.isSessionActive else { return }
+
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        sessionViewModel.startSession()
     }
     
     
@@ -238,6 +257,8 @@ private extension PracticeTimelineView {
                     sessions: sessions
                 )
                 sessionTypeFilterChips.padding(.top, 8)
+
+                practiceRecommendationCard
                 
                 if (!timelineFilterViewModel.filteredSessions(from: sessions).isEmpty) {
                     timelineList
@@ -248,6 +269,98 @@ private extension PracticeTimelineView {
 
             }
         }
+    }
+
+    @ViewBuilder
+    var practiceRecommendationCard: some View {
+        if (practiceRecommendation != nil || isPracticeRecommendationLoading),
+           !timelineFilterViewModel.isSearching,
+           timelineFilterViewModel.sessionTypeFilter != .concert {
+            PracticeRecommendationCard(
+                recommendation: practiceRecommendation,
+                isLoading: isPracticeRecommendationLoading,
+                isSessionActive: sessionViewModel.isSessionActive,
+                onUseFocus: handleRecommendationAction
+            )
+            .padding(.horizontal)
+            .padding(.top, 10)
+            .padding(.bottom, 6)
+        }
+    }
+
+    var practiceAreaMetrics: [PracticeAreaMetric] {
+        PracticeAreaMetricsCalculator.compute(
+            practiceAreas: practiceAreas,
+            ratings: practiceAreaRatings,
+            sessions: sessions
+        )
+    }
+
+    var rankedPracticeRecommendations: [PracticeSuggestionRecommendation] {
+        PracticeSuggestionRecommender.rankedRecommendations(
+            from: practiceAreaMetrics
+        )
+    }
+
+    var recommendationRefreshID: String {
+        rankedPracticeRecommendations
+            .prefix(PracticeRecommendationService.defaultShortlistLimit)
+            .map { recommendation in
+                [
+                    recommendation.areaID?.uuidString ?? recommendation.areaName,
+                    recommendation.areaName,
+                    recommendation.priorityScore.formatted(),
+                    "\(recommendation.primaryReason)"
+                ].joined(separator: ":")
+            }
+            .joined(separator: "|")
+    }
+
+    func loadPracticeRecommendation() async {
+        let recommendations = rankedPracticeRecommendations
+
+        guard let fallbackRecommendation = recommendations.first else {
+            practiceRecommendation = nil
+            isPracticeRecommendationLoading = false
+            return
+        }
+
+        if let cachedRecommendation = PracticeRecommendationSessionCache.recommendation {
+            practiceRecommendation = cachedRecommendation
+            isPracticeRecommendationLoading = false
+            return
+        }
+
+        guard ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" else {
+            let fallbackRecommendationCopy = PracticeRecommendationService.fallbackCopy(
+                for: fallbackRecommendation
+            )
+            PracticeRecommendationSessionCache.store(fallbackRecommendationCopy)
+            practiceRecommendation = fallbackRecommendationCopy
+            isPracticeRecommendationLoading = false
+            return
+        }
+
+        practiceRecommendation = nil
+        isPracticeRecommendationLoading = true
+
+        do {
+            practiceRecommendation = try await PracticeRecommendationSessionCache.generateRecommendation(
+                from: recommendations
+            )
+        } catch {
+            if error is CancellationError {
+                return
+            }
+
+            let fallbackRecommendationCopy = PracticeRecommendationService.fallbackCopy(
+                for: fallbackRecommendation
+            )
+            PracticeRecommendationSessionCache.store(fallbackRecommendationCopy)
+            practiceRecommendation = fallbackRecommendationCopy
+        }
+
+        isPracticeRecommendationLoading = false
     }
 
     func shiftMonth(by delta: Int, proxy: ScrollViewProxy) {
