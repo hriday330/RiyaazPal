@@ -41,6 +41,19 @@ struct ProfileView: View {
                     Text("Define the skill areas you'll rate after practice sessions.")
                 }
 
+                // MARK: Practice Nudges Section
+                Section {
+                    NavigationLink {
+                        PracticeNudgeSettingsView()
+                    } label: {
+                        PracticeNudgesRow()
+                    }
+                } header: {
+                    Text("Practice Nudges")
+                } footer: {
+                    Text("Choose whether practice reminders are allowed.")
+                }
+
                 // MARK: Practice Setup Section
                 Section {
                     ForEach(categories) { category in
@@ -111,6 +124,51 @@ private struct PracticeAreasRow: View {
                 .foregroundStyle(Color("AccentColor"))
         }
         .padding(.vertical, 4)
+    }
+}
+
+private struct PracticeNudgesRow: View {
+
+    @AppStorage("practiceNudgesEnabled")
+    private var practiceNudgesEnabled = false
+
+    @AppStorage("practiceNudgeHour")
+    private var practiceNudgeHour = 9
+
+    @AppStorage("practiceNudgeMinute")
+    private var practiceNudgeMinute = 0
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Practice Reminders")
+                    .font(.body)
+                    .fontWeight(.medium)
+
+                Text(statusText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "bell.badge")
+                .foregroundStyle(Color("AccentColor"))
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var statusText: String {
+        guard practiceNudgesEnabled else { return "Off" }
+
+        let date = Calendar.current.date(
+            bySettingHour: practiceNudgeHour,
+            minute: practiceNudgeMinute,
+            second: 0,
+            of: Date()
+        ) ?? Date()
+
+        return "On at \(date.formatted(date: .omitted, time: .shortened))"
     }
 }
 
