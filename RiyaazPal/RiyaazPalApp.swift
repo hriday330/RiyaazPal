@@ -7,9 +7,14 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
+import UserNotifications
 
 @main
 struct RiyaazPalApp: App {
+
+    @UIApplicationDelegateAdaptor(RiyaazPalAppDelegate.self)
+    private var appDelegate
     
     @AppStorage("hasCompletedSetup")
     private var hasCompletedSetup: Bool = false
@@ -37,6 +42,23 @@ struct RiyaazPalApp: App {
             PracticeAreaEntity.self,
             PracticeAreaRatingEntity.self
         ])
+    }
+}
+
+final class RiyaazPalAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        [.banner, .list, .sound]
     }
 }
 

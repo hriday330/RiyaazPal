@@ -6,10 +6,20 @@
 //
 
 import SwiftUI
+import SwiftData
 import UIKit
 import UserNotifications
 
 struct PracticeNudgeSettingsView: View {
+
+    @Query(sort: \PracticeSession.startTime, order: .reverse)
+    private var sessions: [PracticeSession]
+
+    @Query(sort: \PracticeAreaEntity.order)
+    private var practiceAreas: [PracticeAreaEntity]
+
+    @Query(sort: \PracticeAreaRatingEntity.createdAt)
+    private var practiceAreaRatings: [PracticeAreaRatingEntity]
 
     @AppStorage("practiceNudgesEnabled")
     private var practiceNudgesEnabled = false
@@ -22,6 +32,7 @@ struct PracticeNudgeSettingsView: View {
 
     @State private var authorizationStatus: UNAuthorizationStatus = .notDetermined
     @State private var isRequestingPermission = false
+    @State private var notificationStatusMessage: String?
 
     var body: some View {
         List {
@@ -58,6 +69,12 @@ struct PracticeNudgeSettingsView: View {
                         openSystemSettings()
                     }
                 }
+
+                if let notificationStatusMessage {
+                    Text(notificationStatusMessage)
+                        .font(.caption)
+                        .foregroundStyle(Color("SecondaryText"))
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -67,11 +84,23 @@ struct PracticeNudgeSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await refreshAuthorizationStatus()
+            if practiceNudgesEnabled {
+                await scheduleDailyNotification()
+            }
         }
         .onChange(of: authorizationStatus) { _, newStatus in
             if newStatus == .denied {
                 practiceNudgesEnabled = false
+                PracticeNudgeNotificationService.cancelDailyNudge()
             }
+        }
+        .onChange(of: practiceNudgeHour) { _, _ in
+            guard practiceNudgesEnabled else { return }
+            Task { await scheduleDailyNotification() }
+        }
+        .onChange(of: practiceNudgeMinute) { _, _ in
+            guard practiceNudgesEnabled else { return }
+            Task { await scheduleDailyNotification() }
         }
     }
 }
@@ -113,14 +142,33 @@ private extension PracticeNudgeSettingsView {
         }
     }
 
+    var practiceAreaMetrics: [PracticeAreaMetric] {
+        PracticeAreaMetricsCalculator.compute(
+            practiceAreas: practiceAreas,
+            ratings: practiceAreaRatings,
+            sessions: sessions
+        )
+    }
+
+    var rankedPracticeRecommendations: [PracticeSuggestionRecommendation] {
+        PracticeSuggestionRecommender.rankedRecommendations(
+            from: practiceAreaMetrics
+        )
+    }
+
     func handleNudgeToggle(_ isEnabled: Bool) {
         guard isEnabled else {
             practiceNudgesEnabled = false
+            PracticeNudgeNotificationService.cancelDailyNudge()
+            notificationStatusMessage = nil
             return
         }
 
         Task {
             await requestNotificationPermission()
+            if practiceNudgesEnabled {
+                await scheduleDailyNotification()
+            }
         }
     }
 
@@ -139,9 +187,63 @@ private extension PracticeNudgeSettingsView {
             )
             await refreshAuthorizationStatus()
             practiceNudgesEnabled = granted
+            if !granted {
+                PracticeNudgeNotificationService.cancelDailyNudge()
+            }
         } catch {
             practiceNudgesEnabled = false
+            PracticeNudgeNotificationService.cancelDailyNudge()
             await refreshAuthorizationStatus()
+        }
+    }
+
+    func currentRecommendation() async -> PracticeRecommendation? {
+        let recommendations = rankedPracticeRecommendations
+
+        guard let fallbackRecommendation = recommendations.first else {
+            return nil
+        }
+
+        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
+            return PracticeRecommendationService.fallbackCopy(
+                for: fallbackRecommendation
+            )
+        }
+
+        do {
+            return try await PracticeRecommendationSessionCache.generateRecommendation(
+                from: recommendations
+            )
+        } catch {
+            let fallbackCopy = PracticeRecommendationService.fallbackCopy(
+                for: fallbackRecommendation
+            )
+            await PracticeRecommendationSessionCache.store(fallbackCopy)
+            return fallbackCopy
+        }
+    }
+
+    func scheduleDailyNotification() async {
+        guard practiceNudgesEnabled else { return }
+
+        guard authorizationStatus == .authorized || authorizationStatus == .provisional else {
+            return
+        }
+
+        guard let recommendation = await currentRecommendation() else {
+            notificationStatusMessage = "Add a practice area to schedule reminders."
+            return
+        }
+
+        do {
+            try await PracticeNudgeNotificationService.scheduleDailyNudge(
+                recommendation: recommendation,
+                hour: practiceNudgeHour,
+                minute: practiceNudgeMinute
+            )
+            notificationStatusMessage = "Reminder scheduled."
+        } catch {
+            notificationStatusMessage = "Could not schedule reminder."
         }
     }
 
