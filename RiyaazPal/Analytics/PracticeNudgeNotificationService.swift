@@ -11,6 +11,8 @@ import UserNotifications
 enum PracticeNudgeNotificationService {
 
     static let dailyIdentifier = "practiceNudge.daily"
+    static let routeUserInfoKey = "route"
+    static let timelineRoute = "timeline"
 
     static func scheduleDailyNudge(
         recommendation: PracticeRecommendation,
@@ -51,6 +53,9 @@ private extension PracticeNudgeNotificationService {
         content.body = recommendation.body
         content.sound = .default
         content.categoryIdentifier = "practiceNudge"
+        content.userInfo = [
+            PracticeNudgeNotificationService.routeUserInfoKey: PracticeNudgeNotificationService.timelineRoute
+        ]
         return content
     }
 

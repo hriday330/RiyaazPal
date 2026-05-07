@@ -60,6 +60,22 @@ final class RiyaazPalAppDelegate: NSObject, UIApplicationDelegate, UNUserNotific
     ) async -> UNNotificationPresentationOptions {
         [.banner, .list, .sound]
     }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        guard response.notification.request.content.userInfo[PracticeNudgeNotificationService.routeUserInfoKey] as? String == PracticeNudgeNotificationService.timelineRoute else {
+            return
+        }
+
+        await MainActor.run {
+            NotificationCenter.default.post(
+                name: .practiceNudgeNotificationTapped,
+                object: nil
+            )
+        }
+    }
 }
 
 struct RootTabView: View {
@@ -81,6 +97,9 @@ struct RootTabView: View {
                 Label("Insights", systemImage: "chart.bar")
             }
             .tag(TabRouter.Tab.insights)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
+            router.selectedTab = .timeline
         }
     }
 }

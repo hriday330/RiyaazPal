@@ -90,6 +90,9 @@ struct InsightsView: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
+            showProfile = false
+        }
         .task(id: summaryRefreshID) {
             await insightsViewModel.loadMetricSummary(
                 metrics: practiceAreaMetrics,
