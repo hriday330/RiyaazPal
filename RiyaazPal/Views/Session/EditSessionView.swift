@@ -16,9 +16,9 @@ struct EditSessionView: View {
     private let session: PracticeSession
     @StateObject private var editSessionViewModel: EditSessionViewModel
     @StateObject private var practiceAreasViewModel = PracticeAreasViewModel()
-    
-    @Query(sort: \TagCategoryModel.order)
-    private var categories: [TagCategoryModel]
+
+    @Query(sort: \PracticeSession.startTime, order: .reverse)
+    private var sessions: [PracticeSession]
 
     @Query(sort: \PracticeAreaEntity.order)
     private var practiceAreas: [PracticeAreaEntity]
@@ -117,7 +117,7 @@ struct EditSessionView: View {
             }
             .onAppear {
                 practiceAreasViewModel.attachContext(context)
-                editSessionViewModel.configureTagSource(categories: categories)
+                editSessionViewModel.configureTagSource(sessions: sessions)
                 editSessionViewModel.configurePracticeAreaQuestionnaire(
                     practiceAreas: practiceAreas,
                     existingRatings: sessionPracticeAreaRatings
