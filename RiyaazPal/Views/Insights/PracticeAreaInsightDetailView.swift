@@ -224,11 +224,11 @@ private extension PracticeAreaInsightDetailView {
     var transferExplanation: String {
         switch metric.performanceTransfer.status {
         case .significantDrop:
-            return "Concert average is at least 1.5 points lower than practice average."
+            return "Concert average is more than 1.5 points lower than practice average."
         case .concertLift:
-            return "Concert average is at least 1.5 points higher than practice average."
+            return "Concert average is more than 1.5 points higher than practice average."
         case .maintained:
-            return "Concert average is within 1 point of practice average."
+            return "Concert average is within 1.5 points of practice average."
         case .inconclusive:
             return "There is enough data, but the difference is not a clear drop, lift, or maintained signal."
         case .insufficientData:

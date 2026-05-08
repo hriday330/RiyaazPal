@@ -65,7 +65,7 @@ enum PracticeAreaMetricsCalculator {
     static let minimumConcertScoresForTransfer = 3
     static let significantDropDelta = -1.5
     static let concertLiftDelta = 1.5
-    static let maintainedDeltaMagnitude = 1.0
+    static let maintainedDeltaMagnitude = 1.5
 
     static func compute(
         practiceAreas: [PracticeAreaEntity],
@@ -340,11 +340,11 @@ private extension PracticeAreaMetricsCalculator {
         let delta = concertAverage - practiceAverage
 
         let status: PracticeAreaPerformanceTransferStatus
-        if delta <= significantDropDelta {
+        if delta < significantDropDelta {
             status = .significantDrop
-        } else if delta >= concertLiftDelta {
+        } else if delta > concertLiftDelta {
             status = .concertLift
-        } else if abs(delta) < maintainedDeltaMagnitude {
+        } else if abs(delta) <= maintainedDeltaMagnitude {
             status = .maintained
         } else {
             status = .inconclusive
