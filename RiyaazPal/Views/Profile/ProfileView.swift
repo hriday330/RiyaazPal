@@ -12,9 +12,6 @@ import SwiftData
 
 struct ProfileView: View {
 
-    @Query(sort: \TagCategoryModel.order)
-    private var categories: [TagCategoryModel]
-
     @Query(sort: \PracticeAreaEntity.order)
     private var practiceAreas: [PracticeAreaEntity]
     
@@ -54,20 +51,6 @@ struct ProfileView: View {
                     Text("Choose whether practice reminders are allowed.")
                 }
 
-                // MARK: Practice Setup Section
-                Section {
-                    ForEach(categories) { category in
-                        NavigationLink {
-                            CategoryDetailView(category: category)
-                        } label: {
-                            ProfileCategoryRow(category: category)
-                        }
-                    }
-                } header: {
-                    Text("Practice Setup")
-                } footer: {
-                    Text("Customize ragas, sections, taals, and techniques.")
-                }
             }
             .listStyle(.insetGrouped)
         }
@@ -169,28 +152,6 @@ private struct PracticeNudgesRow: View {
         ) ?? Date()
 
         return "On at \(date.formatted(date: .omitted, time: .shortened))"
-    }
-}
-
-
-private struct ProfileCategoryRow: View {
-    let category: TagCategoryModel
-
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(category.name)
-                    .font(.body)
-                    .fontWeight(.medium)
-
-                Text("\(category.tags.count) items")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-        }
-        .padding(.vertical, 4)
     }
 }
 

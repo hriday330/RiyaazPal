@@ -23,21 +23,15 @@ struct RiyaazPalApp: App {
     
     var body: some Scene {
         return WindowGroup{
-            AppBootstrapView{
-                
-                if hasCompletedSetup {
-                    RootTabView()
-                        .environmentObject(tabRouter)
-                } else {
-                    SetupView()
-                }
-                
-                
+            if hasCompletedSetup {
+                RootTabView()
+                    .environmentObject(tabRouter)
+            } else {
+                SetupView()
             }
         }
         .modelContainer(for: [
             PracticeSession.self,
-            TagCategoryModel.self,
             GoalEntity.self,
             PracticeAreaEntity.self,
             PracticeAreaRatingEntity.self
@@ -160,26 +154,6 @@ private extension PracticeNudgeRefreshTask {
             hour: practiceNudgeHour,
             minute: practiceNudgeMinute
         )
-    }
-}
-
-struct AppBootstrapView<Content: View>: View {
-    @Environment(\.modelContext) private var context
-    let content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-
-    var body: some View {
-        content
-            .task {
-                do {
-                    try seedDefaultTagCategoriesIfNeeded(context: context)
-                } catch {
-                    assertionFailure("Failed to seed tag categories: \(error)")
-                }
-            }
     }
 }
 
