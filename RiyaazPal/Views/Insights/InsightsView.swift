@@ -190,13 +190,13 @@ private extension InsightsView {
 }
 
 private extension View {
-    func insightCard(background: Color = Color("CardBackground")) -> some View {
+    func insightCard(background: Color = Color("InsightCardBackground")) -> some View {
         self
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color("CardBackground"))
+                    .fill(background)
             )
     }
 }
