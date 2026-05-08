@@ -12,6 +12,7 @@ struct PracticeRecommendationCard: View {
     let isLoading: Bool
     let isSessionActive: Bool
     let onUseFocus: () -> Void
+    let onDismiss: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -41,6 +42,17 @@ struct PracticeRecommendationCard: View {
                     ProgressView()
                         .controlSize(.small)
                 }
+
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color("SecondaryText"))
+                        .frame(width: 28, height: 28)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Dismiss today's focus")
             }
 
             Button(action: onUseFocus) {
@@ -62,7 +74,6 @@ struct PracticeRecommendationCard: View {
                 .fill(Color("CardBackground"))
         )
         .shadow(color: .black.opacity(0.06), radius: 8, y: 3)
-        .accessibilityElement(children: .combine)
     }
 
     private var loadingContent: some View {

@@ -36,6 +36,7 @@ struct PracticeTimelineView: View {
 
     @State private var practiceRecommendation: PracticeRecommendation?
     @State private var isPracticeRecommendationLoading = false
+    @State private var dismissedPracticeRecommendationID: String?
     
     @State private var isScrollingProgrammatically = false
     
@@ -135,6 +136,13 @@ private extension PracticeTimelineView {
 
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         sessionViewModel.startSession()
+    }
+
+    func dismissPracticeRecommendation() {
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
+            dismissedPracticeRecommendationID = recommendationRefreshID
+        }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
     
     
@@ -280,17 +288,20 @@ private extension PracticeTimelineView {
     @ViewBuilder
     var practiceRecommendationCard: some View {
         if (practiceRecommendation != nil || isPracticeRecommendationLoading),
+           dismissedPracticeRecommendationID != recommendationRefreshID,
            !timelineFilterViewModel.isSearching,
            timelineFilterViewModel.sessionTypeFilter != .concert {
             PracticeRecommendationCard(
                 recommendation: practiceRecommendation,
                 isLoading: isPracticeRecommendationLoading,
                 isSessionActive: sessionViewModel.isSessionActive,
-                onUseFocus: handleRecommendationAction
+                onUseFocus: handleRecommendationAction,
+                onDismiss: dismissPracticeRecommendation
             )
             .padding(.horizontal)
             .padding(.top, 10)
             .padding(.bottom, 6)
+            .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
 
