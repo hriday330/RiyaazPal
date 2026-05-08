@@ -400,7 +400,7 @@ private extension View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(background)
             )
-            .shadow(color: .black.opacity(0.08), radius: 10)
+            .shadow(color: .black.opacity(0.06), radius: 6)
     }
 }
 

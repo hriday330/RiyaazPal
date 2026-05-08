@@ -55,20 +55,12 @@ struct InsightsView: View {
                     header
                     insightsModeChips
                     insightSummaryCard
-                    if (mode == .practice){
+                    if mode == .practice {
                         practiceInsightsContent
                     } else {
                         concertInsightsContent
                     }
-                    
-            
-                }.scrollTransition(.interactive) { content, phase in
-                    content
-                        .opacity(phase.isIdentity ? 1.0 : 0.94)
-                        .offset(y: phase.isIdentity ? 0 : 6)
-                    
                 }
-                
                 .padding()
             }
         }
@@ -199,6 +191,7 @@ private extension View {
                     .fill(background)
             )
     }
+
 }
 
 private extension InsightsView {
