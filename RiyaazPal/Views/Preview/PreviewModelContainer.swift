@@ -15,7 +15,6 @@ enum PreviewModelContainer {
         let container = try! ModelContainer(
             for:
                 PracticeSession.self,
-                TagCategoryModel.self,
                 GoalEntity.self,
                 PracticeAreaEntity.self,
                 PracticeAreaRatingEntity.self
@@ -24,10 +23,6 @@ enum PreviewModelContainer {
                 isStoredInMemoryOnly: true
             )
         )
-
-        let context = container.mainContext
-        try! seedDefaultTagCategoriesIfNeeded(context: context)
-
         return container
     }
 }
