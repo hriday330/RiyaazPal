@@ -24,7 +24,7 @@ final class EditSessionViewModel: ObservableObject {
     @Published var practiceAreaDrafts: [PracticeAreaQuestionnaireDraft] = []
     @Published var hasPracticeAreaReflection = false
 
-    private var tagProvider: CategoryTagProvider?
+    private var tagSuggestionSessions: [PracticeSession] = []
     private var cancellables = Set<AnyCancellable>()
     private let suggestionTrigger = PassthroughSubject<Void, Never>()
 
@@ -154,19 +154,18 @@ extension EditSessionViewModel {
 
     private static let suggester = TagSuggester()
 
-    func configureTagSource(categories: [TagCategoryModel]) {
-        self.tagProvider = CategoryTagProvider(categories: categories)
+    func configureTagSource(sessions: [PracticeSession]) {
+        self.tagSuggestionSessions = sessions
         computeSuggestions()
     }
 
     func computeSuggestions() {
-        guard let tagProvider else { return }
-
         suggestedTags = Self.suggester.suggestions(
             title: draft.notes,
             details: draft.detailedNotes,
             existingTags: draft.tags,
-            candidateTags: tagProvider.allTags()
+            sessions: tagSuggestionSessions,
+            excludingSessionID: draft.id
         )
     }
     
