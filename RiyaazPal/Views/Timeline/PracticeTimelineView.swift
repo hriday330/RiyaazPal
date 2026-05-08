@@ -43,6 +43,7 @@ struct PracticeTimelineView: View {
             ZStack {
                 // App-wide background
                 Color("AppBackground")
+                    .ignoresSafeArea()
                 if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     PracticeTimelineEmptyState(isSessionActive: sessionViewModel.isSessionActive, onStartSession: handleSessionAction) {
                         ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
@@ -63,6 +64,8 @@ struct PracticeTimelineView: View {
             }
 
             .navigationTitle("RiyaazPal")
+            .toolbarBackground(Color("AppBackground"), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
