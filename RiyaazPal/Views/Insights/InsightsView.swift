@@ -66,6 +66,7 @@ struct InsightsView: View {
         }
 
         .navigationTitle("Insights")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
