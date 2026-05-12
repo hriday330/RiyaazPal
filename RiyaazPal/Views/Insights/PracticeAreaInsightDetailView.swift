@@ -22,7 +22,7 @@ struct PracticeAreaInsightDetailView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 16) {
+                LazyVStack(spacing: 16) {
                     headerCard
                     if mode == .practice {
                         practiceTrendCard
