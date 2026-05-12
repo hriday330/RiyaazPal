@@ -15,6 +15,7 @@ final class InsightsViewModel: ObservableObject {
     @Published private(set) var summaryText: String?
 
     private var loadedSummaryRequestID: String?
+    private var loadingSummaryRequestID: String?
 
     func loadMetricSummary(
         metrics: [PracticeAreaMetric],
@@ -28,12 +29,16 @@ final class InsightsViewModel: ObservableObject {
             return
         }
 
-        guard loadedSummaryRequestID != requestID else { return }
+        guard loadedSummaryRequestID != requestID,
+              loadingSummaryRequestID != requestID
+        else { return }
 
-        loadedSummaryRequestID = requestID
+        loadingSummaryRequestID = requestID
         summaryText = nil
+        defer { loadingSummaryRequestID = nil }
 
         guard metrics.contains(where: { $0.ratedSessionCount > 0 || $0.concert.ratedSessionCount > 0 }) else {
+            loadedSummaryRequestID = requestID
             return
         }
 
@@ -47,6 +52,7 @@ final class InsightsViewModel: ObservableObject {
             summaryText = try await PracticeAreaInsightSummaryService.generateSummary(
                 request: request
             )
+            loadedSummaryRequestID = requestID
         } catch {
             summaryText = nil
         }

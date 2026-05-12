@@ -51,29 +51,22 @@ struct InsightsView: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) {
+                LazyVStack(spacing: 16) {
                     header
                     insightsModeChips
                     insightSummaryCard
-                    if (mode == .practice){
+                    if mode == .practice {
                         practiceInsightsContent
                     } else {
                         concertInsightsContent
                     }
-                    
-            
-                }.scrollTransition(.interactive) { content, phase in
-                    content
-                        .opacity(phase.isIdentity ? 1.0 : 0.94)
-                        .offset(y: phase.isIdentity ? 0 : 6)
-                    
                 }
-                
                 .padding()
             }
         }
 
         .navigationTitle("Insights")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -199,6 +192,7 @@ private extension View {
                     .fill(background)
             )
     }
+
 }
 
 private extension InsightsView {

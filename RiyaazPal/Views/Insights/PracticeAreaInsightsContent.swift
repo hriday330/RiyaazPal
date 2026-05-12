@@ -39,7 +39,7 @@ struct PracticeAreaInsightsContent: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
+        LazyVStack(spacing: 16) {
             if activePracticeAreaCount == 0 {
                 PracticeAreaInsightsEmptyState(
                     title: "No practice areas yet",
@@ -69,7 +69,7 @@ struct PracticeAreaInsightsContent: View {
                     )
                 }
 
-                VStack(alignment: .leading, spacing: 12) {
+                LazyVStack(alignment: .leading, spacing: 12) {
                     Text("Practice Areas")
                         .font(.headline)
                         .foregroundStyle(Color("PrimaryText"))
