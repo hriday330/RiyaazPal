@@ -87,7 +87,6 @@ struct InsightsView: View {
             showProfile = false
         }
         .task(id: summaryRefreshID) {
-            print("performing expensive action")
             await insightsViewModel.loadMetricSummary(
                 metrics: practiceAreaMetrics,
                 activePracticeAreaCount: practiceAreas.filter(\.isActive).count,
