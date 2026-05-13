@@ -22,7 +22,7 @@ struct PracticeAreaInsightDetailView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                LazyVStack(spacing: 16) {
+                VStack(spacing: 16) {
                     headerCard
                     if mode == .practice {
                         practiceTrendCard
@@ -400,7 +400,7 @@ private extension View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(background)
             )
-            .shadow(color: .black.opacity(0.06), radius: 6)
+            .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
     }
 }
 

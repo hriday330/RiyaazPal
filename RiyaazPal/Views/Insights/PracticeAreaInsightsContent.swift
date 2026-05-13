@@ -12,26 +12,31 @@ struct PracticeAreaInsightsContent: View {
     let activePracticeAreaCount: Int
     let onManagePracticeAreas: () -> Void
 
-    private var activeMetrics: [PracticeAreaMetric] {
-        metrics.filter(\.isActive)
-    }
+    private let activeMetrics: [PracticeAreaMetric]
+    private let ratedMetrics: [PracticeAreaMetric]
+    private let attentionMetrics: [PracticeAreaMetric]
+    private let improvingMetrics: [PracticeAreaMetric]
 
-    private var ratedMetrics: [PracticeAreaMetric] {
-        metrics.filter { $0.practice.ratedSessionCount > 0 }
-    }
+    init(
+        metrics: [PracticeAreaMetric],
+        activePracticeAreaCount: Int,
+        onManagePracticeAreas: @escaping () -> Void
+    ) {
+        self.metrics = metrics
+        self.activePracticeAreaCount = activePracticeAreaCount
+        self.onManagePracticeAreas = onManagePracticeAreas
 
-    private var attentionMetrics: [PracticeAreaMetric] {
-        activeMetrics
+        let activeMetrics = metrics.filter(\.isActive)
+        self.activeMetrics = activeMetrics
+        self.ratedMetrics = metrics.filter { $0.practice.ratedSessionCount > 0 }
+        self.attentionMetrics = activeMetrics
             .filter { metric in
                 metric.isNeglected
                 || metric.trendDirection == .declining
                 || metric.performanceTransfer.status == .significantDrop
             }
-            .sorted(by: attentionSort)
-    }
-
-    private var improvingMetrics: [PracticeAreaMetric] {
-        activeMetrics
+            .sorted(by: Self.attentionSort)
+        self.improvingMetrics = activeMetrics
             .filter { $0.trendDirection == .improving }
             .sorted { lhs, rhs in
                 (lhs.sevenDayAverage ?? 0) > (rhs.sevenDayAverage ?? 0)
@@ -69,7 +74,7 @@ struct PracticeAreaInsightsContent: View {
                     )
                 }
 
-                LazyVStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text("Practice Areas")
                         .font(.headline)
                         .foregroundStyle(Color("PrimaryText"))
@@ -90,14 +95,14 @@ struct PracticeAreaInsightsContent: View {
         }
     }
 
-    private func attentionSort(
+    private static func attentionSort(
         lhs: PracticeAreaMetric,
         rhs: PracticeAreaMetric
     ) -> Bool {
         attentionScore(lhs) > attentionScore(rhs)
     }
 
-    private func attentionScore(_ metric: PracticeAreaMetric) -> Int {
+    private static func attentionScore(_ metric: PracticeAreaMetric) -> Int {
         var score = 0
         if metric.isNeglected { score += 4 }
         if metric.performanceTransfer.status == .significantDrop { score += 3 }
@@ -160,7 +165,7 @@ private struct PracticeAreaOverviewCard: View {
             }
         }
         .insightCard()
-        .shadow(color: .black.opacity(0.08), radius: 10)
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
     }
 
     private var scoreText: String {
@@ -214,7 +219,7 @@ private struct PracticeAreaHighlightsCard: View {
             }
         }
         .insightCard()
-        .shadow(color: .black.opacity(0.08), radius: 10)
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
     }
 
     private func attentionSummary(for metric: PracticeAreaMetric) -> String {
@@ -322,7 +327,7 @@ private struct PracticeAreaMetricCard: View {
                 .foregroundStyle(Color("SecondaryText"))
         }
         .insightCard()
-        .shadow(color: .black.opacity(0.08), radius: 10)
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
     }
 
     private var subtitle: String {
@@ -399,7 +404,7 @@ private struct PracticeAreaInsightsEmptyState: View {
             .tint(Color("AccentColor"))
         }
         .insightCard()
-        .shadow(color: .black.opacity(0.08), radius: 10)
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
     }
 }
 
