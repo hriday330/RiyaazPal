@@ -26,6 +26,9 @@ struct PracticeAreaInsightDetailView: View {
     let mode: PracticeAreaInsightDetailMode
 
     @State private var scoreHistoryFilter: PracticeAreaScoreHistoryFilter
+    @State private var scoreHistoryVisibleDays = 30.0
+    @State private var scoreHistoryGestureStartVisibleDays = 30.0
+    @State private var scoreHistoryScrollPosition = Date()
 
     init(
         metric: PracticeAreaMetric,
@@ -135,6 +138,9 @@ private extension PracticeAreaInsightDetailView {
                 ])
                 .chartLegend(scoreHistoryFilter == .both ? .visible : .hidden)
                 .chartYScale(domain: 1...10)
+                .chartScrollableAxes(.horizontal)
+                .chartXVisibleDomain(length: scoreHistoryVisibleDomainLength)
+                .chartScrollPosition(x: $scoreHistoryScrollPosition)
                 .chartXAxis {
                     AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                         AxisGridLine()
@@ -154,9 +160,37 @@ private extension PracticeAreaInsightDetailView {
                     }
                 }
                 .frame(height: 190)
+                .gesture(scoreHistoryZoomGesture)
+                .onAppear(perform: resetScoreHistoryZoom)
+                .onChange(of: scoreHistoryFilter) { _, _ in
+                    resetScoreHistoryZoom()
+                }
+
+                scoreHistoryZoomFooter
             }
         }
         .detailCard()
+    }
+
+    var scoreHistoryZoomFooter: some View {
+        HStack(spacing: 8) {
+            Label("Pinch to zoom, drag to pan", systemImage: "hand.draw")
+                .font(.caption)
+                .foregroundStyle(Color("SecondaryText"))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+
+            Spacer()
+
+            Button(action: resetScoreHistoryZoom) {
+                Label("Reset", systemImage: "arrow.counterclockwise")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+            }
+            .buttonStyle(.bordered)
+            .tint(Color("AccentColor"))
+            .disabled(!canResetScoreHistoryZoom)
+        }
     }
 
     var practiceTrendCard: some View {
@@ -297,6 +331,63 @@ private extension PracticeAreaInsightDetailView {
         }
     }
 
+    var scoreHistoryDates: [Date] {
+        scoreHistoryPoints.map(\.date)
+    }
+
+    var scoreHistoryEarliestDate: Date? {
+        scoreHistoryDates.min()
+    }
+
+    var scoreHistoryLatestDate: Date? {
+        scoreHistoryDates.max()
+    }
+
+    var scoreHistoryTotalDays: Double {
+        guard let earliestDate = scoreHistoryEarliestDate,
+              let latestDate = scoreHistoryLatestDate
+        else { return 7 }
+
+        let interval = latestDate.timeIntervalSince(earliestDate)
+        return max(7, ceil(interval / 86_400) + 1)
+    }
+
+    var scoreHistoryMaximumVisibleDays: Double {
+        min(max(scoreHistoryTotalDays, 7), 365)
+    }
+
+    var scoreHistoryDefaultVisibleDays: Double {
+        min(max(30, min(scoreHistoryMaximumVisibleDays, 90)), scoreHistoryMaximumVisibleDays)
+    }
+
+    var scoreHistoryVisibleDomainLength: TimeInterval {
+        max(1, scoreHistoryVisibleDays) * 86_400
+    }
+
+    var canResetScoreHistoryZoom: Bool {
+        abs(scoreHistoryVisibleDays - scoreHistoryDefaultVisibleDays) > 0.1
+    }
+
+    var scoreHistoryZoomGesture: some Gesture {
+        MagnificationGesture()
+            .onChanged { scale in
+                let proposedVisibleDays = scoreHistoryGestureStartVisibleDays / max(scale, 0.1)
+                updateScoreHistoryZoom(to: clampedScoreHistoryVisibleDays(proposedVisibleDays))
+            }
+            .onEnded { _ in
+                scoreHistoryGestureStartVisibleDays = scoreHistoryVisibleDays
+            }
+    }
+
+    func scoreHistoryScrollStart(for visibleDays: Double) -> Date {
+        guard let earliestDate = scoreHistoryEarliestDate,
+              let latestDate = scoreHistoryLatestDate
+        else { return Date() }
+
+        let proposedStart = latestDate.addingTimeInterval(-visibleDays * 86_400)
+        return max(proposedStart, earliestDate)
+    }
+
     var scoreHistoryTint: Color {
         switch scoreHistoryFilter {
         case .practice:
@@ -352,6 +443,30 @@ private extension PracticeAreaInsightDetailView {
         guard let delta = metric.performanceTransfer.delta else { return "-" }
         let formatted = abs(delta).formatted(.number.precision(.fractionLength(1)))
         return delta < 0 ? "-\(formatted)" : "+\(formatted)"
+    }
+
+    func clampedScoreHistoryVisibleDays(_ visibleDays: Double) -> Double {
+        min(scoreHistoryMaximumVisibleDays, max(7, visibleDays))
+    }
+
+    func resetScoreHistoryZoom() {
+        scoreHistoryVisibleDays = scoreHistoryDefaultVisibleDays
+        scoreHistoryGestureStartVisibleDays = scoreHistoryVisibleDays
+        scoreHistoryScrollPosition = scoreHistoryScrollStart(for: scoreHistoryVisibleDays)
+    }
+
+    func updateScoreHistoryZoom(to visibleDays: Double) {
+        let wasShowingLatest = abs(
+            scoreHistoryScrollPosition.timeIntervalSince(
+                scoreHistoryScrollStart(for: scoreHistoryVisibleDays)
+            )
+        ) < 3_600
+
+        scoreHistoryVisibleDays = visibleDays
+
+        if wasShowingLatest {
+            scoreHistoryScrollPosition = scoreHistoryScrollStart(for: visibleDays)
+        }
     }
 
     func averageText(_ value: Double?) -> String {
@@ -434,6 +549,7 @@ private extension PracticeAreaInsightDetailView {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+
 }
 
 private struct DetailSectionHeader: View {
