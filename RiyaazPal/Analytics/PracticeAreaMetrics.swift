@@ -26,7 +26,53 @@ struct PracticeAreaMetric: Identifiable {
 
     let practice: PracticeAreaContextMetric
     let concert: PracticeAreaContextMetric
+    let scoreHistory: [PracticeAreaScorePoint]
     let performanceTransfer: PracticeAreaPerformanceTransfer
+
+    init(
+        id: String,
+        areaID: UUID?,
+        areaName: String,
+        isActive: Bool,
+        latestScore: Int?,
+        sevenDayAverage: Double?,
+        previousSevenDayAverage: Double?,
+        thirtyDayAverage: Double?,
+        trendDirection: PracticeAreaTrendDirection,
+        ratedSessionCount: Int,
+        daysSincePracticed: Int?,
+        isNeglected: Bool,
+        volatility: Double?,
+        practice: PracticeAreaContextMetric,
+        concert: PracticeAreaContextMetric,
+        scoreHistory: [PracticeAreaScorePoint] = [],
+        performanceTransfer: PracticeAreaPerformanceTransfer
+    ) {
+        self.id = id
+        self.areaID = areaID
+        self.areaName = areaName
+        self.isActive = isActive
+        self.latestScore = latestScore
+        self.sevenDayAverage = sevenDayAverage
+        self.previousSevenDayAverage = previousSevenDayAverage
+        self.thirtyDayAverage = thirtyDayAverage
+        self.trendDirection = trendDirection
+        self.ratedSessionCount = ratedSessionCount
+        self.daysSincePracticed = daysSincePracticed
+        self.isNeglected = isNeglected
+        self.volatility = volatility
+        self.practice = practice
+        self.concert = concert
+        self.scoreHistory = scoreHistory
+        self.performanceTransfer = performanceTransfer
+    }
+}
+
+struct PracticeAreaScorePoint: Identifiable {
+    let id: UUID
+    let date: Date
+    let score: Int
+    let sessionType: SessionType
 }
 
 struct PracticeAreaContextMetric {
@@ -234,6 +280,14 @@ private extension PracticeAreaMetricsCalculator {
             volatility: volatility(entries: sortedEntries),
             practice: contextMetric(entries: practiceEntries),
             concert: contextMetric(entries: concertEntries),
+            scoreHistory: sortedEntries.map { entry in
+                PracticeAreaScorePoint(
+                    id: entry.sessionID,
+                    date: entry.date,
+                    score: entry.score,
+                    sessionType: entry.sessionType
+                )
+            },
             performanceTransfer: performanceTransfer(
                 practiceEntries: practiceEntries,
                 concertEntries: concertEntries

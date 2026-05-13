@@ -5,6 +5,7 @@
 //  Created by Codex on 2026-05-05.
 //
 
+import Charts
 import SwiftUI
 
 enum PracticeAreaInsightDetailMode {
@@ -24,6 +25,7 @@ struct PracticeAreaInsightDetailView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     headerCard
+                    scoreHistoryCard
                     if mode == .practice {
                         practiceTrendCard
                     } else {
@@ -66,6 +68,58 @@ private extension PracticeAreaInsightDetailView {
                 DetailStatPill(label: "Total scores", value: "\(metric.ratedSessionCount)")
                 DetailStatPill(label: "Practice", value: "\(metric.practice.ratedSessionCount)")
                 DetailStatPill(label: "Concert", value: "\(metric.concert.ratedSessionCount)")
+            }
+        }
+        .detailCard()
+    }
+
+    var scoreHistoryCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            DetailSectionHeader(
+                title: "Scores Over Time",
+                icon: "chart.xyaxis.line",
+                tint: scoreHistoryTint
+            )
+
+            if scoreHistoryPoints.isEmpty {
+                Text("No scored sessions yet.")
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+            } else {
+                Chart(scoreHistoryPoints) { point in
+                    LineMark(
+                        x: .value("Date", point.date),
+                        y: .value("Score", point.score)
+                    )
+                    .foregroundStyle(scoreHistoryTint)
+
+                    PointMark(
+                        x: .value("Date", point.date),
+                        y: .value("Score", point.score)
+                    )
+                    .symbolSize(34)
+                    .foregroundStyle(scoreHistoryTint)
+                }
+                .chartYScale(domain: 1...10)
+                .chartXAxis {
+                    AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+                        AxisGridLine()
+                            .foregroundStyle(Color("SecondaryText").opacity(0.12))
+                        AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                            .font(.caption2)
+                            .foregroundStyle(Color("SecondaryText"))
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks(position: .leading, values: [1, 5, 10]) { _ in
+                        AxisGridLine()
+                            .foregroundStyle(Color("SecondaryText").opacity(0.12))
+                        AxisValueLabel()
+                            .font(.caption2)
+                            .foregroundStyle(Color("SecondaryText"))
+                    }
+                }
+                .frame(height: 190)
             }
         }
         .detailCard()
@@ -193,6 +247,26 @@ private extension PracticeAreaInsightDetailView {
         case .concert:
             guard let score = metric.concert.latestScore else { return "-" }
             return "\(score)/10"
+        }
+    }
+
+    var scoreHistoryPoints: [PracticeAreaScorePoint] {
+        metric.scoreHistory.filter { point in
+            switch mode {
+            case .practice:
+                return point.sessionType == .practice
+            case .concert:
+                return point.sessionType == .concert
+            }
+        }
+    }
+
+    var scoreHistoryTint: Color {
+        switch mode {
+        case .practice:
+            return Color("AccentColor")
+        case .concert:
+            return .green
         }
     }
 
