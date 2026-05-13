@@ -91,7 +91,6 @@ private extension PracticeAreaInsightDetailView {
                         x: .value("Date", point.date),
                         y: .value("Score", point.score)
                     )
-                    .interpolationMethod(.catmullRom)
                     .foregroundStyle(scoreHistoryTint)
 
                     PointMark(
