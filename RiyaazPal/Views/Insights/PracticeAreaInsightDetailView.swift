@@ -13,9 +13,30 @@ enum PracticeAreaInsightDetailMode {
     case concert
 }
 
+private enum PracticeAreaScoreHistoryFilter: String, CaseIterable, Identifiable {
+    case practice = "Practice"
+    case concert = "Concert"
+    case both = "Both"
+
+    var id: Self { self }
+}
+
 struct PracticeAreaInsightDetailView: View {
     let metric: PracticeAreaMetric
     let mode: PracticeAreaInsightDetailMode
+
+    @State private var scoreHistoryFilter: PracticeAreaScoreHistoryFilter
+
+    init(
+        metric: PracticeAreaMetric,
+        mode: PracticeAreaInsightDetailMode
+    ) {
+        self.metric = metric
+        self.mode = mode
+        _scoreHistoryFilter = State(
+            initialValue: mode == .practice ? .practice : .concert
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -81,6 +102,14 @@ private extension PracticeAreaInsightDetailView {
                 tint: scoreHistoryTint
             )
 
+            Picker("Score type", selection: $scoreHistoryFilter) {
+                ForEach(PracticeAreaScoreHistoryFilter.allCases) { filter in
+                    Text(filter.rawValue)
+                        .tag(filter)
+                }
+            }
+            .pickerStyle(.segmented)
+
             if scoreHistoryPoints.isEmpty {
                 Text("No scored sessions yet.")
                     .font(.caption)
@@ -91,15 +120,20 @@ private extension PracticeAreaInsightDetailView {
                         x: .value("Date", point.date),
                         y: .value("Score", point.score)
                     )
-                    .foregroundStyle(scoreHistoryTint)
+                    .foregroundStyle(by: .value("Type", point.sessionType.scoreHistoryLabel))
 
                     PointMark(
                         x: .value("Date", point.date),
                         y: .value("Score", point.score)
                     )
                     .symbolSize(34)
-                    .foregroundStyle(scoreHistoryTint)
+                    .foregroundStyle(by: .value("Type", point.sessionType.scoreHistoryLabel))
                 }
+                .chartForegroundStyleScale([
+                    SessionType.practice.scoreHistoryLabel: Color("AccentColor"),
+                    SessionType.concert.scoreHistoryLabel: .green
+                ])
+                .chartLegend(scoreHistoryFilter == .both ? .visible : .hidden)
                 .chartYScale(domain: 1...10)
                 .chartXAxis {
                     AxisMarks(values: .automatic(desiredCount: 4)) { _ in
@@ -252,21 +286,25 @@ private extension PracticeAreaInsightDetailView {
 
     var scoreHistoryPoints: [PracticeAreaScorePoint] {
         metric.scoreHistory.filter { point in
-            switch mode {
+            switch scoreHistoryFilter {
             case .practice:
                 return point.sessionType == .practice
             case .concert:
                 return point.sessionType == .concert
+            case .both:
+                return true
             }
         }
     }
 
     var scoreHistoryTint: Color {
-        switch mode {
+        switch scoreHistoryFilter {
         case .practice:
             return Color("AccentColor")
         case .concert:
             return .green
+        case .both:
+            return Color("AccentColor")
         }
     }
 
@@ -562,6 +600,17 @@ private extension PracticeAreaPerformanceTransferStatus {
             return .orange
         case .insufficientData:
             return Color("SecondaryText")
+        }
+    }
+}
+
+private extension SessionType {
+    var scoreHistoryLabel: String {
+        switch self {
+        case .practice:
+            return "Practice"
+        case .concert:
+            return "Concert"
         }
     }
 }
