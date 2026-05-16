@@ -15,6 +15,8 @@ struct PracticeAreaQuestionnaireFlow: View {
     let onScoreChanged: (UUID, Int) -> Void
     let onNotPracticed: (UUID) -> Void
     let onAddPracticeArea: (String) -> PracticeAreaInlineAddResult
+    let canRepeatPreviousReflection: Bool
+    let onRepeatPreviousReflection: () -> Void
     let onDone: () -> Void
 
     @State private var currentIndex = 0
@@ -111,6 +113,10 @@ private extension PracticeAreaQuestionnaireFlow {
                 .foregroundStyle(Color("AccentColor"))
             }
 
+            if canRepeatPreviousReflection {
+                repeatPreviousReflectionButton
+            }
+
             Spacer(minLength: 20)
 
             VStack(spacing: 18) {
@@ -137,6 +143,22 @@ private extension PracticeAreaQuestionnaireFlow {
             .fontWeight(.semibold)
             .foregroundStyle(Color("SecondaryText"))
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    var repeatPreviousReflectionButton: some View {
+        Button(action: onRepeatPreviousReflection) {
+            Label("Repeat last reflection", systemImage: "arrow.uturn.backward.circle.fill")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    Capsule()
+                        .fill(Color("AccentColor").opacity(0.14))
+                )
+                .foregroundStyle(Color("AccentColor"))
+        }
+        .buttonStyle(.plain)
     }
 
     func scorePanel(_ draft: PracticeAreaQuestionnaireDraft) -> some View {
@@ -364,6 +386,8 @@ private struct InlinePracticeAreaAddSheet: View {
         onScoreChanged: { _, _ in },
         onNotPracticed: { _ in },
         onAddPracticeArea: { _ in .added },
+        canRepeatPreviousReflection: true,
+        onRepeatPreviousReflection: { },
         onDone: { }
     )
 }
@@ -383,6 +407,8 @@ private struct InlinePracticeAreaAddSheet: View {
         onScoreChanged: { _, _ in },
         onNotPracticed: { _ in },
         onAddPracticeArea: { _ in .added },
+        canRepeatPreviousReflection: false,
+        onRepeatPreviousReflection: { },
         onDone: { }
     )
 }

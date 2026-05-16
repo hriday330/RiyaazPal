@@ -143,6 +143,10 @@ struct EditSessionView: View {
                     onAddPracticeArea: { name in
                         addPracticeAreaFromQuestionnaire(name)
                     },
+                    canRepeatPreviousReflection: canRepeatPreviousReflection,
+                    onRepeatPreviousReflection: {
+                        repeatPreviousReflection()
+                    },
                     onDone: {
                         showPracticeAreaQuestionnaire = false
                     }
@@ -158,6 +162,45 @@ struct EditSessionView: View {
 private extension EditSessionView {
     var sessionPracticeAreaRatings: [PracticeAreaRatingEntity] {
         practiceAreaRatings.filter { $0.sessionID == session.id }
+    }
+
+    var previousReflectionRatings: [PracticeAreaRatingEntity] {
+        let candidateSessions = sessions
+            .filter {
+                $0.id != session.id &&
+                $0.resolvedSessionType == editSessionViewModel.draft.sessionType &&
+                $0.startTime < editSessionViewModel.draft.startTime
+            }
+            .sorted { $0.startTime > $1.startTime }
+
+        for candidateSession in candidateSessions {
+            let ratings = practiceAreaRatings.filter { $0.sessionID == candidateSession.id }
+            if !ratings.isEmpty {
+                return ratings
+            }
+        }
+
+        return []
+    }
+
+    var canRepeatPreviousReflection: Bool {
+        let previousAreaIDs = Set(previousReflectionRatings.map(\.practiceAreaID))
+        let previousAreaNames = Set(previousReflectionRatings.map {
+            EditSessionViewModel.normalizedAreaName($0.areaName)
+        })
+
+        return editSessionViewModel.practiceAreaDrafts.contains { draft in
+            previousAreaIDs.contains(draft.practiceAreaID) ||
+            previousAreaNames.contains(EditSessionViewModel.normalizedAreaName(draft.areaName))
+        }
+    }
+
+    func repeatPreviousReflection() {
+        editSessionViewModel.repeatPracticeAreaReflection(
+            from: previousReflectionRatings
+        )
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        showPracticeAreaQuestionnaire = false
     }
 
     func addPracticeAreaFromQuestionnaire(_ name: String) -> PracticeAreaInlineAddResult {
