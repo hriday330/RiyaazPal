@@ -10,6 +10,11 @@ import Foundation
 import SwiftUI
 import SwiftData
 
+private enum ProfileRoute: Hashable {
+    case practiceAreas
+    case practiceNudges
+}
+
 struct ProfileView: View {
 
     @Query(sort: \PracticeAreaEntity.order)
@@ -27,9 +32,7 @@ struct ProfileView: View {
                 
                 // MARK: Practice Areas Section
                 Section {
-                    NavigationLink {
-                        PracticeAreasPanel()
-                    } label: {
+                    NavigationLink(value: ProfileRoute.practiceAreas) {
                         PracticeAreasRow(areas: practiceAreas)
                     }
                 } header: {
@@ -40,9 +43,7 @@ struct ProfileView: View {
 
                 // MARK: Practice Nudges Section
                 Section {
-                    NavigationLink {
-                        PracticeNudgeSettingsView()
-                    } label: {
+                    NavigationLink(value: ProfileRoute.practiceNudges) {
                         PracticeNudgesRow()
                     }
                 } header: {
@@ -66,6 +67,14 @@ struct ProfileView: View {
                 #endif
             }
             .listStyle(.insetGrouped)
+            .navigationDestination(for: ProfileRoute.self) { route in
+                switch route {
+                case .practiceAreas:
+                    PracticeAreasPanel()
+                case .practiceNudges:
+                    PracticeNudgeSettingsView()
+                }
+            }
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
