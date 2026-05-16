@@ -23,6 +23,11 @@ struct ProfileView: View {
     @Environment(\.dismiss)
     private var dismiss
 
+    @AppStorage(RiyaazPalModelContainer.iCloudSyncEnabledKey)
+    private var iCloudSyncEnabled = true
+
+    @State private var showICloudRestartNote = false
+
     var body: some View {
         ZStack {
             Color("AppBackground")
@@ -50,6 +55,30 @@ struct ProfileView: View {
                     Text("Practice Nudges")
                 } footer: {
                     Text("Choose whether practice reminders are allowed.")
+                }
+
+                // MARK: iCloud Section
+                Section {
+                    Toggle(
+                        "iCloud sync",
+                        isOn: Binding(
+                            get: { iCloudSyncEnabled },
+                            set: updateICloudSyncPreference
+                        )
+                    )
+
+                    if showICloudRestartNote {
+                        Label(
+                            "Restart RiyaazPal to apply this change.",
+                            systemImage: "arrow.clockwise"
+                        )
+                        .font(.caption)
+                        .foregroundStyle(Color("SecondaryText"))
+                    }
+                } header: {
+                    Text("iCloud")
+                } footer: {
+                    Text("When enabled, practice sessions, practice areas, and ratings sync through your private iCloud account.")
                 }
 
                 #if DEBUG
@@ -95,6 +124,11 @@ struct ProfileView: View {
                 .accessibilityLabel("Close")
             }
         }
+    }
+
+    private func updateICloudSyncPreference(_ isEnabled: Bool) {
+        iCloudSyncEnabled = isEnabled
+        showICloudRestartNote = true
     }
 }
 
