@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+private struct PracticeAreaInsightRoute: Hashable {
+    let metricID: String
+}
+
 struct PracticeAreaInsightsContent: View {
     let metrics: [PracticeAreaMetric]
     let activePracticeAreaCount: Int
@@ -80,17 +84,20 @@ struct PracticeAreaInsightsContent: View {
                         .foregroundStyle(Color("PrimaryText"))
 
                     ForEach(metrics) { metric in
-                        NavigationLink {
-                            PracticeAreaInsightDetailView(
-                                metric: metric,
-                                mode: .practice
-                            )
-                        } label: {
+                        NavigationLink(value: PracticeAreaInsightRoute(metricID: metric.id)) {
                             PracticeAreaMetricCard(metric: metric)
                         }
                         .buttonStyle(.plain)
                     }
                 }
+            }
+        }
+        .navigationDestination(for: PracticeAreaInsightRoute.self) { route in
+            if let metric = metrics.first(where: { $0.id == route.metricID }) {
+                PracticeAreaInsightDetailView(
+                    metric: metric,
+                    mode: .practice
+                )
             }
         }
     }
