@@ -276,6 +276,36 @@ extension EditSessionViewModel {
         hasPracticeAreaReflection = true
     }
 
+    func repeatPracticeAreaReflection(
+        from previousRatings: [PracticeAreaRatingEntity]
+    ) {
+        let previousByAreaID = Dictionary(
+            previousRatings.map { ($0.practiceAreaID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        let previousByAreaName = Dictionary(
+            previousRatings.map { (Self.normalizedAreaName($0.areaName), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        practiceAreaDrafts = practiceAreaDrafts.map { draft in
+            guard let previousRating = previousByAreaID[draft.practiceAreaID]
+                    ?? previousByAreaName[Self.normalizedAreaName(draft.areaName)]
+            else { return draft }
+
+            return PracticeAreaQuestionnaireDraft(
+                sessionID: draft.sessionID,
+                practiceAreaID: draft.practiceAreaID,
+                areaName: draft.areaName,
+                didPractice: previousRating.didPractice,
+                score: previousRating.score
+            )
+        }
+
+        hasPracticeAreaReflection = true
+    }
+
     func appendPracticeAreaDraft(for area: PracticeAreaEntity) {
         let normalizedName = Self.normalizedAreaName(area.name)
 
