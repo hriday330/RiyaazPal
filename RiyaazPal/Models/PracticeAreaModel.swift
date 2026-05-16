@@ -11,12 +11,12 @@ import SwiftData
 @Model
 final class PracticeAreaEntity {
 
-    @Attribute(.unique) var id: UUID
+    var id: UUID = UUID()
 
-    var name: String
-    var createdAt: Date
-    var isActive: Bool
-    var order: Int
+    var name: String = ""
+    var createdAt: Date = Date.now
+    var isActive: Bool = true
+    var order: Int = 0
 
     init(
         id: UUID = UUID(),
@@ -36,15 +36,15 @@ final class PracticeAreaEntity {
 @Model
 final class PracticeAreaRatingEntity {
 
-    @Attribute(.unique) var id: UUID
+    var id: UUID = UUID()
 
-    var sessionID: UUID
-    var practiceAreaID: UUID
-    var areaName: String
-    var didPractice: Bool
-    var score: Int?
-    var createdAt: Date
-    var lastModified: Date
+    var sessionID: UUID = UUID()
+    var practiceAreaID: UUID = UUID()
+    var areaName: String = ""
+    var didPractice: Bool = false
+    var score: Int? = nil
+    var createdAt: Date = Date.now
+    var lastModified: Date = Date.now
 
     init(
         id: UUID = UUID(),
