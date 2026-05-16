@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PracticeTimelineView: View {
+    @EnvironmentObject var router: TabRouter
     
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
@@ -37,8 +38,18 @@ struct PracticeTimelineView: View {
     @State private var practiceRecommendation: PracticeRecommendation?
     @State private var isPracticeRecommendationLoading = false
     @State private var dismissedPracticeRecommendationID: String?
+
+    @AppStorage(FirstRunGuidanceKeys.timelineStartTip)
+    private var hasSeenTimelineStartTip = false
+
+    @AppStorage(FirstRunGuidanceKeys.postLogInsightsTip)
+    private var hasSeenPostLogInsightsTip = false
     
     @State private var isScrollingProgrammatically = false
+
+    private var isShowingTimelineGuidance: Bool {
+        !hasSeenTimelineStartTip || (!hasSeenPostLogInsightsTip && !sessions.isEmpty)
+    }
     
     var body: some View {
             ZStack {
@@ -46,8 +57,12 @@ struct PracticeTimelineView: View {
                 Color("AppBackground")
                     .ignoresSafeArea()
                 if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
-                    PracticeTimelineEmptyState(isSessionActive: sessionViewModel.isSessionActive, onStartSession: handleSessionAction) {
-                        ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
+                    VStack(spacing: 16) {
+                        timelineStartGuidanceCard
+
+                        PracticeTimelineEmptyState(isSessionActive: sessionViewModel.isSessionActive, onStartSession: handleSessionAction) {
+                            ActiveSessionBar(elapsedTime: sessionViewModel.elapsedTime, action: handleSessionAction)
+                        }
                     }
                 } else if timelineFilterViewModel.isSearching && timelineFilterViewModel.filteredSessions(from: sessions).isEmpty {
                     PracticeTimelineFilteredEmptyState()
@@ -127,6 +142,7 @@ private extension PracticeTimelineView {
                 }
             }
         } else {
+            hasSeenTimelineStartTip = true
             sessionViewModel.startSession()
         }
     }
@@ -141,6 +157,20 @@ private extension PracticeTimelineView {
     func dismissPracticeRecommendation() {
         withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
             dismissedPracticeRecommendationID = recommendationRefreshID
+        }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    func dismissTimelineStartGuidance() {
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
+            hasSeenTimelineStartTip = true
+        }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    func dismissPostLogInsightsGuidance() {
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
+            hasSeenPostLogInsightsTip = true
         }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
@@ -272,7 +302,14 @@ private extension PracticeTimelineView {
                 )
                 sessionTypeFilterChips.padding(.top, 8)
 
+                timelineStartGuidanceCard
+                    .padding(.horizontal)
+                    .padding(.top, 10)
+                    .padding(.bottom, 6)
+
                 practiceRecommendationCard
+
+                postLogInsightsGuidanceCard
                 
                 if (!timelineFilterViewModel.filteredSessions(from: sessions).isEmpty) {
                     timelineList
@@ -286,8 +323,47 @@ private extension PracticeTimelineView {
     }
 
     @ViewBuilder
+    var timelineStartGuidanceCard: some View {
+        if !hasSeenTimelineStartTip {
+            FirstRunGuidanceCard(
+                title: "Start your first loop",
+                message: "Tap the practice button to start a live session. Press and hold it to log a prior session.",
+                systemImage: "play.circle.fill"
+            ) { dismissTimelineStartGuidance() }
+            .padding(.horizontal)
+            .padding(.top, 10)
+            .padding(.bottom, 6)
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+
+    @ViewBuilder
+    var postLogInsightsGuidanceCard: some View {
+        if !hasSeenPostLogInsightsTip,
+           !sessions.isEmpty,
+           !timelineFilterViewModel.isSearching {
+            FirstRunGuidanceCard(
+                title: "See what changed",
+                message: "Once you have logged a session, Insights can show your practice-area trends and attention areas.",
+                systemImage: "chart.line.uptrend.xyaxis",
+                actionTitle: "Open Insights",
+                actionSystemImage: "chart.bar.fill",
+                onAction: {
+                    hasSeenPostLogInsightsTip = true
+                    router.selectedTab = .insights
+                }
+            ) { dismissPostLogInsightsGuidance() }
+            .padding(.horizontal)
+            .padding(.top, 10)
+            .padding(.bottom, 6)
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+
+    @ViewBuilder
     var practiceRecommendationCard: some View {
         if (practiceRecommendation != nil || isPracticeRecommendationLoading),
+           !isShowingTimelineGuidance,
            dismissedPracticeRecommendationID != recommendationRefreshID,
            !timelineFilterViewModel.isSearching,
            timelineFilterViewModel.sessionTypeFilter != .concert {

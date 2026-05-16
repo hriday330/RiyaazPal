@@ -164,3 +164,104 @@ final class TabRouter: ObservableObject {
         case timeline, insights
     }
 }
+
+enum FirstRunGuidanceKeys {
+    static let timelineStartTip = "hasSeenTimelineStartTip"
+    static let postLogInsightsTip = "hasSeenPostLogInsightsTip"
+    static let reflectionTip = "hasSeenReflectionTip"
+    static let insightsTip = "hasSeenInsightsTip"
+
+    static func reset() {
+        let defaults = UserDefaults.standard
+        defaults.set(false, forKey: timelineStartTip)
+        defaults.set(false, forKey: postLogInsightsTip)
+        defaults.set(false, forKey: reflectionTip)
+        defaults.set(false, forKey: insightsTip)
+    }
+}
+
+struct FirstRunGuidanceCard: View {
+    let title: String
+    let message: String
+    let systemImage: String
+    let actionTitle: String?
+    let actionSystemImage: String?
+    let onAction: (() -> Void)?
+    let onDismiss: () -> Void
+
+    init(
+        title: String,
+        message: String,
+        systemImage: String,
+        actionTitle: String? = nil,
+        actionSystemImage: String? = nil,
+        onAction: (() -> Void)? = nil,
+        onDismiss: @escaping () -> Void
+    ) {
+        self.title = title
+        self.message = message
+        self.systemImage = systemImage
+        self.actionTitle = actionTitle
+        self.actionSystemImage = actionSystemImage
+        self.onAction = onAction
+        self.onDismiss = onDismiss
+    }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: systemImage)
+                .font(.headline)
+                .foregroundStyle(Color("AccentColor"))
+                .frame(width: 24, height: 24)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                Text(message)
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if let actionTitle, let onAction {
+                    Button(action: onAction) {
+                        Label(
+                            actionTitle,
+                            systemImage: actionSystemImage ?? "arrow.right"
+                        )
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(Color("AccentColor"))
+                    .padding(.top, 4)
+                }
+            }
+
+            Spacer(minLength: 8)
+
+            Button(action: onDismiss) {
+                Image(systemName: "xmark")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Dismiss tip")
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color("CardBackground"))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color("AccentColor").opacity(0.16), lineWidth: 1)
+        )
+    }
+}

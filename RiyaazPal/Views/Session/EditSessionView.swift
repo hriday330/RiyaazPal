@@ -28,6 +28,9 @@ struct EditSessionView: View {
 
     @State private var showPracticeAreaQuestionnaire = false
 
+    @AppStorage(FirstRunGuidanceKeys.reflectionTip)
+    private var hasSeenReflectionTip = false
+
     init(session: PracticeSession) {
         self.session = session
         _editSessionViewModel = StateObject(
@@ -93,9 +96,12 @@ struct EditSessionView: View {
                             .padding(.top, 8)
                         }
 
-                        reflectOnSessionButton
-                            .padding(.horizontal)
-                            .padding(.top, 20)
+                        VStack(spacing: 10) {
+                            reflectionGuidanceCard
+                            reflectOnSessionButton
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 20)
 
                         EditSessionNotesEditor(
                             notes: Binding(
@@ -262,6 +268,7 @@ private extension EditSessionView {
 
     var reflectOnSessionButton: some View {
         Button {
+            hasSeenReflectionTip = true
             showPracticeAreaQuestionnaire = true
         } label: {
             HStack(spacing: 12) {
@@ -297,6 +304,25 @@ private extension EditSessionView {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    var reflectionGuidanceCard: some View {
+        if !hasSeenReflectionTip && !editSessionViewModel.practiceAreaDrafts.isEmpty {
+            FirstRunGuidanceCard(
+                title: "Reflect with sliders",
+                message: "After a session, rate each practice area once. These scores power your trends in Insights.",
+                systemImage: "slider.horizontal.3"
+            ) { dismissReflectionGuidance() }
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+
+    func dismissReflectionGuidance() {
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
+            hasSeenReflectionTip = true
+        }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     var reflectionStatusText: String {
