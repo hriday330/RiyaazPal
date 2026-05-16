@@ -31,6 +31,9 @@ struct InsightsView: View {
     @StateObject private var insightsViewModel = InsightsViewModel()
     @State private var mode: InsightsMode = .practice
     @State private var showProfile = false
+
+    @AppStorage(FirstRunGuidanceKeys.insightsTip)
+    private var hasSeenInsightsTip = false
     
     private var concertCount: Int {
         sessions.filter { $0.resolvedSessionType == .concert }.count
@@ -53,6 +56,7 @@ struct InsightsView: View {
             ScrollView {
                 LazyVStack(spacing: 16) {
                     header
+                    insightsGuidanceCard
                     insightsModeChips
                     insightSummaryCard
                     if mode == .practice {
@@ -112,6 +116,25 @@ private extension InsightsView {
                 .foregroundStyle(Color("SecondaryText"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    var insightsGuidanceCard: some View {
+        if !hasSeenInsightsTip {
+            FirstRunGuidanceCard(
+                title: "Track what is changing",
+                message: "Insights turns your reflection scores into trends, attention areas, and practice-to-concert comparisons.",
+                systemImage: "chart.line.uptrend.xyaxis"
+            ) { dismissInsightsGuidance() }
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+
+    func dismissInsightsGuidance() {
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
+            hasSeenInsightsTip = true
+        }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 }
 

@@ -51,6 +51,19 @@ struct ProfileView: View {
                     Text("Choose whether practice reminders are allowed.")
                 }
 
+                #if DEBUG
+                Section {
+                    Button {
+                        FirstRunGuidanceKeys.reset()
+                    } label: {
+                        Label("Reset First-Run Tips", systemImage: "arrow.counterclockwise")
+                    }
+                } header: {
+                    Text("Developer")
+                } footer: {
+                    Text("Replay timeline, reflection, and insights guidance without clearing app data.")
+                }
+                #endif
             }
             .listStyle(.insetGrouped)
         }
