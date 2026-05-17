@@ -10,6 +10,7 @@ import SwiftUI
 
 enum SetupStep: Int, CaseIterable {
     case welcome
+    case iCloudRestore
     case practiceAreas
     case notifications
     case done
@@ -26,8 +27,13 @@ enum SetupStep: Int, CaseIterable {
 
 struct SetupView: View {
 
+    let onICloudPreferenceChanged: (Bool) -> Void
+
     @State private var step: SetupStep = .welcome
+    @State private var didSkipPracticeAreasForRestore = false
     @AppStorage("hasCompletedSetup") private var hasCompletedSetup = false
+    @AppStorage(RiyaazPalModelContainer.iCloudSyncEnabledKey)
+    private var iCloudSyncEnabled = false
 
     var body: some View {
         NavigationStack {
@@ -53,6 +59,12 @@ struct SetupView: View {
             SetupWelcomeView {
                 advance()
             }
+
+        case .iCloudRestore:
+            SetupICloudRestoreView(
+                onRestore: restoreFromICloud,
+                onStartFresh: startFresh
+            )
 
         case .practiceAreas:
             PracticeAreasPanel()
@@ -110,13 +122,72 @@ struct SetupView: View {
     }
 
     private func goBack() {
+        if step == .notifications && didSkipPracticeAreasForRestore {
+            step = .iCloudRestore
+            return
+        }
+
         step = step.previous() ?? .welcome
+    }
+
+    private func restoreFromICloud() {
+        iCloudSyncEnabled = true
+        didSkipPracticeAreasForRestore = true
+        onICloudPreferenceChanged(true)
+        step = .notifications
+    }
+
+    private func startFresh() {
+        iCloudSyncEnabled = false
+        didSkipPracticeAreasForRestore = false
+        onICloudPreferenceChanged(false)
+        step = .practiceAreas
     }
 }
 
+private struct SetupICloudRestoreView: View {
+    let onRestore: () -> Void
+    let onStartFresh: () -> Void
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "icloud.and.arrow.down")
+                .font(.system(size: 52))
+                .foregroundStyle(Color("AccentColor"))
+
+            VStack(spacing: 8) {
+                Text("Restore from iCloud?")
+                    .font(.title)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.center)
+
+                Text("If you have used RiyaazPal before, restore your practice sessions, areas, and ratings from iCloud. If you are starting fresh, you can set things up now.")
+                    .font(.body)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .multilineTextAlignment(.center)
+            }
+
+            VStack(spacing: 12) {
+                Button("Restore from iCloud") {
+                    onRestore()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .font(.headline)
+
+                Button("Don't Restore") {
+                    onStartFresh()
+                }
+                .font(.subheadline)
+                .foregroundStyle(Color("SecondaryText"))
+            }
+        }
+        .padding()
+    }
+}
 
 #Preview("Setup Flow") {
     NavigationStack {
-        SetupView()
+        SetupView { _ in }
     }
 }
