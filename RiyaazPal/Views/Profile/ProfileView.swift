@@ -19,9 +19,24 @@ struct ProfileView: View {
 
     @Query(sort: \PracticeAreaEntity.order)
     private var practiceAreas: [PracticeAreaEntity]
+
+    @Query(sort: \PracticeSession.startTime, order: .reverse)
+    private var sessions: [PracticeSession]
+
+    @Query(sort: \PracticeAreaRatingEntity.createdAt)
+    private var practiceAreaRatings: [PracticeAreaRatingEntity]
     
     @Environment(\.dismiss)
     private var dismiss
+
+    @Environment(\.modelContext)
+    private var context
+
+    @AppStorage(RiyaazPalModelContainer.iCloudSyncEnabledKey)
+    private var iCloudSyncEnabled = true
+
+    @State private var showICloudRestartNote = false
+    @State private var showDeleteSessionsConfirmation = false
 
     var body: some View {
         ZStack {
@@ -52,6 +67,44 @@ struct ProfileView: View {
                     Text("Choose whether practice reminders are allowed.")
                 }
 
+                // MARK: iCloud Section
+                Section {
+                    Toggle(
+                        "iCloud sync",
+                        isOn: Binding(
+                            get: { iCloudSyncEnabled },
+                            set: updateICloudSyncPreference
+                        )
+                    )
+
+                    if showICloudRestartNote {
+                        Label(
+                            "Restart RiyaazPal to apply this change.",
+                            systemImage: "arrow.clockwise"
+                        )
+                        .font(.caption)
+                        .foregroundStyle(Color("SecondaryText"))
+                    }
+                } header: {
+                    Text("iCloud")
+                } footer: {
+                    Text("When enabled, practice sessions, practice areas, and ratings sync through your private iCloud account.")
+                }
+
+                // MARK: Data Section
+                Section {
+                    Button(role: .destructive) {
+                        showDeleteSessionsConfirmation = true
+                    } label: {
+                        Label("Delete All Sessions", systemImage: "trash")
+                    }
+                    .disabled(sessions.isEmpty)
+                } header: {
+                    Text("Data")
+                } footer: {
+                    Text("Deletes practice and concert sessions plus reflection scores. Practice areas and settings stay intact.")
+                }
+
                 #if DEBUG
                 Section {
                     Button {
@@ -78,6 +131,20 @@ struct ProfileView: View {
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog(
+            "Delete all sessions?",
+            isPresented: $showDeleteSessionsConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete All Sessions", role: .destructive) {
+                deleteAllSessions()
+            }
+
+            Button("Cancel", role: .cancel) {
+            }
+        } message: {
+            Text("This permanently deletes all practice and concert sessions and their reflection scores. If iCloud sync is on, the deletion may sync across your devices.")
+        }
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("Profile")
@@ -95,6 +162,23 @@ struct ProfileView: View {
                 .accessibilityLabel("Close")
             }
         }
+    }
+
+    private func updateICloudSyncPreference(_ isEnabled: Bool) {
+        iCloudSyncEnabled = isEnabled
+        showICloudRestartNote = true
+    }
+
+    private func deleteAllSessions() {
+        for rating in practiceAreaRatings {
+            context.delete(rating)
+        }
+
+        for session in sessions {
+            context.delete(session)
+        }
+
+        try? context.save()
     }
 }
 

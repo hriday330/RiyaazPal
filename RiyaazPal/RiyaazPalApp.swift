@@ -30,12 +30,7 @@ struct RiyaazPalApp: App {
                 SetupView()
             }
         }
-        .modelContainer(for: [
-            PracticeSession.self,
-            GoalEntity.self,
-            PracticeAreaEntity.self,
-            PracticeAreaRatingEntity.self
-        ])
+        .modelContainer(RiyaazPalModelContainer.shared)
     }
 }
 

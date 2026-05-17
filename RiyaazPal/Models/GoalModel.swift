@@ -11,17 +11,17 @@ import SwiftData
 @Model
 final class GoalEntity {
 
-    @Attribute(.unique) var id: UUID
+    var id: UUID = UUID()
 
-    var type: GoalTypeRaw
+    var type: GoalTypeRaw = GoalTypeRaw.raga
 
-    var categoryID: UUID
-    var tagName: String
+    var categoryID: UUID = UUID()
+    var tagName: String = ""
 
-    var intent: GoalIntentRaw?
+    var intent: GoalIntentRaw? = nil
 
-    var createdAt: Date
-    var isActive: Bool
+    var createdAt: Date = Date.now
+    var isActive: Bool = true
 
     init(
         id: UUID = UUID(),

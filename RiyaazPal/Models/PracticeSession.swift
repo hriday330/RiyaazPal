@@ -10,16 +10,16 @@ import SwiftData
 
 @Model
 final class PracticeSession {
-    let id: UUID
-    var startTime: Date
-    var duration: TimeInterval
-    var notes: String
-    var tags: [String]
-    var detailedNotes: String
-    var lastModified: Date
-    var sessionType: SessionType?
+    var id: UUID = UUID()
+    var startTime: Date = Date.now
+    var duration: TimeInterval = 0
+    var notes: String = ""
+    var tags: [String] = []
+    var detailedNotes: String = ""
+    var lastModified: Date = Date.now
+    var sessionType: SessionType? = nil
     // confidence level 1-10 (only used for concerts)
-    var confidence: Int?
+    var confidence: Int? = nil
 
     var resolvedSessionType: SessionType {
         sessionType ?? .practice
@@ -56,4 +56,3 @@ final class PracticeSession {
         
     }
 }
-
