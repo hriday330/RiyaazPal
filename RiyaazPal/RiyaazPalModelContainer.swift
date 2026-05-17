@@ -11,7 +11,6 @@ import SwiftData
 enum RiyaazPalModelContainer {
     static let cloudKitContainerIdentifier = "iCloud.com.hridaybuddhdev.RiyaazPal"
     static let iCloudSyncEnabledKey = "iCloudSyncEnabled"
-    static let hasCompletedSetupKey = "hasCompletedSetup"
 
     static let schema = Schema([
         PracticeSession.self,
@@ -21,12 +20,7 @@ enum RiyaazPalModelContainer {
     ])
 
     @MainActor
-    static func makeFromStoredPreference() -> ModelContainer {
-        make(isICloudSyncEnabled: storedICloudSyncPreference)
-    }
-
-    @MainActor
-    static func make(isICloudSyncEnabled: Bool) -> ModelContainer {
+    static let shared: ModelContainer = {
         guard isICloudSyncEnabled else {
             return localContainer()
         }
@@ -46,15 +40,10 @@ enum RiyaazPalModelContainer {
 
             return localContainer()
         }
-    }
+    }()
 
-    private static var storedICloudSyncPreference: Bool {
-        let defaults = UserDefaults.standard
-        if let storedPreference = defaults.object(forKey: iCloudSyncEnabledKey) as? Bool {
-            return storedPreference
-        }
-
-        return defaults.bool(forKey: hasCompletedSetupKey)
+    private static var isICloudSyncEnabled: Bool {
+        UserDefaults.standard.object(forKey: iCloudSyncEnabledKey) as? Bool ?? true
     }
 
     private static func localContainer() -> ModelContainer {
