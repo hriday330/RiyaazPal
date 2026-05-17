@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import SwiftData
 
 enum SetupStep: Int, CaseIterable {
     case welcome
@@ -28,7 +27,6 @@ enum SetupStep: Int, CaseIterable {
 
 struct SetupView: View {
 
-    let modelContainer: ModelContainer
     let onICloudPreferenceChanged: (Bool) -> Void
 
     @State private var step: SetupStep = .welcome
@@ -70,7 +68,6 @@ struct SetupView: View {
 
         case .practiceAreas:
             PracticeAreasPanel()
-                .modelContainer(modelContainer)
                 .safeAreaInset(edge: .bottom) {
                     setupStepControls(
                         primaryTitle: "Continue",
@@ -80,7 +77,6 @@ struct SetupView: View {
 
         case .notifications:
             PracticeNudgeSettingsView()
-                .modelContainer(modelContainer)
                 .safeAreaInset(edge: .bottom) {
                     setupStepControls(
                         primaryTitle: "Continue",
@@ -192,8 +188,6 @@ private struct SetupICloudRestoreView: View {
 
 #Preview("Setup Flow") {
     NavigationStack {
-        SetupView(
-            modelContainer: RiyaazPalModelContainer.make(isICloudSyncEnabled: false)
-        ) { _ in }
+        SetupView { _ in }
     }
 }
