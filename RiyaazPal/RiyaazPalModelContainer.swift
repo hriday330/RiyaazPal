@@ -12,8 +12,6 @@ enum RiyaazPalModelContainer {
     static let cloudKitContainerIdentifier = "iCloud.com.hridaybuddhdev.RiyaazPal"
     static let iCloudSyncEnabledKey = "iCloudSyncEnabled"
     static let hasCompletedSetupKey = "hasCompletedSetup"
-    private static let cloudStoreName = "RiyaazPalCloud"
-    private static let localStoreName = "RiyaazPalLocal"
 
     static let schema = Schema([
         PracticeSession.self,
@@ -34,7 +32,6 @@ enum RiyaazPalModelContainer {
         }
 
         let cloudConfiguration = ModelConfiguration(
-            cloudStoreName,
             schema: schema,
             cloudKitDatabase: .private(cloudKitContainerIdentifier)
         )
@@ -61,10 +58,7 @@ enum RiyaazPalModelContainer {
     }
 
     private static func localContainer() -> ModelContainer {
-        let localConfiguration = ModelConfiguration(
-            localStoreName,
-            schema: schema
-        )
+        let localConfiguration = ModelConfiguration(schema: schema)
         return try! ModelContainer(
             for: schema,
             configurations: [localConfiguration]
