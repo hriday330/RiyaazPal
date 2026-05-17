@@ -21,18 +21,21 @@ struct RiyaazPalApp: App {
     
     @StateObject private var tabRouter = TabRouter()
 
-    @State private var modelContainer = RiyaazPalModelContainer.makeFromStoredPreference()
+    @State private var modelContainer = RiyaazPalModelContainer.makeForLaunch()
     
     var body: some Scene {
         return WindowGroup{
             if hasCompletedSetup {
                 RootTabView()
                     .environmentObject(tabRouter)
+                    .modelContainer(modelContainer)
             } else {
-                SetupView(onICloudPreferenceChanged: updateModelContainer)
+                SetupView(
+                    modelContainer: modelContainer,
+                    onICloudPreferenceChanged: updateModelContainer
+                )
             }
         }
-        .modelContainer(modelContainer)
     }
 
     private func updateModelContainer(iCloudSyncEnabled: Bool) {

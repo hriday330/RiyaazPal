@@ -23,6 +23,15 @@ enum RiyaazPalModelContainer {
     ])
 
     @MainActor
+    static func makeForLaunch() -> ModelContainer {
+        guard UserDefaults.standard.bool(forKey: hasCompletedSetupKey) else {
+            return inMemoryContainer()
+        }
+
+        return makeFromStoredPreference()
+    }
+
+    @MainActor
     static func makeFromStoredPreference() -> ModelContainer {
         make(isICloudSyncEnabled: storedICloudSyncPreference)
     }
@@ -68,6 +77,17 @@ enum RiyaazPalModelContainer {
         return try! ModelContainer(
             for: schema,
             configurations: [localConfiguration]
+        )
+    }
+
+    private static func inMemoryContainer() -> ModelContainer {
+        let inMemoryConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: true
+        )
+        return try! ModelContainer(
+            for: schema,
+            configurations: [inMemoryConfiguration]
         )
     }
 }
