@@ -95,22 +95,59 @@ extension EditSessionViewModel {
         newTag = ""
     }
 
-    func commit() {
-        session.notes = draft.notes
-        session.tags = draft.tags
-        session.detailedNotes = draft.detailedNotes
-        session.duration = draft.duration
-        session.startTime = draft.startTime
-        session.lastModified = .now
-        session.sessionType = draft.sessionType
-        session.confidence = draft.confidence
+    func commit() -> Bool {
+        var didChange = false
+
+        if session.notes != draft.notes {
+            session.notes = draft.notes
+            didChange = true
+        }
+
+        if session.tags != draft.tags {
+            session.tags = draft.tags
+            didChange = true
+        }
+
+        if session.detailedNotes != draft.detailedNotes {
+            session.detailedNotes = draft.detailedNotes
+            didChange = true
+        }
+
+        if session.duration != draft.duration {
+            session.duration = draft.duration
+            didChange = true
+        }
+
+        if session.startTime != draft.startTime {
+            session.startTime = draft.startTime
+            didChange = true
+        }
+
+        if session.resolvedSessionType != draft.sessionType {
+            session.sessionType = draft.sessionType
+            didChange = true
+        }
+
+        if session.confidence != draft.confidence {
+            session.confidence = draft.confidence
+            didChange = true
+        }
+
+        if didChange {
+            session.lastModified = .now
+        }
+
+        return didChange
     }
 
     func commitPracticeAreaRatings(
         context: ModelContext,
         existingRatings: [PracticeAreaRatingEntity]
-    ) {
-        guard hasPracticeAreaReflection else { return }
+    ) -> Bool {
+        guard hasPracticeAreaReflection else { return false }
+
+        var didChange = false
+        let now = Date.now
 
         let ratingsByAreaID = Dictionary(
             existingRatings.map { ($0.practiceAreaID, $0) },
@@ -127,11 +164,33 @@ extension EditSessionViewModel {
                 ?? ratingsByAreaName[Self.normalizedAreaName(draft.areaName)]
 
             if let rating = existingRating {
-                rating.practiceAreaID = draft.practiceAreaID
-                rating.areaName = draft.areaName
-                rating.didPractice = draft.didPractice
-                rating.score = draft.didPractice ? draft.score.map(PracticeAreaRatingEntity.clampedScore) : nil
-                rating.lastModified = .now
+                let score = draft.didPractice ? draft.score.map(PracticeAreaRatingEntity.clampedScore) : nil
+                var didUpdateRating = false
+
+                if rating.practiceAreaID != draft.practiceAreaID {
+                    rating.practiceAreaID = draft.practiceAreaID
+                    didUpdateRating = true
+                }
+
+                if rating.areaName != draft.areaName {
+                    rating.areaName = draft.areaName
+                    didUpdateRating = true
+                }
+
+                if rating.didPractice != draft.didPractice {
+                    rating.didPractice = draft.didPractice
+                    didUpdateRating = true
+                }
+
+                if rating.score != score {
+                    rating.score = score
+                    didUpdateRating = true
+                }
+
+                if didUpdateRating {
+                    rating.lastModified = now
+                    didChange = true
+                }
             } else {
                 let rating = PracticeAreaRatingEntity(
                     sessionID: draft.sessionID,
@@ -141,8 +200,11 @@ extension EditSessionViewModel {
                     score: draft.score
                 )
                 context.insert(rating)
+                didChange = true
             }
         }
+
+        return didChange
     }
 
     private func normalizeTag(_ tag: String) -> String {

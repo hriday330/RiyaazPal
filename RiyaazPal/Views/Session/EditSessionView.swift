@@ -237,12 +237,14 @@ private extension EditSessionView {
     var saveAndCancelButtons: some View {
         VStack(spacing: 12) {
             Button {
-                editSessionViewModel.commit()
-                editSessionViewModel.commitPracticeAreaRatings(
+                let didUpdateSession = editSessionViewModel.commit()
+                let didUpdateRatings = editSessionViewModel.commitPracticeAreaRatings(
                     context: context,
                     existingRatings: sessionPracticeAreaRatings
                 )
-                try? context.save()
+                if didUpdateSession || didUpdateRatings {
+                    try? context.save()
+                }
                 dismiss()
             } label: {
                 Text("Save Changes")
