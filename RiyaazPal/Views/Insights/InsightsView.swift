@@ -34,19 +34,6 @@ struct InsightsView: View {
 
     @AppStorage(FirstRunGuidanceKeys.insightsTip)
     private var hasSeenInsightsTip = false
-    
-    private var concertCount: Int {
-        sessions.filter { $0.resolvedSessionType == .concert }.count
-    }
-
-    private var practiceAreaMetrics: [PracticeAreaMetric] {
-        PracticeAreaMetricsCalculator.compute(
-            practiceAreas: practiceAreas,
-            ratings: practiceAreaRatings,
-            sessions: sessions,
-            now: insightsViewModel.currentWindow.end
-        )
-    }
 
     var body: some View {
         ZStack {
@@ -90,11 +77,20 @@ struct InsightsView: View {
         .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
             showProfile = false
         }
+        .task(id: metricsRefreshID) {
+            insightsViewModel.loadMetrics(
+                practiceAreas: practiceAreas,
+                ratings: practiceAreaRatings,
+                sessions: sessions,
+                window: insightsViewModel.currentWindow,
+                requestID: metricsRefreshID
+            )
+        }
         .task(id: summaryRefreshID) {
             await insightsViewModel.loadMetricSummary(
-                metrics: practiceAreaMetrics,
-                activePracticeAreaCount: practiceAreas.filter(\.isActive).count,
-                concertCount: concertCount,
+                metrics: insightsViewModel.practiceAreaMetrics,
+                activePracticeAreaCount: insightsViewModel.activePracticeAreaCount,
+                concertCount: insightsViewModel.concertCount,
                 window: insightsViewModel.currentWindow,
                 requestID: summaryRefreshID
             )
@@ -159,8 +155,8 @@ private extension InsightsView {
 
     var practiceInsightsContent: some View {
         PracticeAreaInsightsContent(
-            metrics: practiceAreaMetrics,
-            activePracticeAreaCount: practiceAreas.filter(\.isActive).count,
+            metrics: insightsViewModel.practiceAreaMetrics,
+            activePracticeAreaCount: insightsViewModel.activePracticeAreaCount,
             onManagePracticeAreas: {
                 showProfile = true
             }
@@ -169,9 +165,9 @@ private extension InsightsView {
     
     var concertInsightsContent: some View {
         ConcertPracticeAreaInsightsContent(
-            metrics: practiceAreaMetrics,
-            activePracticeAreaCount: practiceAreas.filter(\.isActive).count,
-            concertCount: concertCount,
+            metrics: insightsViewModel.practiceAreaMetrics,
+            activePracticeAreaCount: insightsViewModel.activePracticeAreaCount,
+            concertCount: insightsViewModel.concertCount,
             onManagePracticeAreas: {
                 showProfile = true
             }
@@ -227,8 +223,30 @@ private extension InsightsView {
         return formatter.string(from: insightsViewModel.currentWindow.start, to: insightsViewModel.currentWindow.end)
     }
 
+    private var metricsRefreshID: String {
+        let latestSessionModified = sessions.map(\.lastModified).max()?.timeIntervalSince1970 ?? 0
+        let latestRatingModified = practiceAreaRatings.map(\.lastModified).max()?.timeIntervalSince1970 ?? 0
+        let practiceAreaValues = practiceAreas.map { area in
+            [
+                area.id.uuidString,
+                area.name,
+                "\(area.isActive)",
+                "\(area.order)"
+            ].joined(separator: ":")
+        }.joined(separator: "|")
+
+        return [
+            "\(insightsViewModel.currentWindow.end.timeIntervalSince1970)",
+            "\(sessions.count)",
+            "\(latestSessionModified)",
+            "\(practiceAreaRatings.count)",
+            "\(latestRatingModified)",
+            practiceAreaValues
+        ].joined(separator: "#")
+    }
+
     private var summaryRefreshID: String {
-        let metricValues = practiceAreaMetrics.map { metric in
+        let metricValues = insightsViewModel.practiceAreaMetrics.map { metric in
             [
                 metric.id,
                 metric.areaName,
@@ -256,8 +274,8 @@ private extension InsightsView {
         return [
             "\(insightsViewModel.currentWindow.start.timeIntervalSince1970)",
             "\(insightsViewModel.currentWindow.end.timeIntervalSince1970)",
-            "\(practiceAreas.filter(\.isActive).count)",
-            "\(concertCount)",
+            "\(insightsViewModel.activePracticeAreaCount)",
+            "\(insightsViewModel.concertCount)",
             metricValues
         ].joined(separator: "#")
     }

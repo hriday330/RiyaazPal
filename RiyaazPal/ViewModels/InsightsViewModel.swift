@@ -12,10 +12,82 @@ import Combine
 final class InsightsViewModel: ObservableObject {
     
     @Published var currentWindow: DateRange = InsightWindowHelper.dateRange()
+    @Published private(set) var practiceAreaMetrics: [PracticeAreaMetric] = []
+    @Published private(set) var activePracticeAreaCount = 0
+    @Published private(set) var concertCount = 0
+    @Published private(set) var isLoadingMetrics = false
     @Published private(set) var summaryText: String?
 
+    private var loadedMetricsRequestID: String?
+    private var metricsTask: Task<Void, Never>?
     private var loadedSummaryRequestID: String?
     private var loadingSummaryRequestID: String?
+
+    deinit {
+        metricsTask?.cancel()
+    }
+
+    func loadMetrics(
+        practiceAreas: [PracticeAreaEntity],
+        ratings: [PracticeAreaRatingEntity],
+        sessions: [PracticeSession],
+        window: DateRange,
+        requestID: String
+    ) {
+        guard loadedMetricsRequestID != requestID else { return }
+
+        metricsTask?.cancel()
+        isLoadingMetrics = true
+
+        let practiceAreaInputs = practiceAreas.map {
+            PracticeAreaMetricAreaInput(
+                id: $0.id,
+                name: $0.name,
+                isActive: $0.isActive,
+                order: $0.order
+            )
+        }
+        let ratingInputs = ratings.map {
+            PracticeAreaMetricRatingInput(
+                sessionID: $0.sessionID,
+                practiceAreaID: $0.practiceAreaID,
+                areaName: $0.areaName,
+                didPractice: $0.didPractice,
+                score: $0.score,
+                createdAt: $0.createdAt,
+                lastModified: $0.lastModified
+            )
+        }
+        let sessionInputs = sessions.map {
+            PracticeAreaMetricSessionInput(
+                id: $0.id,
+                startTime: $0.startTime,
+                sessionType: $0.resolvedSessionType,
+                lastModified: $0.lastModified
+            )
+        }
+        let activeAreaCount = practiceAreaInputs.filter(\.isActive).count
+        let concertSessionCount = sessionInputs.filter { $0.sessionType == .concert }.count
+
+        metricsTask = Task.detached(priority: .userInitiated) {
+            let metrics = PracticeAreaMetricsCalculator.compute(
+                practiceAreas: practiceAreaInputs,
+                ratings: ratingInputs,
+                sessions: sessionInputs,
+                now: window.end
+            )
+
+            guard !Task.isCancelled else { return }
+
+            await MainActor.run {
+                self.practiceAreaMetrics = metrics
+                self.activePracticeAreaCount = activeAreaCount
+                self.concertCount = concertSessionCount
+                self.loadedMetricsRequestID = requestID
+                self.isLoadingMetrics = false
+            }
+        }
+    }
 
     func loadMetricSummary(
         metrics: [PracticeAreaMetric],

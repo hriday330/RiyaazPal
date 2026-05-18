@@ -89,6 +89,30 @@ struct PracticeAreaPerformanceTransfer {
     let status: PracticeAreaPerformanceTransferStatus
 }
 
+struct PracticeAreaMetricAreaInput: Sendable {
+    let id: UUID
+    let name: String
+    let isActive: Bool
+    let order: Int
+}
+
+struct PracticeAreaMetricRatingInput: Sendable {
+    let sessionID: UUID
+    let practiceAreaID: UUID
+    let areaName: String
+    let didPractice: Bool
+    let score: Int?
+    let createdAt: Date
+    let lastModified: Date
+}
+
+struct PracticeAreaMetricSessionInput: Sendable {
+    let id: UUID
+    let startTime: Date
+    let sessionType: SessionType
+    let lastModified: Date
+}
+
 enum PracticeAreaTrendDirection: Equatable {
     case improving
     case declining
@@ -120,6 +144,46 @@ enum PracticeAreaMetricsCalculator {
         now: Date = Date(),
         calendar: Calendar = .current
     ) -> [PracticeAreaMetric] {
+        compute(
+            practiceAreas: practiceAreas.map {
+                PracticeAreaMetricAreaInput(
+                    id: $0.id,
+                    name: $0.name,
+                    isActive: $0.isActive,
+                    order: $0.order
+                )
+            },
+            ratings: ratings.map {
+                PracticeAreaMetricRatingInput(
+                    sessionID: $0.sessionID,
+                    practiceAreaID: $0.practiceAreaID,
+                    areaName: $0.areaName,
+                    didPractice: $0.didPractice,
+                    score: $0.score,
+                    createdAt: $0.createdAt,
+                    lastModified: $0.lastModified
+                )
+            },
+            sessions: sessions.map {
+                PracticeAreaMetricSessionInput(
+                    id: $0.id,
+                    startTime: $0.startTime,
+                    sessionType: $0.resolvedSessionType,
+                    lastModified: $0.lastModified
+                )
+            },
+            now: now,
+            calendar: calendar
+        )
+    }
+
+    static func compute(
+        practiceAreas: [PracticeAreaMetricAreaInput],
+        ratings: [PracticeAreaMetricRatingInput],
+        sessions: [PracticeAreaMetricSessionInput],
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> [PracticeAreaMetric] {
 
         let sessionByID = Dictionary(
             sessions.map { ($0.id, $0) },
@@ -138,7 +202,7 @@ enum PracticeAreaMetricsCalculator {
                 areaName: rating.areaName,
                 normalizedAreaName: normalizeAreaName(rating.areaName),
                 sessionID: session.id,
-                sessionType: session.resolvedSessionType,
+                sessionType: session.sessionType,
                 date: session.startTime,
                 score: PracticeAreaRatingEntity.clampedScore(score),
                 lastModified: rating.lastModified
@@ -212,7 +276,7 @@ private extension PracticeAreaMetricsCalculator {
 
     static func buildMetric(
         normalizedAreaName: String,
-        activeArea: PracticeAreaEntity?,
+        activeArea: PracticeAreaMetricAreaInput?,
         entries: [ScoredPracticeAreaEntry],
         now: Date,
         calendar: Calendar

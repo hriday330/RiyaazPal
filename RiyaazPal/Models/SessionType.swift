@@ -7,8 +7,7 @@
 
 import Foundation
 
-enum SessionType: String, Codable, CaseIterable {
+enum SessionType: String, Codable, CaseIterable, Sendable {
     case practice
     case concert
 }
-
