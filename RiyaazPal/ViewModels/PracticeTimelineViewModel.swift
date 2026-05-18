@@ -17,8 +17,7 @@ final class PracticeTimelineViewModel: ObservableObject {
     @Published private(set) var isLoadingOlderPage = false
     @Published private(set) var hasMoreOlderSessions = true
 
-    private let olderPageSize = 80
-    private let initialLoadDays = 30
+    private let pageSize = 80
 
     func loadInitialPage(context: ModelContext) {
         guard sessions.isEmpty, !isLoadingInitialPage else { return }
@@ -27,8 +26,8 @@ final class PracticeTimelineViewModel: ObservableObject {
         defer { isLoadingInitialPage = false }
 
         do {
-            sessions = try fetchInitialWindow(context: context)
-            hasMoreOlderSessions = !sessions.isEmpty
+            sessions = try fetchPage(context: context)
+            hasMoreOlderSessions = sessions.count == pageSize
         } catch {
             sessions = []
             hasMoreOlderSessions = false
@@ -40,8 +39,8 @@ final class PracticeTimelineViewModel: ObservableObject {
         defer { isLoadingInitialPage = false }
 
         do {
-            sessions = try fetchInitialWindow(context: context)
-            hasMoreOlderSessions = !sessions.isEmpty
+            sessions = try fetchPage(context: context)
+            hasMoreOlderSessions = sessions.count == pageSize
         } catch {
             hasMoreOlderSessions = false
         }
@@ -69,7 +68,7 @@ final class PracticeTimelineViewModel: ObservableObject {
                 context: context
             )
             appendUniqueSessions(olderSessions)
-            hasMoreOlderSessions = olderSessions.count == olderPageSize
+            hasMoreOlderSessions = olderSessions.count == pageSize
         } catch {
             hasMoreOlderSessions = false
         }
@@ -108,27 +107,6 @@ final class PracticeTimelineViewModel: ObservableObject {
                 .map { (date: $0.key, sessions: $0.value) }
         }
 
-    private func fetchInitialWindow(
-        context: ModelContext,
-        now: Date = Date(),
-        calendar: Calendar = .current
-    ) throws -> [PracticeSession] {
-        let startDate = calendar.date(
-            byAdding: .day,
-            value: -initialLoadDays,
-            to: now
-        ) ?? now
-
-        let descriptor = FetchDescriptor<PracticeSession>(
-            predicate: #Predicate { session in
-                session.startTime >= startDate
-            },
-            sortBy: [SortDescriptor(\.startTime, order: .reverse)]
-        )
-
-        return try context.fetch(descriptor)
-    }
-
     private func fetchPage(
         olderThan date: Date? = nil,
         context: ModelContext
@@ -148,7 +126,7 @@ final class PracticeTimelineViewModel: ObservableObject {
             )
         }
 
-        descriptor.fetchLimit = olderPageSize
+        descriptor.fetchLimit = pageSize
         return try context.fetch(descriptor)
     }
 
