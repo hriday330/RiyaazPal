@@ -132,7 +132,7 @@ struct PracticeTimelineView: View {
                 timelineViewModel.loadInitialPage(context: context)
             }
             .task {
-                await refreshTimelineDuringICloudSync()
+                try? await Task.sleep(for: .seconds(20))
                 showICloudSyncMessage = false
             }
             .task(id: recommendationRefreshID) {
@@ -558,17 +558,6 @@ private extension PracticeTimelineView {
     func dismissPresentedTimelinePanels() {
         selectedSession = nil
         showProfile = false
-    }
-
-    func refreshTimelineDuringICloudSync() async {
-        guard iCloudSyncEnabled else { return }
-
-        let refreshCount = 10
-        for _ in 0..<refreshCount {
-            try? await Task.sleep(for: .seconds(2))
-            guard !Task.isCancelled else { return }
-            timelineViewModel.refreshInitialWindow(context: context)
-        }
     }
 
     func shiftMonth(by delta: Int, proxy: ScrollViewProxy) {
