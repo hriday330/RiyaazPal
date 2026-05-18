@@ -19,7 +19,6 @@ final class PracticeTimelineViewModel: ObservableObject {
 
     private let olderPageSize = 80
     private let initialLoadDays = 7
-    private let newestFallbackLimit = 10
 
     func loadInitialPage(context: ModelContext) {
         guard sessions.isEmpty, !isLoadingInitialPage else { return }
@@ -28,7 +27,7 @@ final class PracticeTimelineViewModel: ObservableObject {
         defer { isLoadingInitialPage = false }
 
         do {
-            sessions = try fetchInitialSessions(context: context)
+            sessions = try fetchInitialWindow(context: context)
             hasMoreOlderSessions = !sessions.isEmpty
         } catch {
             sessions = []
@@ -41,18 +40,10 @@ final class PracticeTimelineViewModel: ObservableObject {
         defer { isLoadingInitialPage = false }
 
         do {
-            sessions = try fetchInitialSessions(context: context)
+            sessions = try fetchInitialWindow(context: context)
             hasMoreOlderSessions = !sessions.isEmpty
         } catch {
             hasMoreOlderSessions = false
-        }
-    }
-
-    func refreshInitialSessions(context: ModelContext) {
-        do {
-            sessions = try fetchInitialSessions(context: context)
-            hasMoreOlderSessions = !sessions.isEmpty
-        } catch {
         }
     }
 
@@ -138,22 +129,6 @@ final class PracticeTimelineViewModel: ObservableObject {
         return try context.fetch(descriptor)
     }
 
-    private func fetchInitialSessions(context: ModelContext) throws -> [PracticeSession] {
-        let windowSessions = try fetchInitialWindow(context: context)
-        let newestSessions = try fetchNewestSessions(context: context)
-
-        return mergedAndSorted(windowSessions + newestSessions)
-    }
-
-    private func fetchNewestSessions(context: ModelContext) throws -> [PracticeSession] {
-        var descriptor = FetchDescriptor<PracticeSession>(
-            sortBy: [SortDescriptor(\.startTime, order: .reverse)]
-        )
-        descriptor.fetchLimit = newestFallbackLimit
-
-        return try context.fetch(descriptor)
-    }
-
     private func fetchPage(
         olderThan date: Date? = nil,
         context: ModelContext
@@ -181,14 +156,5 @@ final class PracticeTimelineViewModel: ObservableObject {
         let existingIDs = Set(sessions.map(\.id))
         sessions.append(contentsOf: olderSessions.filter { !existingIDs.contains($0.id) })
         sessions.sort { $0.startTime > $1.startTime }
-    }
-
-    private func mergedAndSorted(_ sessions: [PracticeSession]) -> [PracticeSession] {
-        Dictionary(
-            sessions.map { ($0.id, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-        .values
-        .sorted { $0.startTime > $1.startTime }
     }
 }
