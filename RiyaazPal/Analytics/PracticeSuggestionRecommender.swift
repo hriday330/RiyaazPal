@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PracticeSuggestionRecommendation: Equatable {
+struct PracticeSuggestionRecommendation: Equatable, Sendable {
     let areaID: UUID?
     let areaName: String
     let priorityScore: Double
@@ -15,7 +15,7 @@ struct PracticeSuggestionRecommendation: Equatable {
     let supportingReasons: [PracticeSuggestionReason]
 }
 
-enum PracticeSuggestionReason: Equatable {
+enum PracticeSuggestionReason: Equatable, Sendable {
     case noRatingsYet
     case neglected(days: Int?)
     case dueForPractice(days: Int)

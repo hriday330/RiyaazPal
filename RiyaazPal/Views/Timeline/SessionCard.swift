@@ -26,7 +26,6 @@ struct SessionCard: View {
                 .fill(Color(.secondarySystemGroupedBackground))
         )
         .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 }
 
