@@ -133,7 +133,7 @@ struct PracticeTimelineView: View {
                 timelineViewModel.loadInitialPage(context: context)
             }
             .task {
-                try? await Task.sleep(for: .seconds(20))
+                await refetchTimelineDuringICloudSync()
                 showICloudSyncMessage = false
             }
             .task(id: recommendationRefreshID) {
@@ -562,6 +562,16 @@ private extension PracticeTimelineView {
     func dismissPresentedTimelinePanels() {
         selectedSession = nil
         showProfile = false
+    }
+
+    func refetchTimelineDuringICloudSync() async {
+        guard iCloudSyncEnabled else { return }
+
+        for _ in 0..<6 {
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            timelineViewModel.refreshInitialSessions(context: context)
+        }
     }
 
     func anchorInitialTimelineIfNeeded(proxy: ScrollViewProxy) {
