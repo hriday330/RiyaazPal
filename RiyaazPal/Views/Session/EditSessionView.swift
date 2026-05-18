@@ -26,6 +26,7 @@ struct EditSessionView: View {
     @State private var showPracticeAreaQuestionnaire = false
     @State private var sessionPracticeAreaRatings: [PracticeAreaRatingEntity] = []
     @State private var previousReflectionRatings: [PracticeAreaRatingEntity] = []
+    @State private var sessionTitle: String = ""
 
     @AppStorage(FirstRunGuidanceKeys.reflectionTip)
     private var hasSeenReflectionTip = false
@@ -49,10 +50,7 @@ struct EditSessionView: View {
                         VStack(spacing: 8) {
                             TextField(
                                 "Practice Session",
-                                text: Binding(
-                                    get: { editSessionViewModel.draft.notes },
-                                    set: { editSessionViewModel.updateNotes($0) }
-                                )
+                                text: $sessionTitle
                             )
                             .font(.title2)
                             .fontWeight(.semibold)
@@ -60,6 +58,9 @@ struct EditSessionView: View {
                             .multilineTextAlignment(.center)
                             .lineLimit(1)
                             .submitLabel(.done)
+                            .onSubmit {
+                                editSessionViewModel.updateNotes(sessionTitle)
+                            }
 
                             Divider()
                         }
@@ -122,6 +123,9 @@ struct EditSessionView: View {
             }
             .onAppear {
                 practiceAreasViewModel.attachContext(context)
+                if sessionTitle.isEmpty {
+                    sessionTitle = editSessionViewModel.draft.notes
+                }
                 editSessionViewModel.configureTagSource(sessions: sessions)
                 let currentRatings = fetchSessionPracticeAreaRatings()
                 sessionPracticeAreaRatings = currentRatings
@@ -256,6 +260,7 @@ private extension EditSessionView {
     var saveAndCancelButtons: some View {
         VStack(spacing: 12) {
             Button {
+                editSessionViewModel.updateNotes(sessionTitle)
                 let saveRequest = editSessionViewModel.makeSaveRequest()
                 Task {
                     do {
