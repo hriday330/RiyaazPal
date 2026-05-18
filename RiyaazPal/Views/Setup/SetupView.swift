@@ -10,9 +10,9 @@ import SwiftUI
 
 enum SetupStep: Int, CaseIterable {
     case welcome
-    case iCloudSync
     case practiceAreas
     case notifications
+    case iCloudSync
     case done
 
     func next() -> SetupStep? {
@@ -159,7 +159,7 @@ private struct SetupICloudSyncView: View {
         .task {
             guard !canContinue else { return }
 
-            try? await Task.sleep(for: .seconds(4))
+            try? await Task.sleep(for: .seconds(12))
             canContinue = true
         }
     }
