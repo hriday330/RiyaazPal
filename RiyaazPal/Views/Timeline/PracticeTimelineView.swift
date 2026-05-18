@@ -40,9 +40,17 @@ struct PracticeTimelineView: View {
     private var hasSeenPostLogInsightsTip = false
     
     @State private var isScrollingProgrammatically = false
+    @State private var showICloudSyncMessage = true
+
+    @AppStorage(RiyaazPalModelContainer.iCloudSyncEnabledKey)
+    private var iCloudSyncEnabled = true
 
     private var sessions: [PracticeSession] {
         timelineViewModel.sessions
+    }
+
+    private var shouldShowICloudSyncMessage: Bool {
+        iCloudSyncEnabled && showICloudSyncMessage
     }
 
     private var isShowingTimelineGuidance: Bool {
@@ -55,9 +63,13 @@ struct PracticeTimelineView: View {
                 Color("AppBackground")
                     .ignoresSafeArea()
                 if timelineViewModel.isLoadingInitialPage && sessions.isEmpty {
-                    ProgressView()
+                    VStack(spacing: 16) {
+                        iCloudSyncStatusBanner
+                        ProgressView()
+                    }
                 } else if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     VStack(spacing: 16) {
+                        iCloudSyncStatusBanner
                         timelineStartGuidanceCard
 
                         PracticeTimelineEmptyState(isSessionActive: sessionViewModel.isSessionActive, onStartSession: handleSessionAction) {
@@ -118,6 +130,10 @@ struct PracticeTimelineView: View {
             }
             .task {
                 timelineViewModel.loadInitialPage(context: context)
+            }
+            .task {
+                try? await Task.sleep(for: .seconds(20))
+                showICloudSyncMessage = false
             }
             .task(id: recommendationRefreshID) {
                 await loadPracticeRecommendation()
@@ -335,6 +351,11 @@ private extension PracticeTimelineView {
                 )
                 sessionTypeFilterChips.padding(.top, 8)
 
+                iCloudSyncStatusBanner
+                    .padding(.horizontal)
+                    .padding(.top, 10)
+                    .padding(.bottom, 6)
+
                 timelineStartGuidanceCard
                     .padding(.horizontal)
                     .padding(.top, 10)
@@ -352,6 +373,14 @@ private extension PracticeTimelineView {
                 
 
             }
+        }
+    }
+
+    @ViewBuilder
+    var iCloudSyncStatusBanner: some View {
+        if shouldShowICloudSyncMessage {
+            ICloudSyncStatusBanner()
+                .transition(.opacity)
         }
     }
 
@@ -603,6 +632,33 @@ extension View {
         } else {
             self
         }
+    }
+}
+
+struct ICloudSyncStatusBanner: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            ProgressView()
+                .controlSize(.small)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Syncing from iCloud")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                Text("Your recent sessions may appear over the next few moments.")
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
+
+            Spacer()
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color("InsightCardBackground"))
+        )
     }
 }
 
