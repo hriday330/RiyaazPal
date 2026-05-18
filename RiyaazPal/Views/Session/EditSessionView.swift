@@ -23,10 +23,10 @@ struct EditSessionView: View {
     @Query(sort: \PracticeAreaEntity.order)
     private var practiceAreas: [PracticeAreaEntity]
 
-    @Query(sort: \PracticeAreaRatingEntity.createdAt)
-    private var practiceAreaRatings: [PracticeAreaRatingEntity]
-
     @State private var showPracticeAreaQuestionnaire = false
+    @State private var sessionPracticeAreaRatings: [PracticeAreaRatingEntity] = []
+    @State private var previousReflectionRatings: [PracticeAreaRatingEntity] = []
+    @State private var sessionTitle: String = ""
 
     @AppStorage(FirstRunGuidanceKeys.reflectionTip)
     private var hasSeenReflectionTip = false
@@ -50,10 +50,7 @@ struct EditSessionView: View {
                         VStack(spacing: 8) {
                             TextField(
                                 "Practice Session",
-                                text: Binding(
-                                    get: { editSessionViewModel.draft.notes },
-                                    set: { editSessionViewModel.updateNotes($0) }
-                                )
+                                text: $sessionTitle
                             )
                             .font(.title2)
                             .fontWeight(.semibold)
@@ -61,6 +58,9 @@ struct EditSessionView: View {
                             .multilineTextAlignment(.center)
                             .lineLimit(1)
                             .submitLabel(.done)
+                            .onSubmit {
+                                editSessionViewModel.updateNotes(sessionTitle)
+                            }
 
                             Divider()
                         }
@@ -121,12 +121,19 @@ struct EditSessionView: View {
                             .shadow(.drop(radius: 1, y: -1))
                     )
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
             .onAppear {
                 practiceAreasViewModel.attachContext(context)
+                if sessionTitle.isEmpty {
+                    sessionTitle = editSessionViewModel.draft.notes
+                }
                 editSessionViewModel.configureTagSource(sessions: sessions)
+                let currentRatings = fetchSessionPracticeAreaRatings()
+                sessionPracticeAreaRatings = currentRatings
+                previousReflectionRatings = fetchPreviousReflectionRatings()
                 editSessionViewModel.configurePracticeAreaQuestionnaire(
                     practiceAreas: practiceAreas,
-                    existingRatings: sessionPracticeAreaRatings
+                    existingRatings: currentRatings
                 )
             }
             .background(Color("AppBackground"))
@@ -166,11 +173,19 @@ struct EditSessionView: View {
 }
 
 private extension EditSessionView {
-    var sessionPracticeAreaRatings: [PracticeAreaRatingEntity] {
-        practiceAreaRatings.filter { $0.sessionID == session.id }
+    func fetchSessionPracticeAreaRatings() -> [PracticeAreaRatingEntity] {
+        let sessionID = session.id
+        let descriptor = FetchDescriptor<PracticeAreaRatingEntity>(
+            predicate: #Predicate { rating in
+                rating.sessionID == sessionID
+            },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+
+        return (try? context.fetch(descriptor)) ?? []
     }
 
-    var previousReflectionRatings: [PracticeAreaRatingEntity] {
+    func fetchPreviousReflectionRatings() -> [PracticeAreaRatingEntity] {
         let candidateSessions = sessions
             .filter {
                 $0.id != session.id &&
@@ -180,7 +195,15 @@ private extension EditSessionView {
             .sorted { $0.startTime > $1.startTime }
 
         for candidateSession in candidateSessions {
-            let ratings = practiceAreaRatings.filter { $0.sessionID == candidateSession.id }
+            let candidateSessionID = candidateSession.id
+            let descriptor = FetchDescriptor<PracticeAreaRatingEntity>(
+                predicate: #Predicate { rating in
+                    rating.sessionID == candidateSessionID
+                },
+                sortBy: [SortDescriptor(\.createdAt)]
+            )
+            let ratings = (try? context.fetch(descriptor)) ?? []
+
             if !ratings.isEmpty {
                 return ratings
             }
@@ -202,6 +225,7 @@ private extension EditSessionView {
     }
 
     func repeatPreviousReflection() {
+        previousReflectionRatings = fetchPreviousReflectionRatings()
         editSessionViewModel.repeatPracticeAreaReflection(
             from: previousReflectionRatings
         )
@@ -237,12 +261,18 @@ private extension EditSessionView {
     var saveAndCancelButtons: some View {
         VStack(spacing: 12) {
             Button {
-                editSessionViewModel.commit()
-                editSessionViewModel.commitPracticeAreaRatings(
-                    context: context,
-                    existingRatings: sessionPracticeAreaRatings
-                )
-                try? context.save()
+                editSessionViewModel.updateNotes(sessionTitle)
+                let saveRequest = editSessionViewModel.makeSaveRequest()
+                Task {
+                    do {
+                        try await EditSessionBackgroundSaver.save(
+                            saveRequest,
+                            modelContainer: RiyaazPalModelContainer.shared
+                        )
+                    } catch {
+                        assertionFailure("Failed to save session: \(error)")
+                    }
+                }
                 dismiss()
             } label: {
                 Text("Save Changes")
@@ -269,6 +299,7 @@ private extension EditSessionView {
     var reflectOnSessionButton: some View {
         Button {
             hasSeenReflectionTip = true
+            previousReflectionRatings = fetchPreviousReflectionRatings()
             showPracticeAreaQuestionnaire = true
         } label: {
             HStack(spacing: 12) {

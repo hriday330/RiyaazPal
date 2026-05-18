@@ -19,12 +19,6 @@ struct ProfileView: View {
 
     @Query(sort: \PracticeAreaEntity.order)
     private var practiceAreas: [PracticeAreaEntity]
-
-    @Query(sort: \PracticeSession.startTime, order: .reverse)
-    private var sessions: [PracticeSession]
-
-    @Query(sort: \PracticeAreaRatingEntity.createdAt)
-    private var practiceAreaRatings: [PracticeAreaRatingEntity]
     
     @Environment(\.dismiss)
     private var dismiss
@@ -37,6 +31,11 @@ struct ProfileView: View {
 
     @State private var showICloudRestartNote = false
     @State private var showDeleteSessionsConfirmation = false
+    #if DEBUG
+    @State private var seedAlertTitle = ""
+    @State private var seedAlertMessage = ""
+    @State private var showSeedAlert = false
+    #endif
 
     var body: some View {
         ZStack {
@@ -98,7 +97,6 @@ struct ProfileView: View {
                     } label: {
                         Label("Delete All Sessions", systemImage: "trash")
                     }
-                    .disabled(sessions.isEmpty)
                 } header: {
                     Text("Data")
                 } footer: {
@@ -112,10 +110,18 @@ struct ProfileView: View {
                     } label: {
                         Label("Reset First-Run Tips", systemImage: "arrow.counterclockwise")
                     }
+
+                    ForEach(TestDataSeedScenario.allCases) { scenario in
+                        Button {
+                            seedTestData(scenario)
+                        } label: {
+                            Label("Seed \(scenario.title)", systemImage: "square.stack.3d.up")
+                        }
+                    }
                 } header: {
                     Text("Developer")
                 } footer: {
-                    Text("Replay timeline, reflection, and insights guidance without clearing app data.")
+                    Text("Replay guidance or seed local-only test data. Seeding is blocked unless iCloud sync is off and the app has been restarted.")
                 }
                 #endif
             }
@@ -145,6 +151,14 @@ struct ProfileView: View {
         } message: {
             Text("This permanently deletes all practice and concert sessions and their reflection scores. If iCloud sync is on, the deletion may sync across your devices.")
         }
+        #if DEBUG
+        .alert(seedAlertTitle, isPresented: $showSeedAlert) {
+            Button("OK", role: .cancel) {
+            }
+        } message: {
+            Text(seedAlertMessage)
+        }
+        #endif
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("Profile")
@@ -170,16 +184,38 @@ struct ProfileView: View {
     }
 
     private func deleteAllSessions() {
-        for rating in practiceAreaRatings {
-            context.delete(rating)
-        }
+        do {
+            let ratings = try context.fetch(FetchDescriptor<PracticeAreaRatingEntity>())
+            let sessions = try context.fetch(FetchDescriptor<PracticeSession>())
 
-        for session in sessions {
-            context.delete(session)
-        }
+            for rating in ratings {
+                context.delete(rating)
+            }
 
-        try? context.save()
+            for session in sessions {
+                context.delete(session)
+            }
+
+            try context.save()
+        } catch {
+            assertionFailure("Failed to delete sessions: \(error)")
+        }
     }
+
+    #if DEBUG
+    private func seedTestData(_ scenario: TestDataSeedScenario) {
+        do {
+            try TestDataSeeder.seed(scenario, context: context)
+            seedAlertTitle = "Seeded \(scenario.title)"
+            seedAlertMessage = "Local test data is ready. iCloud sync stayed off."
+        } catch {
+            seedAlertTitle = "Could Not Seed Data"
+            seedAlertMessage = error.localizedDescription
+        }
+
+        showSeedAlert = true
+    }
+    #endif
 }
 
 private struct PracticeAreasRow: View {

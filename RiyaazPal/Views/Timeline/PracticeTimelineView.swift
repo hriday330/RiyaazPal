@@ -193,8 +193,16 @@ private extension PracticeTimelineView {
     }
     
     var timelineList: some View {
+        timelineList(
+            groups: timelineViewModel.groupedByDay(
+                from: timelineFilterViewModel.filteredSessions(from: sessions)
+            )
+        )
+    }
+
+    func timelineList(groups: [(date: Date, sessions: [PracticeSession])]) -> some View {
         List {
-            ForEach(timelineViewModel.groupedByDay(from: timelineFilterViewModel.filteredSessions(from: sessions)), id: \.date) { group in
+            ForEach(groups, id: \.date) { group in
                 Section {
                     ForEach(group.sessions) { session in
                         SessionCard(session: session)
@@ -289,6 +297,9 @@ private extension PracticeTimelineView {
     
     var timelineWithMonthStepper: some View {
         ScrollViewReader { proxy in
+            let filteredSessions = timelineFilterViewModel.filteredSessions(from: sessions)
+            let groupedSessions = timelineViewModel.groupedByDay(from: filteredSessions)
+
             VStack(spacing: 0) {
                 MonthStepper(
                     month: selectedMonth,
@@ -311,8 +322,8 @@ private extension PracticeTimelineView {
 
                 postLogInsightsGuidanceCard
                 
-                if (!timelineFilterViewModel.filteredSessions(from: sessions).isEmpty) {
-                    timelineList
+                if (!filteredSessions.isEmpty) {
+                    timelineList(groups: groupedSessions)
                 } else {
                     PracticeTimelineTypeEmptyState(filter: timelineFilterViewModel.sessionTypeFilter)
                 }
@@ -381,36 +392,29 @@ private extension PracticeTimelineView {
         }
     }
 
-    var practiceAreaMetrics: [PracticeAreaMetric] {
-        PracticeAreaMetricsCalculator.compute(
-            practiceAreas: practiceAreas,
-            ratings: practiceAreaRatings,
-            sessions: sessions
-        )
-    }
-
-    var rankedPracticeRecommendations: [PracticeSuggestionRecommendation] {
-        PracticeSuggestionRecommender.rankedRecommendations(
-            from: practiceAreaMetrics
-        )
-    }
-
     var recommendationRefreshID: String {
-        rankedPracticeRecommendations
-            .prefix(PracticeRecommendationService.defaultShortlistLimit)
-            .map { recommendation in
+        let latestSessionModified = sessions.map(\.lastModified).max()?.timeIntervalSince1970 ?? 0
+        let latestRatingModified = practiceAreaRatings.map(\.lastModified).max()?.timeIntervalSince1970 ?? 0
+        let practiceAreaValues = practiceAreas.map { area in
                 [
-                    recommendation.areaID?.uuidString ?? recommendation.areaName,
-                    recommendation.areaName,
-                    recommendation.priorityScore.formatted(),
-                    "\(recommendation.primaryReason)"
+                    area.id.uuidString,
+                    area.name,
+                    "\(area.isActive)",
+                    "\(area.order)"
                 ].joined(separator: ":")
-            }
-            .joined(separator: "|")
+        }.joined(separator: "|")
+
+        return [
+            "\(sessions.count)",
+            "\(latestSessionModified)",
+            "\(practiceAreaRatings.count)",
+            "\(latestRatingModified)",
+            practiceAreaValues
+        ].joined(separator: "#")
     }
 
     func loadPracticeRecommendation() async {
-        let recommendations = rankedPracticeRecommendations
+        let recommendations = await rankedPracticeRecommendations()
 
         guard let fallbackRecommendation = recommendations.first else {
             practiceRecommendation = nil
@@ -454,6 +458,45 @@ private extension PracticeTimelineView {
         }
 
         isPracticeRecommendationLoading = false
+    }
+
+    func rankedPracticeRecommendations() async -> [PracticeSuggestionRecommendation] {
+        let practiceAreaInputs = practiceAreas.map {
+            PracticeAreaMetricAreaInput(
+                id: $0.id,
+                name: $0.name,
+                isActive: $0.isActive,
+                order: $0.order
+            )
+        }
+        let ratingInputs = practiceAreaRatings.map {
+            PracticeAreaMetricRatingInput(
+                sessionID: $0.sessionID,
+                practiceAreaID: $0.practiceAreaID,
+                areaName: $0.areaName,
+                didPractice: $0.didPractice,
+                score: $0.score,
+                createdAt: $0.createdAt,
+                lastModified: $0.lastModified
+            )
+        }
+        let sessionInputs = sessions.map {
+            PracticeAreaMetricSessionInput(
+                id: $0.id,
+                startTime: $0.startTime,
+                sessionType: $0.resolvedSessionType,
+                lastModified: $0.lastModified
+            )
+        }
+
+        return await Task.detached(priority: .utility) {
+            let metrics = PracticeAreaMetricsCalculator.compute(
+                practiceAreas: practiceAreaInputs,
+                ratings: ratingInputs,
+                sessions: sessionInputs
+            )
+            return PracticeSuggestionRecommender.rankedRecommendations(from: metrics)
+        }.value
     }
 
     func dismissPresentedTimelinePanels() {

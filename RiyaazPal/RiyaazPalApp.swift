@@ -69,6 +69,10 @@ final class RiyaazPalAppDelegate: NSObject, UIApplicationDelegate, UNUserNotific
 
 struct RootTabView: View {
     @EnvironmentObject var router: TabRouter
+
+    @AppStorage("practiceNudgesEnabled")
+    private var practiceNudgesEnabled = false
+
     var body: some View {
         TabView(selection: $router.selectedTab) {
             NavigationStack {
@@ -90,7 +94,11 @@ struct RootTabView: View {
         .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
             router.selectedTab = .timeline
         }
-        .background(PracticeNudgeRefreshTask())
+        .background {
+            if practiceNudgesEnabled {
+                PracticeNudgeRefreshTask()
+            }
+        }
     }
 }
 

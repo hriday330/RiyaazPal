@@ -66,6 +66,7 @@
 		C0FFBDE42F366DED00F84DFA /* SessionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE32F366DED00F84DFA /* SessionType.swift */; };
 		C0FFBDE62F36722200F84DFA /* SessionTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE52F36722200F84DFA /* SessionTypePicker.swift */; };
 		C0FFBDE82F3675D000F84DFA /* SessionTypeChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE72F3675D000F84DFA /* SessionTypeChip.swift */; };
+		C0DE00112FDB000000000001 /* TestDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00102FDB000000000001 /* TestDataSeeder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -131,6 +132,7 @@
 		C0FFBDE32F366DED00F84DFA /* SessionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionType.swift; sourceTree = "<group>"; };
 		C0FFBDE52F36722200F84DFA /* SessionTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTypePicker.swift; sourceTree = "<group>"; };
 		C0FFBDE72F3675D000F84DFA /* SessionTypeChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTypeChip.swift; sourceTree = "<group>"; };
+		C0DE00102FDB000000000001 /* TestDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDataSeeder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +202,7 @@
 				C066A2B32F18E07E005A5D44 /* Info.plist */,
 				C055C0022F50000000D00C01 /* RiyaazPal.entitlements */,
 				C066A28B2F0F38D2005A5D44 /* Analytics */,
+				C0DE00122FDB000000000001 /* Debug */,
 				C0A430CD2F05991100C2401C /* Views */,
 				C0A430CC2F05990B00C2401C /* ViewModels */,
 				C0A430CB2F05990000C2401C /* Models */,
@@ -340,6 +343,14 @@
 			path = CategoryDetail;
 			sourceTree = "<group>";
 		};
+		C0DE00122FDB000000000001 /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				C0DE00102FDB000000000001 /* TestDataSeeder.swift */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -469,6 +480,7 @@
 				C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */,
 				C0E580502F1DD1EB00571C5E /* SessionActionButton.swift in Sources */,
 				C0FFBDE42F366DED00F84DFA /* SessionType.swift in Sources */,
+				C0DE00112FDB000000000001 /* TestDataSeeder.swift in Sources */,
 				C066A2A22F14F641005A5D44 /* DateTimePickerSheet.swift in Sources */,
 				C060F7002F4EEC23008946CA /* TagSuggester.swift in Sources */,
 				C091E6372F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift in Sources */,
