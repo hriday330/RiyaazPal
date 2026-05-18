@@ -246,7 +246,7 @@ extension EditSessionViewModel {
 
     func computeSuggestions() {
         suggestedTags = Self.suggester.suggestions(
-            title: draft.notes,
+            title: "",
             details: draft.detailedNotes,
             existingTags: draft.tags,
             sessions: tagSuggestionSessions,
@@ -274,7 +274,6 @@ extension EditSessionViewModel {
 
     func updateNotes(_ text: String) {
         draft.notes = text
-        suggestionTrigger.send()
     }
 
     func updateDetailedNotes(_ text: String) {
