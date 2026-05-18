@@ -19,12 +19,6 @@ struct ProfileView: View {
 
     @Query(sort: \PracticeAreaEntity.order)
     private var practiceAreas: [PracticeAreaEntity]
-
-    @Query(sort: \PracticeSession.startTime, order: .reverse)
-    private var sessions: [PracticeSession]
-
-    @Query(sort: \PracticeAreaRatingEntity.createdAt)
-    private var practiceAreaRatings: [PracticeAreaRatingEntity]
     
     @Environment(\.dismiss)
     private var dismiss
@@ -103,7 +97,6 @@ struct ProfileView: View {
                     } label: {
                         Label("Delete All Sessions", systemImage: "trash")
                     }
-                    .disabled(sessions.isEmpty)
                 } header: {
                     Text("Data")
                 } footer: {
@@ -191,15 +184,22 @@ struct ProfileView: View {
     }
 
     private func deleteAllSessions() {
-        for rating in practiceAreaRatings {
-            context.delete(rating)
-        }
+        do {
+            let ratings = try context.fetch(FetchDescriptor<PracticeAreaRatingEntity>())
+            let sessions = try context.fetch(FetchDescriptor<PracticeSession>())
 
-        for session in sessions {
-            context.delete(session)
-        }
+            for rating in ratings {
+                context.delete(rating)
+            }
 
-        try? context.save()
+            for session in sessions {
+                context.delete(session)
+            }
+
+            try context.save()
+        } catch {
+            assertionFailure("Failed to delete sessions: \(error)")
+        }
     }
 
     #if DEBUG
