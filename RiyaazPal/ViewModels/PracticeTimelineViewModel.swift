@@ -47,18 +47,6 @@ final class PracticeTimelineViewModel: ObservableObject {
         }
     }
 
-    func refreshInitialWindow(context: ModelContext) {
-        do {
-            let recentSessions = try fetchInitialWindow(context: context)
-            mergeSessions(recentSessions)
-
-            if !recentSessions.isEmpty {
-                hasMoreOlderSessions = true
-            }
-        } catch {
-        }
-    }
-
     func loadOlderPageIfNeeded(
         currentGroupDate: Date,
         groups: [(date: Date, sessions: [PracticeSession])],
@@ -165,12 +153,8 @@ final class PracticeTimelineViewModel: ObservableObject {
     }
 
     private func appendUniqueSessions(_ olderSessions: [PracticeSession]) {
-        mergeSessions(olderSessions)
-    }
-
-    private func mergeSessions(_ incomingSessions: [PracticeSession]) {
         let existingIDs = Set(sessions.map(\.id))
-        sessions.append(contentsOf: incomingSessions.filter { !existingIDs.contains($0.id) })
+        sessions.append(contentsOf: olderSessions.filter { !existingIDs.contains($0.id) })
         sessions.sort { $0.startTime > $1.startTime }
     }
 }
