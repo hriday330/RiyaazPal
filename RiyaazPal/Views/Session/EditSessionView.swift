@@ -121,6 +121,7 @@ struct EditSessionView: View {
                             .shadow(.drop(radius: 1, y: -1))
                     )
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
             .onAppear {
                 practiceAreasViewModel.attachContext(context)
                 if sessionTitle.isEmpty {
