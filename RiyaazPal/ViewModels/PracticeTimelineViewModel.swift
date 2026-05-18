@@ -18,7 +18,7 @@ final class PracticeTimelineViewModel: ObservableObject {
     @Published private(set) var hasMoreOlderSessions = true
 
     private let olderPageSize = 80
-    private let initialLoadDays = 7
+    private let initialLoadDays = 30
 
     func loadInitialPage(context: ModelContext) {
         guard sessions.isEmpty, !isLoadingInitialPage else { return }
