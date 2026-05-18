@@ -16,6 +16,7 @@ final class InsightsViewModel: ObservableObject {
     @Published private(set) var activePracticeAreaCount = 0
     @Published private(set) var concertCount = 0
     @Published private(set) var isLoadingMetrics = false
+    @Published private(set) var hasLoadedMetrics = false
     @Published private(set) var summaryText: String?
 
     private var loadedMetricsRequestID: String?
@@ -85,6 +86,7 @@ final class InsightsViewModel: ObservableObject {
                 self.concertCount = concertSessionCount
                 self.loadedMetricsRequestID = requestID
                 self.isLoadingMetrics = false
+                self.hasLoadedMetrics = true
             }
         }
     }

@@ -46,7 +46,9 @@ struct InsightsView: View {
                     insightsGuidanceCard
                     insightsModeChips
                     insightSummaryCard
-                    if mode == .practice {
+                    if !insightsViewModel.hasLoadedMetrics {
+                        insightsLoadingCard
+                    } else if mode == .practice {
                         practiceInsightsContent
                     } else {
                         concertInsightsContent
@@ -151,6 +153,26 @@ private extension InsightsView {
             .insightCard()
             .shadow(color: .black.opacity(0.08), radius: 10)
         }
+    }
+
+    var insightsLoadingCard: some View {
+        HStack(spacing: 12) {
+            ProgressView()
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Loading insights")
+                    .font(.headline)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                Text("Preparing your practice-area trends.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
+
+            Spacer()
+        }
+        .insightCard()
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
     }
 
     var practiceInsightsContent: some View {
