@@ -10,15 +10,9 @@ import SwiftData
 
 struct PracticeTimelineView: View {
     @EnvironmentObject var router: TabRouter
-    
-    @Query(sort: \PracticeSession.startTime, order: .reverse)
-        private var sessions: [PracticeSession]
 
     @Query(sort: \PracticeAreaEntity.order)
         private var practiceAreas: [PracticeAreaEntity]
-
-    @Query(sort: \PracticeAreaRatingEntity.createdAt)
-        private var practiceAreaRatings: [PracticeAreaRatingEntity]
 
     @StateObject private var timelineViewModel = PracticeTimelineViewModel()
     
@@ -47,6 +41,10 @@ struct PracticeTimelineView: View {
     
     @State private var isScrollingProgrammatically = false
 
+    private var sessions: [PracticeSession] {
+        timelineViewModel.sessions
+    }
+
     private var isShowingTimelineGuidance: Bool {
         !hasSeenTimelineStartTip || (!hasSeenPostLogInsightsTip && !sessions.isEmpty)
     }
@@ -56,7 +54,9 @@ struct PracticeTimelineView: View {
                 // App-wide background
                 Color("AppBackground")
                     .ignoresSafeArea()
-                if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
+                if timelineViewModel.isLoadingInitialPage && sessions.isEmpty {
+                    ProgressView()
+                } else if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     VStack(spacing: 16) {
                         timelineStartGuidanceCard
 
@@ -116,6 +116,9 @@ struct PracticeTimelineView: View {
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
             }
+            .task {
+                timelineViewModel.loadInitialPage(context: context)
+            }
             .task(id: recommendationRefreshID) {
                 await loadPracticeRecommendation()
             }
@@ -136,6 +139,7 @@ private extension PracticeTimelineView {
                 context.insert(session)
                 do {
                     try context.save()
+                    timelineViewModel.reloadFirstPage(context: context)
                 } catch {
                     // TODO: alert if failed to save
                     print("Failed to save session: \(error.localizedDescription)")
@@ -214,6 +218,7 @@ private extension PracticeTimelineView {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                    timelineViewModel.removeSession(session)
                                     context.delete(session)
                                     do {
                                         try context.save()
@@ -234,9 +239,24 @@ private extension PracticeTimelineView {
                         .foregroundStyle(.secondary)
                         .onAppear {
                             updateMonthOnScroll(to: group.date)
+                            timelineViewModel.loadOlderPageIfNeeded(
+                                currentGroupDate: group.date,
+                                groups: groups,
+                                context: context
+                            )
                         }
                 }
                 .id(Calendar.current.startOfDay(for: group.date))
+            }
+
+            if timelineViewModel.isLoadingOlderPage {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .listRowInsets(.init())
+                .listRowBackground(Color.clear)
             }
         }
     }
@@ -287,6 +307,7 @@ private extension PracticeTimelineView {
 
         do {
             try context.save()
+            timelineViewModel.reloadFirstPage(context: context)
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             selectedSession = session
         } catch {
@@ -309,7 +330,8 @@ private extension PracticeTimelineView {
                     onNext: {
                         shiftMonth(by: 1, proxy: proxy)
                     },
-                    sessions: sessions
+                    hasMoreOlderSessions: timelineViewModel.hasMoreOlderSessions,
+                    oldestLoadedSessionDate: sessions.last?.startTime
                 )
                 sessionTypeFilterChips.padding(.top, 8)
 
@@ -393,8 +415,6 @@ private extension PracticeTimelineView {
     }
 
     var recommendationRefreshID: String {
-        let latestSessionModified = sessions.map(\.lastModified).max()?.timeIntervalSince1970 ?? 0
-        let latestRatingModified = practiceAreaRatings.map(\.lastModified).max()?.timeIntervalSince1970 ?? 0
         let practiceAreaValues = practiceAreas.map { area in
                 [
                     area.id.uuidString,
@@ -405,10 +425,6 @@ private extension PracticeTimelineView {
         }.joined(separator: "|")
 
         return [
-            "\(sessions.count)",
-            "\(latestSessionModified)",
-            "\(practiceAreaRatings.count)",
-            "\(latestRatingModified)",
             practiceAreaValues
         ].joined(separator: "#")
     }
@@ -461,6 +477,7 @@ private extension PracticeTimelineView {
     }
 
     func rankedPracticeRecommendations() async -> [PracticeSuggestionRecommendation] {
+        let modelContainer = RiyaazPalModelContainer.shared
         let practiceAreaInputs = practiceAreas.map {
             PracticeAreaMetricAreaInput(
                 id: $0.id,
@@ -469,27 +486,37 @@ private extension PracticeTimelineView {
                 order: $0.order
             )
         }
-        let ratingInputs = practiceAreaRatings.map {
-            PracticeAreaMetricRatingInput(
-                sessionID: $0.sessionID,
-                practiceAreaID: $0.practiceAreaID,
-                areaName: $0.areaName,
-                didPractice: $0.didPractice,
-                score: $0.score,
-                createdAt: $0.createdAt,
-                lastModified: $0.lastModified
-            )
-        }
-        let sessionInputs = sessions.map {
-            PracticeAreaMetricSessionInput(
-                id: $0.id,
-                startTime: $0.startTime,
-                sessionType: $0.resolvedSessionType,
-                lastModified: $0.lastModified
-            )
-        }
-
         return await Task.detached(priority: .utility) {
+            let context = ModelContext(modelContainer)
+            let sessions = (try? context.fetch(
+                FetchDescriptor<PracticeSession>(
+                    sortBy: [SortDescriptor(\.startTime, order: .reverse)]
+                )
+            )) ?? []
+            let ratings = (try? context.fetch(
+                FetchDescriptor<PracticeAreaRatingEntity>(
+                    sortBy: [SortDescriptor(\.createdAt)]
+                )
+            )) ?? []
+            let sessionInputs = sessions.map {
+                PracticeAreaMetricSessionInput(
+                    id: $0.id,
+                    startTime: $0.startTime,
+                    sessionType: $0.resolvedSessionType,
+                    lastModified: $0.lastModified
+                )
+            }
+            let ratingInputs = ratings.map {
+                PracticeAreaMetricRatingInput(
+                    sessionID: $0.sessionID,
+                    practiceAreaID: $0.practiceAreaID,
+                    areaName: $0.areaName,
+                    didPractice: $0.didPractice,
+                    score: $0.score,
+                    createdAt: $0.createdAt,
+                    lastModified: $0.lastModified
+                )
+            }
             let metrics = PracticeAreaMetricsCalculator.compute(
                 practiceAreas: practiceAreaInputs,
                 ratings: ratingInputs,
@@ -516,6 +543,10 @@ private extension PracticeTimelineView {
         isScrollingProgrammatically = true
         
         selectedMonth = newMonth
+
+        if delta < 0 {
+            timelineViewModel.loadUntilMonthExists(newMonth, context: context)
+        }
 
         scrollToMonth(newMonth, proxy: proxy)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
