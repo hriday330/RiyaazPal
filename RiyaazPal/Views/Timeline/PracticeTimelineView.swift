@@ -41,6 +41,7 @@ struct PracticeTimelineView: View {
     
     @State private var isScrollingProgrammatically = false
     @State private var showICloudSyncMessage = true
+    @State private var hasAnchoredInitialTimeline = false
 
     @AppStorage(RiyaazPalModelContainer.iCloudSyncEnabledKey)
     private var iCloudSyncEnabled = true
@@ -373,6 +374,9 @@ private extension PracticeTimelineView {
                 
 
             }
+            .onChange(of: sessions.first?.id) {
+                anchorInitialTimelineIfNeeded(proxy: proxy)
+            }
         }
     }
 
@@ -558,6 +562,21 @@ private extension PracticeTimelineView {
     func dismissPresentedTimelinePanels() {
         selectedSession = nil
         showProfile = false
+    }
+
+    func anchorInitialTimelineIfNeeded(proxy: ScrollViewProxy) {
+        guard !hasAnchoredInitialTimeline,
+              let newestSession = sessions.first
+        else { return }
+
+        hasAnchoredInitialTimeline = true
+        selectedMonth = newestSession.startTime
+
+        let scrollID = Calendar.current.startOfDay(for: newestSession.startTime)
+
+        DispatchQueue.main.async {
+            proxy.scrollTo(scrollID, anchor: .topLeading)
+        }
     }
 
     func shiftMonth(by delta: Int, proxy: ScrollViewProxy) {
