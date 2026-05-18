@@ -34,14 +34,6 @@ struct InsightsView: View {
 
     @AppStorage(FirstRunGuidanceKeys.insightsTip)
     private var hasSeenInsightsTip = false
-    @AppStorage(RiyaazPalModelContainer.iCloudSyncEnabledKey)
-    private var iCloudSyncEnabled = true
-
-    @State private var showICloudSyncMessage = true
-
-    private var shouldShowICloudSyncMessage: Bool {
-        iCloudSyncEnabled && showICloudSyncMessage
-    }
 
     var body: some View {
         ZStack {
@@ -51,7 +43,6 @@ struct InsightsView: View {
             ScrollView {
                 LazyVStack(spacing: 16) {
                     header
-                    iCloudSyncStatusBanner
                     insightsGuidanceCard
                     insightsModeChips
                     insightSummaryCard
@@ -106,10 +97,6 @@ struct InsightsView: View {
                 requestID: summaryRefreshID
             )
         }
-        .task {
-            try? await Task.sleep(for: .seconds(20))
-            showICloudSyncMessage = false
-        }
     }
 }
 
@@ -127,14 +114,6 @@ private extension InsightsView {
                 .foregroundStyle(Color("SecondaryText"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    @ViewBuilder
-    var iCloudSyncStatusBanner: some View {
-        if shouldShowICloudSyncMessage {
-            ICloudSyncStatusBanner()
-                .transition(.opacity)
-        }
     }
 
     @ViewBuilder
