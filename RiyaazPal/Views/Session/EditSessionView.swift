@@ -256,13 +256,16 @@ private extension EditSessionView {
     var saveAndCancelButtons: some View {
         VStack(spacing: 12) {
             Button {
-                let didUpdateSession = editSessionViewModel.commit()
-                let didUpdateRatings = editSessionViewModel.commitPracticeAreaRatings(
-                    context: context,
-                    existingRatings: sessionPracticeAreaRatings
-                )
-                if didUpdateSession || didUpdateRatings {
-                    try? context.save()
+                let saveRequest = editSessionViewModel.makeSaveRequest()
+                Task {
+                    do {
+                        try await EditSessionBackgroundSaver.save(
+                            saveRequest,
+                            modelContainer: RiyaazPalModelContainer.shared
+                        )
+                    } catch {
+                        assertionFailure("Failed to save session: \(error)")
+                    }
                 }
                 dismiss()
             } label: {

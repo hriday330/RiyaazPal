@@ -207,6 +207,29 @@ extension EditSessionViewModel {
         return didChange
     }
 
+    func makeSaveRequest() -> EditSessionSaveRequest {
+        EditSessionSaveRequest(
+            sessionID: draft.id,
+            startTime: draft.startTime,
+            duration: draft.duration,
+            notes: draft.notes,
+            tags: draft.tags,
+            detailedNotes: draft.detailedNotes,
+            sessionType: draft.sessionType,
+            confidence: draft.confidence,
+            hasPracticeAreaReflection: hasPracticeAreaReflection,
+            ratings: practiceAreaDrafts.map {
+                PracticeAreaRatingSaveRequest(
+                    sessionID: $0.sessionID,
+                    practiceAreaID: $0.practiceAreaID,
+                    areaName: $0.areaName,
+                    didPractice: $0.didPractice,
+                    score: $0.score
+                )
+            }
+        )
+    }
+
     private func normalizeTag(_ tag: String) -> String {
         tag.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
@@ -451,5 +474,189 @@ struct PracticeAreaQuestionnaireDraft: Identifiable, Hashable {
 
     var resolvedScore: Int {
         score ?? 5
+    }
+}
+
+struct EditSessionSaveRequest: Sendable {
+    let sessionID: UUID
+    let startTime: Date
+    let duration: TimeInterval
+    let notes: String
+    let tags: [String]
+    let detailedNotes: String
+    let sessionType: SessionType
+    let confidence: Int?
+    let hasPracticeAreaReflection: Bool
+    let ratings: [PracticeAreaRatingSaveRequest]
+}
+
+struct PracticeAreaRatingSaveRequest: Sendable {
+    let sessionID: UUID
+    let practiceAreaID: UUID
+    let areaName: String
+    let didPractice: Bool
+    let score: Int?
+}
+
+enum EditSessionBackgroundSaver {
+    static func save(
+        _ request: EditSessionSaveRequest,
+        modelContainer: ModelContainer
+    ) async throws {
+        try await Task.detached(priority: .userInitiated) {
+            let context = ModelContext(modelContainer)
+            let sessionID = request.sessionID
+
+            let sessionDescriptor = FetchDescriptor<PracticeSession>(
+                predicate: #Predicate { session in
+                    session.id == sessionID
+                }
+            )
+
+            guard let session = try context.fetch(sessionDescriptor).first else {
+                return
+            }
+
+            let didUpdateSession = updateSession(session, with: request)
+            let didUpdateRatings = try updateRatings(
+                request.ratings,
+                hasPracticeAreaReflection: request.hasPracticeAreaReflection,
+                sessionID: sessionID,
+                context: context
+            )
+
+            if didUpdateSession || didUpdateRatings {
+                try context.save()
+            }
+        }.value
+    }
+}
+
+private extension EditSessionBackgroundSaver {
+    static func updateSession(
+        _ session: PracticeSession,
+        with request: EditSessionSaveRequest
+    ) -> Bool {
+        var didChange = false
+
+        if session.notes != request.notes {
+            session.notes = request.notes
+            didChange = true
+        }
+
+        if session.tags != request.tags {
+            session.tags = request.tags
+            didChange = true
+        }
+
+        if session.detailedNotes != request.detailedNotes {
+            session.detailedNotes = request.detailedNotes
+            didChange = true
+        }
+
+        if session.duration != request.duration {
+            session.duration = request.duration
+            didChange = true
+        }
+
+        if session.startTime != request.startTime {
+            session.startTime = request.startTime
+            didChange = true
+        }
+
+        if session.resolvedSessionType != request.sessionType {
+            session.sessionType = request.sessionType
+            didChange = true
+        }
+
+        if session.confidence != request.confidence {
+            session.confidence = request.confidence
+            didChange = true
+        }
+
+        if didChange {
+            session.lastModified = .now
+        }
+
+        return didChange
+    }
+
+    static func updateRatings(
+        _ ratingRequests: [PracticeAreaRatingSaveRequest],
+        hasPracticeAreaReflection: Bool,
+        sessionID: UUID,
+        context: ModelContext
+    ) throws -> Bool {
+        guard hasPracticeAreaReflection else { return false }
+
+        var didChange = false
+        let now = Date.now
+        let descriptor = FetchDescriptor<PracticeAreaRatingEntity>(
+            predicate: #Predicate { rating in
+                rating.sessionID == sessionID
+            }
+        )
+        let existingRatings = try context.fetch(descriptor)
+
+        let ratingsByAreaID = Dictionary(
+            existingRatings.map { ($0.practiceAreaID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        let ratingsByAreaName = Dictionary(
+            existingRatings.map { (EditSessionViewModel.normalizedAreaName($0.areaName), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        for ratingRequest in ratingRequests {
+            let existingRating = ratingsByAreaID[ratingRequest.practiceAreaID]
+                ?? ratingsByAreaName[EditSessionViewModel.normalizedAreaName(ratingRequest.areaName)]
+
+            if let rating = existingRating {
+                let score = ratingRequest.didPractice
+                    ? ratingRequest.score.map(PracticeAreaRatingEntity.clampedScore)
+                    : nil
+                var didUpdateRating = false
+
+                if rating.practiceAreaID != ratingRequest.practiceAreaID {
+                    rating.practiceAreaID = ratingRequest.practiceAreaID
+                    didUpdateRating = true
+                }
+
+                if rating.areaName != ratingRequest.areaName {
+                    rating.areaName = ratingRequest.areaName
+                    didUpdateRating = true
+                }
+
+                if rating.didPractice != ratingRequest.didPractice {
+                    rating.didPractice = ratingRequest.didPractice
+                    didUpdateRating = true
+                }
+
+                if rating.score != score {
+                    rating.score = score
+                    didUpdateRating = true
+                }
+
+                if didUpdateRating {
+                    rating.lastModified = now
+                    didChange = true
+                }
+            } else {
+                let rating = PracticeAreaRatingEntity(
+                    sessionID: ratingRequest.sessionID,
+                    practiceAreaID: ratingRequest.practiceAreaID,
+                    areaName: ratingRequest.areaName,
+                    didPractice: ratingRequest.didPractice,
+                    score: ratingRequest.score,
+                    createdAt: now,
+                    lastModified: now
+                )
+                context.insert(rating)
+                didChange = true
+            }
+        }
+
+        return didChange
     }
 }
