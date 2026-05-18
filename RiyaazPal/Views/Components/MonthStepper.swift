@@ -11,14 +11,18 @@ struct MonthStepper: View {
     let month: Date
     let onPrevious: () -> Void
     let onNext: () -> Void
-    let sessions: [PracticeSession]
+    let hasMoreOlderSessions: Bool
+    let oldestLoadedSessionDate: Date?
 
     private var label: String {
         month.formatted(.dateTime.month(.wide).year())
     }
 
-    private var oldestSessionDate: Date {
-        sessions.last?.startTime ?? Date()
+    private var canStepToPreviousMonth: Bool {
+        guard let oldestLoadedSessionDate else { return hasMoreOlderSessions }
+
+        return hasMoreOlderSessions ||
+            !Calendar.current.isDate(month, equalTo: oldestLoadedSessionDate, toGranularity: .month)
     }
 
     var body: some View {
@@ -27,7 +31,8 @@ struct MonthStepper: View {
                 onPrevious()
             } label: {
                 Image(systemName: "chevron.left")
-            }.disabled(Calendar.current.isDate(month, equalTo: oldestSessionDate, toGranularity: .month))
+            }
+            .disabled(!canStepToPreviousMonth)
 
             Spacer()
 
