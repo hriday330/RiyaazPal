@@ -21,6 +21,8 @@ private enum PracticeAreaScoreHistoryFilter: String, CaseIterable, Identifiable 
     var id: Self { self }
 }
 
+private let scoreHistoryMaximumDisplayedPoints = 50
+
 struct PracticeAreaInsightDetailView: View {
     let metric: PracticeAreaMetric
     let mode: PracticeAreaInsightDetailMode
@@ -319,7 +321,7 @@ private extension PracticeAreaInsightDetailView {
     }
 
     var scoreHistoryPoints: [PracticeAreaScorePoint] {
-        metric.scoreHistory.filter { point in
+        let filteredPoints = metric.scoreHistory.filter { point in
             switch scoreHistoryFilter {
             case .practice:
                 return point.sessionType == .practice
@@ -329,6 +331,8 @@ private extension PracticeAreaInsightDetailView {
                 return true
             }
         }
+
+        return Array(filteredPoints.suffix(scoreHistoryMaximumDisplayedPoints))
     }
 
     var scoreHistoryDates: [Date] {
