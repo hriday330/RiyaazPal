@@ -41,22 +41,20 @@ struct PracticeTimelineView: View {
     
     @State private var isScrollingProgrammatically = false
 
-    private var sessions: [PracticeSession] {
-        timelineViewModel.sessions
-    }
-
-    private var isShowingTimelineGuidance: Bool {
-        !hasSeenTimelineStartTip || (!hasSeenPostLogInsightsTip && !sessions.isEmpty)
-    }
+    @State private var pendingScrollMonth: Date?
     
     var body: some View {
+        TimelineSessionQueryView(startDate: timelineViewModel.loadedStartDate) { sessions in
+            timelineBody(sessions: sessions)
+        }
+    }
+
+    func timelineBody(sessions: [PracticeSession]) -> some View {
             ZStack {
                 // App-wide background
                 Color("AppBackground")
                     .ignoresSafeArea()
-                if timelineViewModel.isLoadingInitialPage && sessions.isEmpty {
-                    ProgressView()
-                } else if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
+                if(sessions.isEmpty  && !sessionViewModel.isSessionActive) {
                     VStack(spacing: 16) {
                         timelineStartGuidanceCard
 
@@ -67,7 +65,7 @@ struct PracticeTimelineView: View {
                 } else if timelineFilterViewModel.isSearching && timelineFilterViewModel.filteredSessions(from: sessions).isEmpty {
                     PracticeTimelineFilteredEmptyState()
                 } else {
-                    timelineWithMonthStepper
+                    timelineWithMonthStepper(sessions: sessions)
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
                         .scrollTransition(.interactive) { content, phase in
@@ -116,9 +114,6 @@ struct PracticeTimelineView: View {
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
             }
-            .task {
-                timelineViewModel.loadInitialPage(context: context)
-            }
             .task(id: recommendationRefreshID) {
                 await loadPracticeRecommendation()
             }
@@ -127,7 +122,28 @@ struct PracticeTimelineView: View {
             }
             
             
-        }
+    }
+}
+
+private struct TimelineSessionQueryView<Content: View>: View {
+    @Query private var sessions: [PracticeSession]
+
+    private let content: ([PracticeSession]) -> Content
+
+    init(startDate: Date, @ViewBuilder content: @escaping ([PracticeSession]) -> Content) {
+        _sessions = Query(
+            filter: #Predicate<PracticeSession> { session in
+                session.startTime >= startDate
+            },
+            sort: \PracticeSession.startTime,
+            order: .reverse
+        )
+        self.content = content
+    }
+
+    var body: some View {
+        content(sessions)
+    }
 }
 
 private extension PracticeTimelineView {
@@ -139,7 +155,6 @@ private extension PracticeTimelineView {
                 context.insert(session)
                 do {
                     try context.save()
-                    timelineViewModel.reloadFirstPage(context: context)
                 } catch {
                     // TODO: alert if failed to save
                     print("Failed to save session: \(error.localizedDescription)")
@@ -196,12 +211,8 @@ private extension PracticeTimelineView {
                    value: sessionViewModel.isSessionActive)
     }
     
-    var timelineList: some View {
-        timelineList(
-            groups: timelineViewModel.groupedByDay(
-                from: timelineFilterViewModel.filteredSessions(from: sessions)
-            )
-        )
+    func isShowingTimelineGuidance(sessions: [PracticeSession]) -> Bool {
+        !hasSeenTimelineStartTip || (!hasSeenPostLogInsightsTip && !sessions.isEmpty)
     }
 
     func timelineList(groups: [(date: Date, sessions: [PracticeSession])]) -> some View {
@@ -218,7 +229,6 @@ private extension PracticeTimelineView {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                    timelineViewModel.removeSession(session)
                                     context.delete(session)
                                     do {
                                         try context.save()
@@ -239,24 +249,13 @@ private extension PracticeTimelineView {
                         .foregroundStyle(.secondary)
                         .onAppear {
                             updateMonthOnScroll(to: group.date)
-                            timelineViewModel.loadOlderPageIfNeeded(
+                            timelineViewModel.loadOlderWindowIfNeeded(
                                 currentGroupDate: group.date,
-                                groups: groups,
-                                context: context
+                                groups: groups
                             )
                         }
                 }
                 .id(Calendar.current.startOfDay(for: group.date))
-            }
-
-            if timelineViewModel.isLoadingOlderPage {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
-                }
-                .listRowInsets(.init())
-                .listRowBackground(Color.clear)
             }
         }
     }
@@ -307,7 +306,6 @@ private extension PracticeTimelineView {
 
         do {
             try context.save()
-            timelineViewModel.reloadFirstPage(context: context)
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             selectedSession = session
         } catch {
@@ -316,7 +314,7 @@ private extension PracticeTimelineView {
     }
 
     
-    var timelineWithMonthStepper: some View {
+    func timelineWithMonthStepper(sessions: [PracticeSession]) -> some View {
         ScrollViewReader { proxy in
             let filteredSessions = timelineFilterViewModel.filteredSessions(from: sessions)
             let groupedSessions = timelineViewModel.groupedByDay(from: filteredSessions)
@@ -325,12 +323,12 @@ private extension PracticeTimelineView {
                 MonthStepper(
                     month: selectedMonth,
                     onPrevious: {
-                        shiftMonth(by: -1, proxy: proxy)
+                        shiftMonth(by: -1, proxy: proxy, sessions: sessions)
                     },
                     onNext: {
-                        shiftMonth(by: 1, proxy: proxy)
+                        shiftMonth(by: 1, proxy: proxy, sessions: sessions)
                     },
-                    hasMoreOlderSessions: timelineViewModel.hasMoreOlderSessions,
+                    hasMoreOlderSessions: true,
                     oldestLoadedSessionDate: sessions.last?.startTime
                 )
                 sessionTypeFilterChips.padding(.top, 8)
@@ -340,9 +338,9 @@ private extension PracticeTimelineView {
                     .padding(.top, 10)
                     .padding(.bottom, 6)
 
-                practiceRecommendationCard
+                practiceRecommendationCard(sessions: sessions)
 
-                postLogInsightsGuidanceCard
+                postLogInsightsGuidanceCard(sessions: sessions)
                 
                 if (!filteredSessions.isEmpty) {
                     timelineList(groups: groupedSessions)
@@ -351,6 +349,12 @@ private extension PracticeTimelineView {
                 }
                 
 
+            }
+            .onChange(of: sessions.count) {
+                scrollToPendingMonth(proxy: proxy, sessions: sessions)
+            }
+            .onChange(of: timelineViewModel.loadedStartDate) {
+                scrollToPendingMonth(proxy: proxy, sessions: sessions)
             }
         }
     }
@@ -371,7 +375,7 @@ private extension PracticeTimelineView {
     }
 
     @ViewBuilder
-    var postLogInsightsGuidanceCard: some View {
+    func postLogInsightsGuidanceCard(sessions: [PracticeSession]) -> some View {
         if !hasSeenPostLogInsightsTip,
            !sessions.isEmpty,
            !timelineFilterViewModel.isSearching {
@@ -394,9 +398,9 @@ private extension PracticeTimelineView {
     }
 
     @ViewBuilder
-    var practiceRecommendationCard: some View {
+    func practiceRecommendationCard(sessions: [PracticeSession]) -> some View {
         if (practiceRecommendation != nil || isPracticeRecommendationLoading),
-           !isShowingTimelineGuidance,
+           !isShowingTimelineGuidance(sessions: sessions),
            dismissedPracticeRecommendationID != recommendationRefreshID,
            !timelineFilterViewModel.isSearching,
            timelineFilterViewModel.sessionTypeFilter != .concert {
@@ -531,7 +535,7 @@ private extension PracticeTimelineView {
         showProfile = false
     }
 
-    func shiftMonth(by delta: Int, proxy: ScrollViewProxy) {
+    func shiftMonth(by delta: Int, proxy: ScrollViewProxy, sessions: [PracticeSession]) {
         guard
             let newMonth = Calendar.current.date(
                 byAdding: .month,
@@ -545,10 +549,11 @@ private extension PracticeTimelineView {
         selectedMonth = newMonth
 
         if delta < 0 {
-            timelineViewModel.loadUntilMonthExists(newMonth, context: context)
+            timelineViewModel.loadWindowIncludingMonth(newMonth)
         }
 
-        scrollToMonth(newMonth, proxy: proxy)
+        pendingScrollMonth = newMonth
+        scrollToPendingMonth(proxy: proxy, sessions: sessions)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             isScrollingProgrammatically = false
         }
@@ -566,7 +571,15 @@ private extension PracticeTimelineView {
             }
         }
     
-    func scrollToMonth(_ month: Date, proxy: ScrollViewProxy) {
+    func scrollToPendingMonth(proxy: ScrollViewProxy, sessions: [PracticeSession]) {
+        guard let pendingScrollMonth else { return }
+
+        if scrollToMonth(pendingScrollMonth, proxy: proxy, sessions: sessions) {
+            self.pendingScrollMonth = nil
+        }
+    }
+
+    func scrollToMonth(_ month: Date, proxy: ScrollViewProxy, sessions: [PracticeSession]) -> Bool {
         let calendar = Calendar.current
 
         guard let targetDate = timelineViewModel
@@ -575,13 +588,15 @@ private extension PracticeTimelineView {
             .first(where: {
                 calendar.isDate($0, equalTo: month, toGranularity: .month)
             })
-        else { return }
+        else { return false }
 
         let scrollID = calendar.startOfDay(for: targetDate)
 
         withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
             proxy.scrollTo(scrollID, anchor: .topLeading)
         }
+
+        return true
     }
 }
 
