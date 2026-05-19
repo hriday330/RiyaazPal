@@ -72,11 +72,13 @@ struct RootTabView: View {
 
     @StateObject private var iCloudSyncStatusMonitor = ICloudSyncStatusMonitor()
 
+    @State private var hasDismissedICloudSyncStatus = false
+
     @AppStorage("practiceNudgesEnabled")
     private var practiceNudgesEnabled = false
 
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack(alignment: .topTrailing) {
             TabView(selection: $router.selectedTab) {
                 NavigationStack {
                     PracticeTimelineView()
@@ -110,21 +112,38 @@ struct RootTabView: View {
 
     @ViewBuilder
     private var iCloudSyncStatusBanner: some View {
-        if iCloudSyncStatusMonitor.isSyncing {
-            HStack(spacing: 8) {
+        if iCloudSyncStatusMonitor.isSyncing && !hasDismissedICloudSyncStatus {
+            HStack(spacing: 6) {
                 ProgressView()
-                    .controlSize(.small)
+                    .controlSize(.mini)
 
-                Text("Syncing from iCloud")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(Color("PrimaryText"))
+                Text("Syncing iCloud")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color("SecondaryText"))
+
+                Button {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
+                        hasDismissedICloudSyncStatus = true
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(Color("SecondaryText"))
+                        .frame(width: 18, height: 18)
+                }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(Color("CardBackground"))
+            .padding(.leading, 10)
+            .padding(.trailing, 6)
+            .padding(.vertical, 7)
+            .background(Color("CardBackground").opacity(0.9))
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
-            .padding(.top, 10)
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color("SecondaryText").opacity(0.12), lineWidth: 1)
+            }
+            .padding(.top, 8)
+            .padding(.trailing, 12)
             .transition(.move(edge: .top).combined(with: .opacity))
             .animation(.spring(response: 0.28, dampingFraction: 0.9), value: iCloudSyncStatusMonitor.isSyncing)
         }
