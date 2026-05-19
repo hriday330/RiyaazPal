@@ -6,92 +6,50 @@
 //
 
 import Foundation
-import SwiftData
 import SwiftUI
 
 @MainActor
 final class PracticeTimelineViewModel: ObservableObject {
 
-    @Published private(set) var sessions: [PracticeSession] = []
-    @Published private(set) var isLoadingInitialPage = false
-    @Published private(set) var isLoadingOlderPage = false
-    @Published private(set) var hasMoreOlderSessions = true
+    @Published private(set) var loadedStartDate: Date
 
-    private let pageSize = 80
+    private let calendar: Calendar
+    private let initialWindowDays = 30
+    private var lastOlderWindowTriggerDate: Date?
 
-    func loadInitialPage(context: ModelContext) {
-        guard sessions.isEmpty, !isLoadingInitialPage else { return }
-
-        isLoadingInitialPage = true
-        defer { isLoadingInitialPage = false }
-
-        do {
-            sessions = try fetchPage(context: context)
-            hasMoreOlderSessions = sessions.count == pageSize
-        } catch {
-            sessions = []
-            hasMoreOlderSessions = false
-        }
+    init(calendar: Calendar = .current, now: Date = Date()) {
+        self.calendar = calendar
+        loadedStartDate = calendar.date(
+            byAdding: .day,
+            value: -initialWindowDays,
+            to: now
+        ) ?? now
     }
 
-    func reloadFirstPage(context: ModelContext) {
-        isLoadingInitialPage = true
-        defer { isLoadingInitialPage = false }
-
-        do {
-            sessions = try fetchPage(context: context)
-            hasMoreOlderSessions = sessions.count == pageSize
-        } catch {
-            hasMoreOlderSessions = false
-        }
-    }
-
-    func loadOlderPageIfNeeded(
+    func loadOlderWindowIfNeeded(
         currentGroupDate: Date,
-        groups: [(date: Date, sessions: [PracticeSession])],
-        context: ModelContext
+        groups: [(date: Date, sessions: [PracticeSession])]
     ) {
         guard groups.last?.date == currentGroupDate else { return }
-        loadOlderPage(context: context)
+        guard lastOlderWindowTriggerDate != currentGroupDate else { return }
+        lastOlderWindowTriggerDate = currentGroupDate
+
+        loadOlderWindow()
     }
 
-    func loadOlderPage(context: ModelContext) {
-        guard hasMoreOlderSessions, !isLoadingOlderPage else { return }
-        guard let oldestLoadedDate = sessions.last?.startTime else { return }
-
-        isLoadingOlderPage = true
-        defer { isLoadingOlderPage = false }
-
-        do {
-            let olderSessions = try fetchPage(
-                olderThan: oldestLoadedDate,
-                context: context
-            )
-            appendUniqueSessions(olderSessions)
-            hasMoreOlderSessions = olderSessions.count == pageSize
-        } catch {
-            hasMoreOlderSessions = false
-        }
+    func loadOlderWindow() {
+        let currentStartOfMonth = calendar.startOfMonth(for: loadedStartDate)
+        loadedStartDate = calendar.date(
+            byAdding: .month,
+            value: -1,
+            to: currentStartOfMonth
+        ) ?? loadedStartDate
     }
 
-    func loadUntilMonthExists(
-        _ month: Date,
-        context: ModelContext,
-        calendar: Calendar = .current
-    ) {
-        while hasMoreOlderSessions,
-              !sessions.contains(where: { calendar.isDate($0.startTime, equalTo: month, toGranularity: .month) }) {
-            let countBeforeLoad = sessions.count
-            loadOlderPage(context: context)
-
-            if sessions.count == countBeforeLoad {
-                break
-            }
-        }
-    }
-
-    func removeSession(_ session: PracticeSession) {
-        sessions.removeAll { $0.id == session.id }
+    func loadWindowIncludingMonth(_ month: Date) {
+        let monthStart = calendar.startOfMonth(for: month)
+        guard monthStart < loadedStartDate else { return }
+        loadedStartDate = monthStart
     }
 
     func groupedByDay(
@@ -106,33 +64,11 @@ final class PracticeTimelineViewModel: ObservableObject {
                 .sorted { $0.key > $1.key }
                 .map { (date: $0.key, sessions: $0.value) }
         }
+}
 
-    private func fetchPage(
-        olderThan date: Date? = nil,
-        context: ModelContext
-    ) throws -> [PracticeSession] {
-        var descriptor: FetchDescriptor<PracticeSession>
-
-        if let date {
-            descriptor = FetchDescriptor<PracticeSession>(
-                predicate: #Predicate { session in
-                    session.startTime < date
-                },
-                sortBy: [SortDescriptor(\.startTime, order: .reverse)]
-            )
-        } else {
-            descriptor = FetchDescriptor<PracticeSession>(
-                sortBy: [SortDescriptor(\.startTime, order: .reverse)]
-            )
-        }
-
-        descriptor.fetchLimit = pageSize
-        return try context.fetch(descriptor)
-    }
-
-    private func appendUniqueSessions(_ olderSessions: [PracticeSession]) {
-        let existingIDs = Set(sessions.map(\.id))
-        sessions.append(contentsOf: olderSessions.filter { !existingIDs.contains($0.id) })
-        sessions.sort { $0.startTime > $1.startTime }
+private extension Calendar {
+    func startOfMonth(for date: Date) -> Date {
+        let components = dateComponents([.year, .month], from: date)
+        return self.date(from: components) ?? startOfDay(for: date)
     }
 }

@@ -70,34 +70,82 @@ final class RiyaazPalAppDelegate: NSObject, UIApplicationDelegate, UNUserNotific
 struct RootTabView: View {
     @EnvironmentObject var router: TabRouter
 
+    @StateObject private var iCloudSyncStatusMonitor = ICloudSyncStatusMonitor()
+
+    @State private var hasDismissedICloudSyncStatus = false
+
     @AppStorage("practiceNudgesEnabled")
     private var practiceNudgesEnabled = false
 
     var body: some View {
-        TabView(selection: $router.selectedTab) {
-            NavigationStack {
-                PracticeTimelineView()
+        ZStack(alignment: .topTrailing) {
+            TabView(selection: $router.selectedTab) {
+                NavigationStack {
+                    PracticeTimelineView()
+                        .environmentObject(iCloudSyncStatusMonitor)
+                }
+                .tabItem {
+                    Label("Timeline", systemImage: "music.note.list")
+                }
+                .tag(TabRouter.Tab.timeline)
+                
+                NavigationStack {
+                    InsightsView()
+                }
+                .tabItem {
+                    Label("Insights", systemImage: "chart.bar")
+                }
+                .tag(TabRouter.Tab.insights)
             }
-            .tabItem {
-                Label("Timeline", systemImage: "music.note.list")
+            .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
+                router.selectedTab = .timeline
             }
-            .tag(TabRouter.Tab.timeline)
-            
-            NavigationStack {
-                InsightsView()
+            .background {
+                if practiceNudgesEnabled {
+                    PracticeNudgeRefreshTask()
+                }
             }
-            .tabItem {
-                Label("Insights", systemImage: "chart.bar")
-            }
-            .tag(TabRouter.Tab.insights)
+
+            iCloudSyncStatusBanner
         }
-        .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
-            router.selectedTab = .timeline
-        }
-        .background {
-            if practiceNudgesEnabled {
-                PracticeNudgeRefreshTask()
+    }
+
+    @ViewBuilder
+    private var iCloudSyncStatusBanner: some View {
+        if iCloudSyncStatusMonitor.isSyncing && !hasDismissedICloudSyncStatus {
+            HStack(spacing: 6) {
+                ProgressView()
+                    .controlSize(.mini)
+
+                Text("Syncing iCloud")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color("SecondaryText"))
+
+                Button {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.9)) {
+                        hasDismissedICloudSyncStatus = true
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(Color("SecondaryText"))
+                        .frame(width: 18, height: 18)
+                }
+                .buttonStyle(.plain)
             }
+            .padding(.leading, 10)
+            .padding(.trailing, 6)
+            .padding(.vertical, 7)
+            .background(Color("CardBackground").opacity(0.9))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color("SecondaryText").opacity(0.12), lineWidth: 1)
+            }
+            .padding(.top, 8)
+            .padding(.trailing, 12)
+            .transition(.move(edge: .top).combined(with: .opacity))
+            .animation(.spring(response: 0.28, dampingFraction: 0.9), value: iCloudSyncStatusMonitor.isSyncing)
         }
     }
 }
