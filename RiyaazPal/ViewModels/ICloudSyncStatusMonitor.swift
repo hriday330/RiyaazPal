@@ -10,10 +10,12 @@ import Foundation
 
 @MainActor
 final class ICloudSyncStatusMonitor: ObservableObject {
-    @Published private(set) var isImporting = false
+    @Published private(set) var isSyncing = false
 
     private var activeImportEventIDs: Set<UUID> = []
+    private var isShowingTimelineSyncHint = false
     private var observer: NSObjectProtocol?
+    private var timelineSyncHintTask: Task<Void, Never>?
 
     init(notificationCenter: NotificationCenter = .default) {
         observer = notificationCenter.addObserver(
@@ -29,9 +31,36 @@ final class ICloudSyncStatusMonitor: ObservableObject {
     }
 
     deinit {
+        timelineSyncHintTask?.cancel()
+
         if let observer {
             NotificationCenter.default.removeObserver(observer)
         }
+    }
+
+    func showTimelineSyncHint(duration: Duration = .seconds(12)) {
+        guard RiyaazPalModelContainer.isICloudSyncEnabled else { return }
+
+        isShowingTimelineSyncHint = true
+        updateSyncingState()
+
+        timelineSyncHintTask?.cancel()
+        timelineSyncHintTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: duration)
+            } catch {
+                return
+            }
+
+            await MainActor.run {
+                self?.isShowingTimelineSyncHint = false
+                self?.updateSyncingState()
+            }
+        }
+    }
+
+    func showTimelineDataChangeHint() {
+        showTimelineSyncHint(duration: .seconds(2))
     }
 
     private func handleCloudKitEventNotification(_ notification: Notification) {
@@ -47,6 +76,10 @@ final class ICloudSyncStatusMonitor: ObservableObject {
             activeImportEventIDs.remove(event.identifier)
         }
 
-        isImporting = !activeImportEventIDs.isEmpty
+        updateSyncingState()
+    }
+
+    private func updateSyncingState() {
+        isSyncing = !activeImportEventIDs.isEmpty || isShowingTimelineSyncHint
     }
 }

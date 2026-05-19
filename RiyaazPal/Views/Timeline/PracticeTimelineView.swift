@@ -10,6 +10,7 @@ import SwiftData
 
 struct PracticeTimelineView: View {
     @EnvironmentObject var router: TabRouter
+    @EnvironmentObject var iCloudSyncStatusMonitor: ICloudSyncStatusMonitor
 
     @Query(sort: \PracticeAreaEntity.order)
         private var practiceAreas: [PracticeAreaEntity]
@@ -119,6 +120,12 @@ struct PracticeTimelineView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
                 dismissPresentedTimelinePanels()
+            }
+            .onAppear {
+                iCloudSyncStatusMonitor.showTimelineSyncHint()
+            }
+            .onChange(of: sessions.count) {
+                iCloudSyncStatusMonitor.showTimelineDataChangeHint()
             }
             
             
@@ -655,6 +662,7 @@ extension View {
     return NavigationStack {
         PracticeTimelineView()
     }
+    .environmentObject(ICloudSyncStatusMonitor())
     .modelContainer(container)
     .preferredColorScheme(.light)
 }
@@ -694,6 +702,7 @@ extension View {
     return NavigationStack {
         PracticeTimelineView()
     }
+    .environmentObject(ICloudSyncStatusMonitor())
     .modelContainer(container)
     .preferredColorScheme(.dark)
 }

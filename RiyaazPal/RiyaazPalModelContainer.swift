@@ -42,7 +42,7 @@ enum RiyaazPalModelContainer {
         }
     }()
 
-    private static var isICloudSyncEnabled: Bool {
+    static var isICloudSyncEnabled: Bool {
         UserDefaults.standard.object(forKey: iCloudSyncEnabledKey) as? Bool ?? true
     }
 

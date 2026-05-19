@@ -80,6 +80,7 @@ struct RootTabView: View {
             TabView(selection: $router.selectedTab) {
                 NavigationStack {
                     PracticeTimelineView()
+                        .environmentObject(iCloudSyncStatusMonitor)
                 }
                 .tabItem {
                     Label("Timeline", systemImage: "music.note.list")
@@ -109,7 +110,7 @@ struct RootTabView: View {
 
     @ViewBuilder
     private var iCloudSyncStatusBanner: some View {
-        if iCloudSyncStatusMonitor.isImporting {
+        if iCloudSyncStatusMonitor.isSyncing {
             HStack(spacing: 8) {
                 ProgressView()
                     .controlSize(.small)
@@ -125,7 +126,7 @@ struct RootTabView: View {
             .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
             .padding(.top, 10)
             .transition(.move(edge: .top).combined(with: .opacity))
-            .animation(.spring(response: 0.28, dampingFraction: 0.9), value: iCloudSyncStatusMonitor.isImporting)
+            .animation(.spring(response: 0.28, dampingFraction: 0.9), value: iCloudSyncStatusMonitor.isSyncing)
         }
     }
 }
