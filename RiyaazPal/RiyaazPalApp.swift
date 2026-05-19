@@ -70,34 +70,62 @@ final class RiyaazPalAppDelegate: NSObject, UIApplicationDelegate, UNUserNotific
 struct RootTabView: View {
     @EnvironmentObject var router: TabRouter
 
+    @StateObject private var iCloudSyncStatusMonitor = ICloudSyncStatusMonitor()
+
     @AppStorage("practiceNudgesEnabled")
     private var practiceNudgesEnabled = false
 
     var body: some View {
-        TabView(selection: $router.selectedTab) {
-            NavigationStack {
-                PracticeTimelineView()
+        ZStack(alignment: .top) {
+            TabView(selection: $router.selectedTab) {
+                NavigationStack {
+                    PracticeTimelineView()
+                }
+                .tabItem {
+                    Label("Timeline", systemImage: "music.note.list")
+                }
+                .tag(TabRouter.Tab.timeline)
+                
+                NavigationStack {
+                    InsightsView()
+                }
+                .tabItem {
+                    Label("Insights", systemImage: "chart.bar")
+                }
+                .tag(TabRouter.Tab.insights)
             }
-            .tabItem {
-                Label("Timeline", systemImage: "music.note.list")
+            .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
+                router.selectedTab = .timeline
             }
-            .tag(TabRouter.Tab.timeline)
-            
-            NavigationStack {
-                InsightsView()
+            .background {
+                if practiceNudgesEnabled {
+                    PracticeNudgeRefreshTask()
+                }
             }
-            .tabItem {
-                Label("Insights", systemImage: "chart.bar")
-            }
-            .tag(TabRouter.Tab.insights)
+
+            iCloudSyncStatusBanner
         }
-        .onReceive(NotificationCenter.default.publisher(for: .practiceNudgeNotificationTapped)) { _ in
-            router.selectedTab = .timeline
-        }
-        .background {
-            if practiceNudgesEnabled {
-                PracticeNudgeRefreshTask()
+    }
+
+    @ViewBuilder
+    private var iCloudSyncStatusBanner: some View {
+        if iCloudSyncStatusMonitor.isImporting {
+            HStack(spacing: 8) {
+                ProgressView()
+                    .controlSize(.small)
+
+                Text("Syncing from iCloud")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(Color("PrimaryText"))
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(Color("CardBackground"))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .shadow(color: .black.opacity(0.08), radius: 8, y: 3)
+            .padding(.top, 10)
+            .transition(.move(edge: .top).combined(with: .opacity))
+            .animation(.spring(response: 0.28, dampingFraction: 0.9), value: iCloudSyncStatusMonitor.isImporting)
         }
     }
 }
