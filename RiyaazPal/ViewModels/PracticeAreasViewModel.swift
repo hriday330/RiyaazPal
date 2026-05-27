@@ -131,6 +131,41 @@ final class PracticeAreasViewModel: ObservableObject {
     }
 
     @MainActor
+    func reactivateArea(
+        _ area: PracticeAreaEntity,
+        currentAreas: [PracticeAreaEntity]
+    ) -> Bool {
+        guard let context else { return false }
+
+        guard !containsActiveDuplicate(
+            name: area.name,
+            currentAreas: currentAreas,
+            excluding: area.id
+        ) else {
+            showDuplicateAlert = true
+            return false
+        }
+
+        let nextOrder = (
+            currentAreas
+                .filter(\.isActive)
+                .map(\.order)
+                .max() ?? -1
+        ) + 1
+
+        area.isActive = true
+        area.order = nextOrder
+
+        do {
+            try context.save()
+            return true
+        } catch {
+            print("PracticeAreasViewModel.reactivateArea error:", error)
+            return false
+        }
+    }
+
+    @MainActor
     func moveAreas(
         from source: IndexSet,
         to destination: Int,

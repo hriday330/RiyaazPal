@@ -23,6 +23,7 @@
 		C0864B112F9B1000006E5F6A /* PracticeAreaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B102F9B1000006E5F6A /* PracticeAreaModel.swift */; };
 		C0864B132F9F3000006E5F6A /* PracticeAreasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B122F9F3000006E5F6A /* PracticeAreasViewModel.swift */; };
 		C0864B152F9F3010006E5F6A /* PracticeAreasPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B142F9F3010006E5F6A /* PracticeAreasPanel.swift */; };
+		C0864B2F2FC0000006E5F6A /* ArchivedPracticeAreasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B2E2FC0000006E5F6A /* ArchivedPracticeAreasView.swift */; };
 		C0864B172FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B162FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift */; };
 		C0864B192FA82300006E5F6A /* PracticeAreaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */; };
 		C0864B1B2FA9000006E5F6A /* PracticeAreaInsightsContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B1A2FA9000006E5F6A /* PracticeAreaInsightsContent.swift */; };
@@ -89,6 +90,7 @@
 		C0864B102F9B1000006E5F6A /* PracticeAreaModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaModel.swift; sourceTree = "<group>"; };
 		C0864B122F9F3000006E5F6A /* PracticeAreasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreasViewModel.swift; sourceTree = "<group>"; };
 		C0864B142F9F3010006E5F6A /* PracticeAreasPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreasPanel.swift; sourceTree = "<group>"; };
+		C0864B2E2FC0000006E5F6A /* ArchivedPracticeAreasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedPracticeAreasView.swift; sourceTree = "<group>"; };
 		C0864B162FA03400006E5F6A /* PracticeAreaQuestionnaireFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaQuestionnaireFlow.swift; sourceTree = "<group>"; };
 		C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaMetrics.swift; sourceTree = "<group>"; };
 		C0864B1A2FA9000006E5F6A /* PracticeAreaInsightsContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaInsightsContent.swift; sourceTree = "<group>"; };
@@ -334,6 +336,7 @@
 			children = (
 				C0F593732F1F6560009F6A0D /* ProfileView.swift */,
 				C0864B142F9F3010006E5F6A /* PracticeAreasPanel.swift */,
+				C0864B2E2FC0000006E5F6A /* ArchivedPracticeAreasView.swift */,
 				C0864B262FB1000006E5F6A /* PracticeNudgeSettingsView.swift */,
 			);
 			path = Profile;
@@ -463,6 +466,7 @@
 				C0864B232FAE0000006E5F6A /* PracticeRecommendationService.swift in Sources */,
 				C0864B252FB0000006E5F6A /* PracticeRecommendationCard.swift in Sources */,
 				C0864B272FB1000006E5F6A /* PracticeNudgeSettingsView.swift in Sources */,
+				C0864B2F2FC0000006E5F6A /* ArchivedPracticeAreasView.swift in Sources */,
 				C0864B292FB2000006E5F6A /* PracticeNudgeNotificationService.swift in Sources */,
 				C0864B2B2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift in Sources */,
 				C04482E52F273BE500068D74 /* SetupCompleteView.swift in Sources */,

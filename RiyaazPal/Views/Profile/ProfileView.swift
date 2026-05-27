@@ -12,6 +12,7 @@ import SwiftData
 
 private enum ProfileRoute: Hashable {
     case practiceAreas
+    case archivedPracticeAreas
     case practiceNudges
 }
 
@@ -49,10 +50,14 @@ struct ProfileView: View {
                     NavigationLink(value: ProfileRoute.practiceAreas) {
                         PracticeAreasRow(areas: practiceAreas)
                     }
+
+                    NavigationLink(value: ProfileRoute.archivedPracticeAreas) {
+                        ArchivedPracticeAreasRow(areas: practiceAreas)
+                    }
                 } header: {
                     Text("Practice Areas")
                 } footer: {
-                    Text("Define the skill areas you'll rate after practice sessions.")
+                    Text("Define active skill areas or reactivate archived ones.")
                 }
 
                 // MARK: Practice Nudges Section
@@ -130,6 +135,8 @@ struct ProfileView: View {
                 switch route {
                 case .practiceAreas:
                     PracticeAreasPanel()
+                case .archivedPracticeAreas:
+                    ArchivedPracticeAreasView()
                 case .practiceNudges:
                     PracticeNudgeSettingsView()
                 }
@@ -294,6 +301,40 @@ private struct PracticeNudgesRow: View {
         ) ?? Date()
 
         return "On at \(date.formatted(date: .omitted, time: .shortened))"
+    }
+}
+
+private struct ArchivedPracticeAreasRow: View {
+    let areas: [PracticeAreaEntity]
+
+    private var archivedAreas: [PracticeAreaEntity] {
+        areas.filter { !$0.isActive }
+    }
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Archived Practice Areas")
+                    .font(.body)
+                    .fontWeight(.medium)
+
+                Text(statusText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "archivebox")
+                .foregroundStyle(Color("AccentColor"))
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var statusText: String {
+        guard !archivedAreas.isEmpty else { return "None archived" }
+        let noun = archivedAreas.count == 1 ? "area" : "areas"
+        return "\(archivedAreas.count) \(noun)"
     }
 }
 
