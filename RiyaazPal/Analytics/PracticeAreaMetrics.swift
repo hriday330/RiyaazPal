@@ -213,40 +213,18 @@ enum PracticeAreaMetricsCalculator {
             .filter(\.isActive)
             .sorted { $0.order < $1.order }
 
-        let activeAreasByID = Dictionary(
-            activeAreas.map { ($0.id, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-
-        let activeAreasByName = Dictionary(
-            activeAreas.map { (normalizeAreaName($0.name), $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-
         let activeAreasByMetricKey = Dictionary(
             activeAreas.map { (metricKey(for: $0.id), $0) },
             uniquingKeysWith: { first, _ in first }
         )
 
-        let inactiveAreasByID = Dictionary(
-            practiceAreas
-                .filter { !$0.isActive }
-                .map { ($0.id, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-
-        let inactiveAreasByMetricKey = Dictionary(
-            inactiveAreasByID.values.map { (archivedMetricKey(for: $0.id), $0) },
+        let areasByMetricKey = Dictionary(
+            practiceAreas.map { (metricKey(for: $0.id), $0) },
             uniquingKeysWith: { first, _ in first }
         )
 
         let groupedEntries = Dictionary(grouping: scoredEntries) { entry in
-            metricKey(
-                for: entry,
-                activeAreasByID: activeAreasByID,
-                activeAreasByName: activeAreasByName,
-                inactiveAreasByID: inactiveAreasByID
-            )
+            metricKey(for: entry.areaID)
         }
 
         let areaKeys = Set(activeAreasByMetricKey.keys).union(groupedEntries.keys)
@@ -255,8 +233,7 @@ enum PracticeAreaMetricsCalculator {
             .map { key in
                 buildMetric(
                     metricKey: key,
-                    activeArea: activeAreasByMetricKey[key],
-                    inactiveArea: inactiveAreasByMetricKey[key],
+                    area: areasByMetricKey[key],
                     entries: groupedEntries[key] ?? [],
                     now: now,
                     calendar: calendar
@@ -305,8 +282,7 @@ private extension PracticeAreaMetricsCalculator {
 
     static func buildMetric(
         metricKey: String,
-        activeArea: PracticeAreaMetricAreaInput?,
-        inactiveArea: PracticeAreaMetricAreaInput?,
+        area: PracticeAreaMetricAreaInput?,
         entries: [ScoredPracticeAreaEntry],
         now: Date,
         calendar: Calendar
@@ -350,14 +326,13 @@ private extension PracticeAreaMetricsCalculator {
         let practiceEntries = sortedEntries.filter { $0.sessionType == .practice }
         let concertEntries = sortedEntries.filter { $0.sessionType == .concert }
 
-        let knownArea = activeArea ?? inactiveArea
-        let areaName = knownArea?.name ?? latestEntry?.areaName ?? metricKey
+        let areaName = area?.name ?? latestEntry?.areaName ?? metricKey
 
         return PracticeAreaMetric(
             id: metricKey,
-            areaID: knownArea?.id ?? latestEntry?.areaID,
+            areaID: area?.id ?? latestEntry?.areaID,
             areaName: areaName,
-            isActive: activeArea != nil,
+            isActive: area?.isActive == true,
             latestScore: latestEntry?.score,
             sevenDayAverage: sevenDayAverage,
             previousSevenDayAverage: previousSevenDayAverage,
@@ -369,7 +344,7 @@ private extension PracticeAreaMetricsCalculator {
             ratedSessionCount: sortedEntries.count,
             daysSincePracticed: daysSincePracticed,
             isNeglected: isNeglected(
-                isActive: activeArea != nil,
+                isActive: area?.isActive == true,
                 daysSincePracticed: daysSincePracticed
             ),
             volatility: volatility(entries: sortedEntries),
@@ -517,37 +492,6 @@ private extension PracticeAreaMetricsCalculator {
 
     static func metricKey(for areaID: UUID) -> String {
         "area:\(areaID.uuidString)"
-    }
-
-    static func archivedMetricKey(for areaID: UUID) -> String {
-        "archived-area:\(areaID.uuidString)"
-    }
-
-    static func metricKey(
-        for entry: ScoredPracticeAreaEntry,
-        activeAreasByID: [UUID: PracticeAreaMetricAreaInput],
-        activeAreasByName: [String: PracticeAreaMetricAreaInput],
-        inactiveAreasByID: [UUID: PracticeAreaMetricAreaInput]
-    ) -> String {
-        if activeAreasByID[entry.areaID] != nil {
-            return metricKey(for: entry.areaID)
-        }
-
-        if let inactiveArea = inactiveAreasByID[entry.areaID] {
-            let inactiveAreaName = normalizeAreaName(inactiveArea.name)
-
-            if let activeArea = activeAreasByName[inactiveAreaName] {
-                return metricKey(for: activeArea.id)
-            }
-
-            return archivedMetricKey(for: inactiveArea.id)
-        }
-
-        if let activeArea = activeAreasByName[entry.normalizedAreaName] {
-            return metricKey(for: activeArea.id)
-        }
-
-        return "archived:\(entry.normalizedAreaName)"
     }
 
     static func normalizeAreaName(_ name: String) -> String {
