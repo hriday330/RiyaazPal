@@ -9,6 +9,10 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+private enum PracticeAreasRoute: Hashable {
+    case archivedAreas
+}
+
 struct PracticeAreasPanel: View {
 
     @Environment(\.modelContext) private var context
@@ -26,6 +30,10 @@ struct PracticeAreasPanel: View {
         areas
             .filter(\.isActive)
             .sorted { $0.order < $1.order }
+    }
+
+    private var archivedAreas: [PracticeAreaEntity] {
+        areas.filter { !$0.isActive }
     }
 
     var body: some View {
@@ -67,6 +75,12 @@ struct PracticeAreasPanel: View {
             }
 
             Section {
+                NavigationLink(value: PracticeAreasRoute.archivedAreas) {
+                    ArchivedPracticeAreasPanelRow(count: archivedAreas.count)
+                }
+            }
+
+            Section {
                 HStack(spacing: 10) {
                     TextField("Add practice area", text: $newAreaName)
                         .submitLabel(.done)
@@ -95,6 +109,12 @@ struct PracticeAreasPanel: View {
         .listStyle(.insetGrouped)
         .background(Color("AppBackground"))
         .scrollContentBackground(.hidden)
+        .navigationDestination(for: PracticeAreasRoute.self) { route in
+            switch route {
+            case .archivedAreas:
+                ArchivedPracticeAreasView()
+            }
+        }
         .navigationTitle("Practice Areas")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -249,6 +269,36 @@ private struct PracticeAreaRow: View {
         }
 
         onCommit(trimmed)
+    }
+}
+
+private struct ArchivedPracticeAreasPanelRow: View {
+    let count: Int
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Archived Practice Areas")
+                    .font(.body)
+                    .fontWeight(.medium)
+
+                Text(statusText)
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+            }
+
+            Spacer()
+
+            Image(systemName: "archivebox")
+                .foregroundStyle(Color("AccentColor"))
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var statusText: String {
+        guard count > 0 else { return "None archived" }
+        let noun = count == 1 ? "area" : "areas"
+        return "\(count) \(noun)"
     }
 }
 

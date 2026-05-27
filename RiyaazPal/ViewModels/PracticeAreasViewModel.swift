@@ -42,7 +42,30 @@ final class PracticeAreasViewModel: ObservableObject {
             return nil
         }
 
-        let nextOrder = (currentAreas.map(\.order).max() ?? -1) + 1
+        let nextOrder = (
+            currentAreas
+                .filter(\.isActive)
+                .map(\.order)
+                .max() ?? -1
+        ) + 1
+
+        if let archivedArea = archivedArea(
+            named: trimmed,
+            currentAreas: currentAreas
+        ) {
+            archivedArea.name = trimmed
+            archivedArea.isActive = true
+            archivedArea.order = nextOrder
+
+            do {
+                try context.save()
+                return archivedArea
+            } catch {
+                print("PracticeAreasViewModel.createArea reactivate error:", error)
+                return nil
+            }
+        }
+
         let area = PracticeAreaEntity(
             name: trimmed,
             order: nextOrder
@@ -108,6 +131,41 @@ final class PracticeAreasViewModel: ObservableObject {
     }
 
     @MainActor
+    func reactivateArea(
+        _ area: PracticeAreaEntity,
+        currentAreas: [PracticeAreaEntity]
+    ) -> Bool {
+        guard let context else { return false }
+
+        guard !containsActiveDuplicate(
+            name: area.name,
+            currentAreas: currentAreas,
+            excluding: area.id
+        ) else {
+            showDuplicateAlert = true
+            return false
+        }
+
+        let nextOrder = (
+            currentAreas
+                .filter(\.isActive)
+                .map(\.order)
+                .max() ?? -1
+        ) + 1
+
+        area.isActive = true
+        area.order = nextOrder
+
+        do {
+            try context.save()
+            return true
+        } catch {
+            print("PracticeAreasViewModel.reactivateArea error:", error)
+            return false
+        }
+    }
+
+    @MainActor
     func moveAreas(
         from source: IndexSet,
         to destination: Int,
@@ -136,15 +194,33 @@ private extension PracticeAreasViewModel {
         name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    func normalizedKey(_ name: String) -> String {
+        normalizedDisplayName(name).lowercased()
+    }
+
+    func archivedArea(
+        named name: String,
+        currentAreas: [PracticeAreaEntity]
+    ) -> PracticeAreaEntity? {
+        let key = normalizedKey(name)
+
+        return currentAreas.first { area in
+            !area.isActive &&
+            normalizedKey(area.name) == key
+        }
+    }
+
     func containsActiveDuplicate(
         name: String,
         currentAreas: [PracticeAreaEntity],
         excluding id: UUID? = nil
     ) -> Bool {
-        currentAreas.contains { area in
+        let key = normalizedKey(name)
+
+        return currentAreas.contains { area in
             area.isActive &&
             area.id != id &&
-            area.name.caseInsensitiveCompare(name) == .orderedSame
+            normalizedKey(area.name) == key
         }
     }
 }
