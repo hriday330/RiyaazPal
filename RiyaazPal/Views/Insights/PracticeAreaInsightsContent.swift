@@ -14,6 +14,7 @@ private struct PracticeAreaInsightRoute: Hashable {
 struct PracticeAreaInsightsContent: View {
     let metrics: [PracticeAreaMetric]
     let activePracticeAreaCount: Int
+    let onToggleArchive: (PracticeAreaMetric) -> Void
     let onManagePracticeAreas: () -> Void
 
     private let activeMetrics: [PracticeAreaMetric]
@@ -24,10 +25,12 @@ struct PracticeAreaInsightsContent: View {
     init(
         metrics: [PracticeAreaMetric],
         activePracticeAreaCount: Int,
+        onToggleArchive: @escaping (PracticeAreaMetric) -> Void,
         onManagePracticeAreas: @escaping () -> Void
     ) {
         self.metrics = metrics
         self.activePracticeAreaCount = activePracticeAreaCount
+        self.onToggleArchive = onToggleArchive
         self.onManagePracticeAreas = onManagePracticeAreas
 
         let activeMetrics = metrics.filter(\.isActive)
@@ -85,7 +88,12 @@ struct PracticeAreaInsightsContent: View {
 
                     ForEach(metrics) { metric in
                         NavigationLink(value: PracticeAreaInsightRoute(metricID: metric.id)) {
-                            PracticeAreaMetricCard(metric: metric)
+                            PracticeAreaMetricCard(
+                                metric: metric,
+                                onToggleArchive: {
+                                    onToggleArchive(metric)
+                                }
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -284,6 +292,7 @@ private struct PracticeAreaHighlightGroup: View {
 
 private struct PracticeAreaMetricCard: View {
     let metric: PracticeAreaMetric
+    let onToggleArchive: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -332,6 +341,8 @@ private struct PracticeAreaMetricCard: View {
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(Color("SecondaryText"))
+
+            archiveMenu
         }
         .insightCard()
         .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
@@ -355,6 +366,28 @@ private struct PracticeAreaMetricCard: View {
     private var latestScoreText: String {
         guard let latestScore = metric.latestScore else { return "-" }
         return "\(latestScore)/10"
+    }
+
+    @ViewBuilder
+    private var archiveMenu: some View {
+        if metric.areaID != nil {
+            Menu {
+                Button(role: metric.isActive ? .destructive : nil) {
+                    onToggleArchive()
+                } label: {
+                    Label(
+                        metric.isActive ? "Archive" : "Unarchive",
+                        systemImage: metric.isActive ? "archivebox" : "tray.and.arrow.up"
+                    )
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.subheadline)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .frame(width: 28, height: 28)
+            }
+            .buttonStyle(.plain)
+        }
     }
 
 }
@@ -589,6 +622,7 @@ private extension View {
         PracticeAreaInsightsContent(
             metrics: metrics,
             activePracticeAreaCount: 2,
+            onToggleArchive: { _ in },
             onManagePracticeAreas: {}
         )
         .padding()

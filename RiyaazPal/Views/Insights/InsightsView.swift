@@ -17,6 +17,7 @@ enum InsightsMode {
 struct InsightsView: View {
     
     @EnvironmentObject var router: TabRouter
+    @Environment(\.modelContext) private var context
     
     @Query(sort: \PracticeSession.startTime, order: .reverse)
         private var sessions: [PracticeSession]
@@ -179,6 +180,7 @@ private extension InsightsView {
         PracticeAreaInsightsContent(
             metrics: insightsViewModel.practiceAreaMetrics,
             activePracticeAreaCount: insightsViewModel.activePracticeAreaCount,
+            onToggleArchive: togglePracticeAreaArchive,
             onManagePracticeAreas: {
                 showProfile = true
             }
@@ -190,10 +192,39 @@ private extension InsightsView {
             metrics: insightsViewModel.practiceAreaMetrics,
             activePracticeAreaCount: insightsViewModel.activePracticeAreaCount,
             concertCount: insightsViewModel.concertCount,
+            onToggleArchive: togglePracticeAreaArchive,
             onManagePracticeAreas: {
                 showProfile = true
             }
         )
+    }
+
+    func togglePracticeAreaArchive(_ metric: PracticeAreaMetric) {
+        guard let areaID = metric.areaID,
+              let area = practiceAreas.first(where: { $0.id == areaID })
+        else { return }
+
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+        if area.isActive {
+            area.isActive = false
+        } else {
+            let nextOrder = (
+                practiceAreas
+                    .filter(\.isActive)
+                    .map(\.order)
+                    .max() ?? -1
+            ) + 1
+
+            area.isActive = true
+            area.order = nextOrder
+        }
+
+        do {
+            try context.save()
+        } catch {
+            assertionFailure("Failed to toggle practice area archive state: \(error)")
+        }
     }
 
 
