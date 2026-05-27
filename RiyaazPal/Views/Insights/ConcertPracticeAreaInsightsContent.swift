@@ -15,7 +15,6 @@ struct ConcertPracticeAreaInsightsContent: View {
     let metrics: [PracticeAreaMetric]
     let activePracticeAreaCount: Int
     let concertCount: Int
-    let onToggleArchive: (PracticeAreaMetric) -> Void
     let onManagePracticeAreas: () -> Void
 
     private var activeMetrics: [PracticeAreaMetric] {
@@ -93,12 +92,7 @@ struct ConcertPracticeAreaInsightsContent: View {
 
                     ForEach(metrics) { metric in
                         NavigationLink(value: ConcertPracticeAreaInsightRoute(metricID: metric.id)) {
-                            ConcertPracticeAreaMetricCard(
-                                metric: metric,
-                                onToggleArchive: {
-                                    onToggleArchive(metric)
-                                }
-                            )
+                            ConcertPracticeAreaMetricCard(metric: metric)
                         }
                         .buttonStyle(.plain)
                     }
@@ -297,7 +291,6 @@ private struct ConcertPracticeAreaHighlightGroup: View {
 
 private struct ConcertPracticeAreaMetricCard: View {
     let metric: PracticeAreaMetric
-    let onToggleArchive: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -346,8 +339,6 @@ private struct ConcertPracticeAreaMetricCard: View {
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(Color("SecondaryText"))
-
-            archiveMenu
         }
         .insightCard()
         .shadow(color: .black.opacity(0.08), radius: 10)
@@ -371,28 +362,6 @@ private struct ConcertPracticeAreaMetricCard: View {
     private var latestConcertScoreText: String {
         guard let score = metric.concert.latestScore else { return "-" }
         return "\(score)/10"
-    }
-
-    @ViewBuilder
-    private var archiveMenu: some View {
-        if metric.areaID != nil {
-            Menu {
-                Button(role: metric.isActive ? .destructive : nil) {
-                    onToggleArchive()
-                } label: {
-                    Label(
-                        metric.isActive ? "Archive" : "Unarchive",
-                        systemImage: metric.isActive ? "archivebox" : "tray.and.arrow.up"
-                    )
-                }
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .font(.subheadline)
-                    .foregroundStyle(Color("SecondaryText"))
-                    .frame(width: 28, height: 28)
-            }
-            .buttonStyle(.plain)
-        }
     }
 
 }
@@ -587,7 +556,6 @@ private extension View {
             metrics: metrics,
             activePracticeAreaCount: 2,
             concertCount: 4,
-            onToggleArchive: { _ in },
             onManagePracticeAreas: {}
         )
         .padding()
