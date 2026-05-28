@@ -122,10 +122,7 @@ struct PracticeTimelineView: View {
                 dismissPresentedTimelinePanels()
             }
             .onAppear {
-                iCloudSyncStatusMonitor.showTimelineSyncHint()
-            }
-            .onChange(of: sessions.count) {
-                iCloudSyncStatusMonitor.showTimelineDataChangeHint()
+                iCloudSyncStatusMonitor.showInitialTimelineSyncHintIfNeeded()
             }
             
             
