@@ -5,42 +5,56 @@
 //  Created by OpenAI on 2026-05-19.
 //
 
-import CoreData
 import Foundation
+import Network
 
 @MainActor
 final class ICloudSyncStatusMonitor: ObservableObject {
     @Published private(set) var isSyncing = false
 
-    private var activeImportEventIDs: Set<UUID> = []
+    private var isNetworkOnline = false
     private var isShowingTimelineSyncHint = false
-    private var observer: NSObjectProtocol?
+    private var shouldShowInitialHintWhenOnline = false
     private var timelineSyncHintTask: Task<Void, Never>?
+    private let userDefaults: UserDefaults
+    private let networkMonitor = NWPathMonitor()
+    private let networkMonitorQueue = DispatchQueue(label: "com.riyaazpal.icloud-sync-network")
 
-    init(notificationCenter: NotificationCenter = .default) {
-        observer = notificationCenter.addObserver(
-            forName: NSPersistentCloudKitContainer.eventChangedNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            guard let self else { return }
-            MainActor.assumeIsolated {
-                self.handleCloudKitEventNotification(notification)
+    private static let hasShownInitialSyncHintKey = "hasShownInitialICloudSyncHint"
+
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+
+        networkMonitor.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor [weak self] in
+                self?.handleNetworkPathUpdate(path)
             }
         }
+        networkMonitor.start(queue: networkMonitorQueue)
     }
 
     deinit {
         timelineSyncHintTask?.cancel()
-
-        if let observer {
-            NotificationCenter.default.removeObserver(observer)
-        }
+        networkMonitor.cancel()
     }
 
-    func showTimelineSyncHint(duration: Duration = .seconds(12)) {
+    func showInitialTimelineSyncHintIfNeeded(duration: Duration = .seconds(8)) {
         guard RiyaazPalModelContainer.isICloudSyncEnabled else { return }
+        guard !userDefaults.bool(forKey: Self.hasShownInitialSyncHintKey) else { return }
+        guard isNetworkOnline else {
+            shouldShowInitialHintWhenOnline = true
+            return
+        }
 
+        userDefaults.set(true, forKey: Self.hasShownInitialSyncHintKey)
+        showTimelineSyncHintForDuration(duration)
+    }
+
+    private var canShowSyncMessaging: Bool {
+        RiyaazPalModelContainer.isICloudSyncEnabled && isNetworkOnline
+    }
+
+    private func showTimelineSyncHintForDuration(_ duration: Duration) {
         isShowingTimelineSyncHint = true
         updateSyncingState()
 
@@ -59,27 +73,25 @@ final class ICloudSyncStatusMonitor: ObservableObject {
         }
     }
 
-    func showTimelineDataChangeHint() {
-        showTimelineSyncHint(duration: .seconds(2))
-    }
+    private func handleNetworkPathUpdate(_ path: NWPath) {
+        let isOnline = path.status == .satisfied
+        guard isNetworkOnline != isOnline else { return }
 
-    private func handleCloudKitEventNotification(_ notification: Notification) {
-        guard
-            let event = notification.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey]
-                as? NSPersistentCloudKitContainer.Event,
-            event.type == .import || event.type == .setup
-        else { return }
+        isNetworkOnline = isOnline
 
-        if event.endDate == nil {
-            activeImportEventIDs.insert(event.identifier)
-        } else {
-            activeImportEventIDs.remove(event.identifier)
+        if !isOnline {
+            timelineSyncHintTask?.cancel()
+            isShowingTimelineSyncHint = false
+        } else if shouldShowInitialHintWhenOnline {
+            shouldShowInitialHintWhenOnline = false
+            showInitialTimelineSyncHintIfNeeded()
+            return
         }
 
         updateSyncingState()
     }
 
     private func updateSyncingState() {
-        isSyncing = !activeImportEventIDs.isEmpty || isShowingTimelineSyncHint
+        isSyncing = canShowSyncMessaging && isShowingTimelineSyncHint
     }
 }
