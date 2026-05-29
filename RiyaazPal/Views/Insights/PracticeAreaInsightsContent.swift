@@ -188,7 +188,7 @@ private struct PracticeRhythmCard: View {
 
         let intensity = Double(day.practiceMinutes) / Double(maxMinutes)
         let opacity = min(0.9, max(0.28, 0.28 + intensity * 0.62))
-        return Color("AccentColor").opacity(opacity)
+        return Color.green.opacity(opacity)
     }
 
     private func rhythmStat(value: String, label: String) -> some View {
