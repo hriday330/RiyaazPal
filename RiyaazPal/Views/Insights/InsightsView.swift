@@ -178,6 +178,7 @@ private extension InsightsView {
     var practiceInsightsContent: some View {
         PracticeAreaInsightsContent(
             metrics: insightsViewModel.practiceAreaMetrics,
+            rhythmMetric: insightsViewModel.practiceRhythmMetric,
             activePracticeAreaCount: insightsViewModel.activePracticeAreaCount,
             onManagePracticeAreas: {
                 showProfile = true

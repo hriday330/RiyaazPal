@@ -13,6 +13,7 @@ final class InsightsViewModel: ObservableObject {
     
     @Published var currentWindow: DateRange = InsightWindowHelper.dateRange()
     @Published private(set) var practiceAreaMetrics: [PracticeAreaMetric] = []
+    @Published private(set) var practiceRhythmMetric = PracticeRhythmCalculator.compute(sessions: [])
     @Published private(set) var activePracticeAreaCount = 0
     @Published private(set) var concertCount = 0
     @Published private(set) var isLoadingMetrics = false
@@ -63,6 +64,7 @@ final class InsightsViewModel: ObservableObject {
             PracticeAreaMetricSessionInput(
                 id: $0.id,
                 startTime: $0.startTime,
+                duration: $0.duration,
                 sessionType: $0.resolvedSessionType,
                 lastModified: $0.lastModified
             )
@@ -77,11 +79,16 @@ final class InsightsViewModel: ObservableObject {
                 sessions: sessionInputs,
                 now: window.end
             )
+            let rhythmMetric = PracticeRhythmCalculator.compute(
+                sessions: sessionInputs,
+                now: window.end
+            )
 
             guard !Task.isCancelled else { return }
 
             await MainActor.run {
                 self.practiceAreaMetrics = metrics
+                self.practiceRhythmMetric = rhythmMetric
                 self.activePracticeAreaCount = activeAreaCount
                 self.concertCount = concertSessionCount
                 self.loadedMetricsRequestID = requestID

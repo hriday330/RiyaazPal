@@ -13,6 +13,7 @@ private struct PracticeAreaInsightRoute: Hashable {
 
 struct PracticeAreaInsightsContent: View {
     let metrics: [PracticeAreaMetric]
+    let rhythmMetric: PracticeRhythmMetric
     let activePracticeAreaCount: Int
     let onManagePracticeAreas: () -> Void
 
@@ -23,10 +24,12 @@ struct PracticeAreaInsightsContent: View {
 
     init(
         metrics: [PracticeAreaMetric],
+        rhythmMetric: PracticeRhythmMetric,
         activePracticeAreaCount: Int,
         onManagePracticeAreas: @escaping () -> Void
     ) {
         self.metrics = metrics
+        self.rhythmMetric = rhythmMetric
         self.activePracticeAreaCount = activePracticeAreaCount
         self.onManagePracticeAreas = onManagePracticeAreas
 
@@ -65,6 +68,8 @@ struct PracticeAreaInsightsContent: View {
                 )
             } else {
                 PracticeAreaOverviewCard(metrics: activeMetrics)
+
+                PracticeRhythmCard(metric: rhythmMetric)
 
                 PracticeAreaFocusBreakdownCard(
                     title: "Practice Mix",
@@ -116,6 +121,100 @@ struct PracticeAreaInsightsContent: View {
         if metric.trendDirection == .declining { score += 2 }
         if metric.daysSincePracticed ?? 0 > 10 { score += 1 }
         return score
+    }
+}
+
+private struct PracticeRhythmCard: View {
+    let metric: PracticeRhythmMetric
+
+    private var maxMinutes: Int {
+        max(metric.days.map(\.practiceMinutes).max() ?? 0, 1)
+    }
+
+    private let columns = Array(
+        repeating: GridItem(.flexible(), spacing: 5),
+        count: 7
+    )
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Practice Rhythm")
+                        .font(.headline)
+                        .foregroundStyle(Color("PrimaryText"))
+
+                    Text("Practiced days over the last 30 days.")
+                        .font(.caption)
+                        .foregroundStyle(Color("SecondaryText"))
+                }
+
+                Spacer()
+
+                Text("\(metric.practicedDays)/30")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("AccentColor"))
+            }
+
+            LazyVGrid(columns: columns, spacing: 5) {
+                ForEach(metric.days) { day in
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(dayFill(for: day))
+                        .aspectRatio(1, contentMode: .fit)
+                        .accessibilityLabel(accessibilityLabel(for: day))
+                }
+            }
+
+            HStack(spacing: 12) {
+                rhythmStat(value: "\(metric.currentStreak)", label: "Current streak")
+                rhythmStat(value: "\(metric.bestWeekPracticedDays)/7", label: "Best week")
+                rhythmStat(value: averageMinutesText, label: "Avg minutes")
+            }
+        }
+        .insightCard()
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
+    }
+
+    private var averageMinutesText: String {
+        guard let average = metric.averageMinutesPerPracticedDay else { return "-" }
+        return "\(average)"
+    }
+
+    private func dayFill(for day: PracticeRhythmDay) -> Color {
+        guard day.didPractice else {
+            return Color("SecondaryText").opacity(0.10)
+        }
+
+        let intensity = Double(day.practiceMinutes) / Double(maxMinutes)
+        let opacity = min(0.9, max(0.28, 0.28 + intensity * 0.62))
+        return Color("AccentColor").opacity(opacity)
+    }
+
+    private func rhythmStat(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color("PrimaryText"))
+
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(Color("SecondaryText"))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func accessibilityLabel(for day: PracticeRhythmDay) -> String {
+        let date = day.date.formatted(date: .abbreviated, time: .omitted)
+
+        if day.didPractice {
+            return "\(date), \(day.practiceMinutes) practice minutes"
+        }
+
+        return "\(date), no practice"
     }
 }
 
@@ -588,6 +687,22 @@ private extension View {
     return ScrollView {
         PracticeAreaInsightsContent(
             metrics: metrics,
+            rhythmMetric: PracticeRhythmCalculator.compute(
+                sessions: (0..<30).compactMap { offset in
+                    guard offset % 3 != 0 else { return nil }
+                    return PracticeAreaMetricSessionInput(
+                        id: UUID(),
+                        startTime: Calendar.current.date(
+                            byAdding: .day,
+                            value: -offset,
+                            to: Date()
+                        ) ?? Date(),
+                        duration: TimeInterval((25 + (offset % 4) * 15) * 60),
+                        sessionType: .practice,
+                        lastModified: Date()
+                    )
+                }
+            ),
             activePracticeAreaCount: 2,
             onManagePracticeAreas: {}
         )
