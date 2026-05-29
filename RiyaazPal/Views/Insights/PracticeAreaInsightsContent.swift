@@ -127,10 +127,6 @@ struct PracticeAreaInsightsContent: View {
 private struct PracticeRhythmCard: View {
     let metric: PracticeRhythmMetric
 
-    private var maxMinutes: Int {
-        max(metric.days.map(\.practiceMinutes).max() ?? 0, 1)
-    }
-
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: 5),
         count: 7
@@ -186,8 +182,18 @@ private struct PracticeRhythmCard: View {
             return Color("SecondaryText").opacity(0.10)
         }
 
-        let intensity = Double(day.practiceMinutes) / Double(maxMinutes)
-        let opacity = min(0.9, max(0.28, 0.28 + intensity * 0.62))
+        let opacity: Double
+        switch day.practiceMinutes {
+        case 0..<30:
+            opacity = 0.30
+        case 30..<60:
+            opacity = 0.48
+        case 60..<90:
+            opacity = 0.66
+        default:
+            opacity = 0.84
+        }
+
         return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(opacity)
     }
 
