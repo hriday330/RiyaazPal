@@ -162,6 +162,8 @@ private struct PracticeRhythmCard: View {
                 }
             }
 
+            heatmapLegend
+
             HStack(spacing: 12) {
                 rhythmStat(value: "\(metric.currentStreak)", label: "Current streak")
                 rhythmStat(value: "\(metric.bestWeekPracticedDays)/7", label: "Best week")
@@ -170,6 +172,27 @@ private struct PracticeRhythmCard: View {
         }
         .insightCard()
         .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
+    }
+
+    private var heatmapLegend: some View {
+        HStack(spacing: 6) {
+            Text("Less")
+                .font(.caption2)
+                .foregroundStyle(Color("SecondaryText"))
+
+            ForEach(PracticeRhythmLegendBucket.allCases) { bucket in
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(bucket.color)
+                    .frame(width: 14, height: 14)
+                    .accessibilityLabel(bucket.accessibilityLabel)
+            }
+
+            Text("More")
+                .font(.caption2)
+                .foregroundStyle(Color("SecondaryText"))
+
+            Spacer()
+        }
     }
 
     private var averageMinutesText: String {
@@ -221,6 +244,46 @@ private struct PracticeRhythmCard: View {
         }
 
         return "\(date), no practice"
+    }
+}
+
+private enum PracticeRhythmLegendBucket: CaseIterable, Identifiable {
+    case none
+    case short
+    case medium
+    case long
+    case extended
+
+    var id: Self { self }
+
+    var color: Color {
+        switch self {
+        case .none:
+            return Color("SecondaryText").opacity(0.10)
+        case .short:
+            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.30)
+        case .medium:
+            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.48)
+        case .long:
+            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.66)
+        case .extended:
+            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.84)
+        }
+    }
+
+    var accessibilityLabel: String {
+        switch self {
+        case .none:
+            return "No practice"
+        case .short:
+            return "Less than 30 practice minutes"
+        case .medium:
+            return "30 to 59 practice minutes"
+        case .long:
+            return "60 to 89 practice minutes"
+        case .extended:
+            return "90 or more practice minutes"
+        }
     }
 }
 
