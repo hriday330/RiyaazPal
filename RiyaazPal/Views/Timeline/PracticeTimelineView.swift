@@ -510,6 +510,7 @@ private extension PracticeTimelineView {
                 PracticeAreaMetricSessionInput(
                     id: $0.id,
                     startTime: $0.startTime,
+                    duration: $0.duration,
                     sessionType: $0.resolvedSessionType,
                     lastModified: $0.lastModified
                 )

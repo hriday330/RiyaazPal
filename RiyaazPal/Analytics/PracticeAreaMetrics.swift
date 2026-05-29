@@ -109,8 +109,32 @@ struct PracticeAreaMetricRatingInput: Sendable {
 struct PracticeAreaMetricSessionInput: Sendable {
     let id: UUID
     let startTime: Date
+    let duration: TimeInterval
     let sessionType: SessionType
     let lastModified: Date
+}
+
+struct PracticeRhythmMetric {
+    let days: [PracticeRhythmDay]
+    let practicedDays: Int
+    let currentStreak: Int
+    let bestWeekPracticedDays: Int
+    let totalMinutes: Int
+
+    var averageMinutesPerPracticedDay: Int? {
+        guard practicedDays > 0 else { return nil }
+        return Int((Double(totalMinutes) / Double(practicedDays)).rounded())
+    }
+}
+
+struct PracticeRhythmDay: Identifiable {
+    let id: Date
+    let date: Date
+    let practiceMinutes: Int
+
+    var didPractice: Bool {
+        practiceMinutes > 0
+    }
 }
 
 enum PracticeAreaTrendDirection: Equatable {
@@ -168,6 +192,7 @@ enum PracticeAreaMetricsCalculator {
                 PracticeAreaMetricSessionInput(
                     id: $0.id,
                     startTime: $0.startTime,
+                    duration: $0.duration,
                     sessionType: $0.resolvedSessionType,
                     lastModified: $0.lastModified
                 )
@@ -496,5 +521,84 @@ private extension PracticeAreaMetricsCalculator {
 
     static func normalizeAreaName(_ name: String) -> String {
         name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+}
+
+enum PracticeRhythmCalculator {
+    static func compute(
+        sessions: [PracticeAreaMetricSessionInput],
+        now: Date = Date(),
+        calendar: Calendar = .current,
+        dayCount: Int = 30
+    ) -> PracticeRhythmMetric {
+        let endDay = calendar.startOfDay(for: now)
+        let startDay = calendar.date(
+            byAdding: .day,
+            value: -(dayCount - 1),
+            to: endDay
+        ) ?? endDay
+
+        let practiceSessions = sessions.filter { session in
+            session.sessionType == .practice
+            && session.startTime >= startDay
+            && session.startTime < calendar.date(byAdding: .day, value: 1, to: endDay) ?? now
+        }
+
+        let minutesByDay = Dictionary(
+            grouping: practiceSessions,
+            by: { calendar.startOfDay(for: $0.startTime) }
+        )
+        .mapValues { sessions in
+            sessions.reduce(0) { total, session in
+                let minutes = Int((session.duration / 60).rounded())
+                return total + max(minutes, 1)
+            }
+        }
+
+        let days = (0..<dayCount).compactMap { offset -> PracticeRhythmDay? in
+            guard let date = calendar.date(byAdding: .day, value: offset, to: startDay) else {
+                return nil
+            }
+
+            return PracticeRhythmDay(
+                id: date,
+                date: date,
+                practiceMinutes: minutesByDay[date, default: 0]
+            )
+        }
+
+        let practicedDays = days.filter(\.didPractice).count
+        let totalMinutes = days.map(\.practiceMinutes).reduce(0, +)
+
+        return PracticeRhythmMetric(
+            days: days,
+            practicedDays: practicedDays,
+            currentStreak: currentStreak(days: days),
+            bestWeekPracticedDays: bestWeekPracticedDays(days: days),
+            totalMinutes: totalMinutes
+        )
+    }
+}
+
+private extension PracticeRhythmCalculator {
+    static func currentStreak(days: [PracticeRhythmDay]) -> Int {
+        var streak = 0
+
+        for day in days.reversed() {
+            guard day.didPractice else { break }
+            streak += 1
+        }
+
+        return streak
+    }
+
+    static func bestWeekPracticedDays(days: [PracticeRhythmDay]) -> Int {
+        guard !days.isEmpty else { return 0 }
+
+        return days.indices.map { index in
+            let start = max(days.startIndex, index - 6)
+            return days[start...index].filter(\.didPractice).count
+        }
+        .max() ?? 0
     }
 }

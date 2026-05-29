@@ -13,6 +13,7 @@ private struct PracticeAreaInsightRoute: Hashable {
 
 struct PracticeAreaInsightsContent: View {
     let metrics: [PracticeAreaMetric]
+    let rhythmMetric: PracticeRhythmMetric
     let activePracticeAreaCount: Int
     let onManagePracticeAreas: () -> Void
 
@@ -23,10 +24,12 @@ struct PracticeAreaInsightsContent: View {
 
     init(
         metrics: [PracticeAreaMetric],
+        rhythmMetric: PracticeRhythmMetric,
         activePracticeAreaCount: Int,
         onManagePracticeAreas: @escaping () -> Void
     ) {
         self.metrics = metrics
+        self.rhythmMetric = rhythmMetric
         self.activePracticeAreaCount = activePracticeAreaCount
         self.onManagePracticeAreas = onManagePracticeAreas
 
@@ -65,6 +68,8 @@ struct PracticeAreaInsightsContent: View {
                 )
             } else {
                 PracticeAreaOverviewCard(metrics: activeMetrics)
+
+                PracticeRhythmCard(metric: rhythmMetric)
 
                 PracticeAreaFocusBreakdownCard(
                     title: "Practice Mix",
@@ -116,6 +121,169 @@ struct PracticeAreaInsightsContent: View {
         if metric.trendDirection == .declining { score += 2 }
         if metric.daysSincePracticed ?? 0 > 10 { score += 1 }
         return score
+    }
+}
+
+private struct PracticeRhythmCard: View {
+    let metric: PracticeRhythmMetric
+
+    private let columns = Array(
+        repeating: GridItem(.flexible(), spacing: 5),
+        count: 7
+    )
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Practice Rhythm")
+                        .font(.headline)
+                        .foregroundStyle(Color("PrimaryText"))
+
+                    Text("Practiced days over the last 30 days.")
+                        .font(.caption)
+                        .foregroundStyle(Color("SecondaryText"))
+                }
+
+                Spacer()
+
+                Text("\(metric.practicedDays)/30")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("AccentColor"))
+            }
+
+            LazyVGrid(columns: columns, spacing: 5) {
+                ForEach(metric.days) { day in
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(dayFill(for: day))
+                        .aspectRatio(1, contentMode: .fit)
+                        .accessibilityLabel(accessibilityLabel(for: day))
+                }
+            }
+
+            heatmapLegend
+
+            HStack(spacing: 12) {
+                rhythmStat(value: "\(metric.currentStreak)", label: "Current streak")
+                rhythmStat(value: "\(metric.bestWeekPracticedDays)/7", label: "Best week")
+                rhythmStat(value: averageMinutesText, label: "Avg minutes")
+            }
+        }
+        .insightCard()
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
+    }
+
+    private var heatmapLegend: some View {
+        HStack(spacing: 6) {
+            Text("Less")
+                .font(.caption2)
+                .foregroundStyle(Color("SecondaryText"))
+
+            ForEach(PracticeRhythmLegendBucket.allCases) { bucket in
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(bucket.color)
+                    .frame(width: 14, height: 14)
+                    .accessibilityLabel(bucket.accessibilityLabel)
+            }
+
+            Text("More")
+                .font(.caption2)
+                .foregroundStyle(Color("SecondaryText"))
+
+            Spacer()
+        }
+    }
+
+    private var averageMinutesText: String {
+        guard let average = metric.averageMinutesPerPracticedDay else { return "-" }
+        return "\(average)"
+    }
+
+    private func dayFill(for day: PracticeRhythmDay) -> Color {
+        guard day.didPractice else {
+            return Color("SecondaryText").opacity(0.10)
+        }
+
+        let opacity: Double
+        switch day.practiceMinutes {
+        case 0..<30:
+            opacity = 0.30
+        case 30..<60:
+            opacity = 0.48
+        case 60..<90:
+            opacity = 0.66
+        default:
+            opacity = 0.84
+        }
+
+        return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(opacity)
+    }
+
+    private func rhythmStat(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color("PrimaryText"))
+
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(Color("SecondaryText"))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func accessibilityLabel(for day: PracticeRhythmDay) -> String {
+        let date = day.date.formatted(date: .abbreviated, time: .omitted)
+
+        if day.didPractice {
+            return "\(date), \(day.practiceMinutes) practice minutes"
+        }
+
+        return "\(date), no practice"
+    }
+}
+
+private enum PracticeRhythmLegendBucket: CaseIterable, Identifiable {
+    case none
+    case short
+    case medium
+    case long
+    case extended
+
+    var id: Self { self }
+
+    var color: Color {
+        switch self {
+        case .none:
+            return Color("SecondaryText").opacity(0.10)
+        case .short:
+            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.30)
+        case .medium:
+            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.48)
+        case .long:
+            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.66)
+        case .extended:
+            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.84)
+        }
+    }
+
+    var accessibilityLabel: String {
+        switch self {
+        case .none:
+            return "No practice"
+        case .short:
+            return "Less than 30 practice minutes"
+        case .medium:
+            return "30 to 59 practice minutes"
+        case .long:
+            return "60 to 89 practice minutes"
+        case .extended:
+            return "90 or more practice minutes"
+        }
     }
 }
 
@@ -588,6 +756,22 @@ private extension View {
     return ScrollView {
         PracticeAreaInsightsContent(
             metrics: metrics,
+            rhythmMetric: PracticeRhythmCalculator.compute(
+                sessions: (0..<30).compactMap { offset in
+                    guard offset % 3 != 0 else { return nil }
+                    return PracticeAreaMetricSessionInput(
+                        id: UUID(),
+                        startTime: Calendar.current.date(
+                            byAdding: .day,
+                            value: -offset,
+                            to: Date()
+                        ) ?? Date(),
+                        duration: TimeInterval((25 + (offset % 4) * 15) * 60),
+                        sessionType: .practice,
+                        lastModified: Date()
+                    )
+                }
+            ),
             activePracticeAreaCount: 2,
             onManagePracticeAreas: {}
         )
