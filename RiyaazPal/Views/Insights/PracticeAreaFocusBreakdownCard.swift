@@ -49,7 +49,8 @@ struct PracticeAreaFocusBreakdownCard: View {
                     slices: displaySlices,
                     totalCount: totalCount,
                     countLabel: countLabel,
-                    size: 116
+                    size: 116,
+                    showsCenterLabel: true
                 )
 
                 VStack(spacing: 9) {
@@ -108,7 +109,7 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                             .fontWeight(.semibold)
                             .foregroundStyle(Color("PrimaryText"))
 
-                        Text("How your active practice areas are represented across rated practice sessions.")
+                        Text("How much time relatively you spend on each of your active practice areas.")
                             .font(.subheadline)
                             .foregroundStyle(Color("SecondaryText"))
                     }
@@ -145,7 +146,8 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                         slices: displaySlices,
                         totalCount: totalCount,
                         countLabel: countLabel,
-                        size: 220
+                        size: 260,
+                        showsCenterLabel: false
                     )
 
                     VStack(spacing: 10) {
@@ -181,6 +183,7 @@ private struct PracticeAreaFocusDonutChart: View {
     let totalCount: Int
     let countLabel: String
     let size: CGFloat
+    let showsCenterLabel: Bool
 
     var body: some View {
         Chart(slices) { slice in
@@ -194,15 +197,17 @@ private struct PracticeAreaFocusDonutChart: View {
         .chartLegend(.hidden)
         .frame(width: size, height: size)
         .overlay {
-            VStack(spacing: 1) {
-                Text("\(totalCount)")
-                    .font(size > 100 ? .title2 : .title3)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color("PrimaryText"))
+            if showsCenterLabel {
+                VStack(spacing: 1) {
+                    Text("\(totalCount)")
+                        .font(size > 100 ? .title2 : .title3)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color("PrimaryText"))
 
-                Text(totalCount == 1 ? countLabel : "\(countLabel)s")
-                    .font(.caption2)
-                    .foregroundStyle(Color("SecondaryText"))
+                    Text(totalCount == 1 ? countLabel : "\(countLabel)s")
+                        .font(.caption2)
+                        .foregroundStyle(Color("SecondaryText"))
+                }
             }
         }
     }
