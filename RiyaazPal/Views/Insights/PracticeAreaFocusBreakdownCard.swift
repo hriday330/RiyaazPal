@@ -84,8 +84,13 @@ struct PracticeAreaFocusBreakdownDetailView: View {
     let title: String
     let metrics: [PracticeAreaMetric]
 
+    @State private var selectedWindow: PracticeMixWindow = .thirtyDays
+
     private var slices: [PracticeAreaFocusSlice] {
-        PracticeAreaFocusSlice.slices(from: metrics)
+        PracticeAreaFocusSlice.slices(
+            from: metrics,
+            inLast: selectedWindow.dayCount
+        )
     }
 
     private var displaySlices: [PracticeAreaFocusSlice] {
@@ -126,8 +131,15 @@ struct PracticeAreaFocusBreakdownDetailView: View {
 
     private var chartCard: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Picker("Practice mix window", selection: $selectedWindow) {
+                ForEach(PracticeMixWindow.allCases) { window in
+                    Text(window.label).tag(window)
+                }
+            }
+            .pickerStyle(.segmented)
+
             if totalCount == 0 {
-                Text("Reflect on practice sessions to build your mix.")
+                Text("Reflect on practice sessions to build your mix for this window.")
                     .font(.subheadline)
                     .foregroundStyle(Color("SecondaryText"))
             } else {
@@ -199,7 +211,10 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                 PracticeAreaFocusSlice(
                     id: metric.id,
                     name: metric.areaName,
-                    count: metric.practice.ratedSessionCount
+                    count: PracticeAreaFocusSlice.ratedPracticeCount(
+                        for: metric,
+                        inLast: selectedWindow.dayCount
+                    )
                 )
             }
             .filter { slice in
@@ -225,10 +240,10 @@ struct PracticeAreaFocusBreakdownDetailView: View {
         let remainingCount = underrepresentedAreas.count - min(underrepresentedAreas.count, 3)
 
         if remainingCount > 0 {
-            return "\(names), and \(remainingCount) more are getting less than 10% of reflected sessions."
+            return "\(names), and \(remainingCount) more are getting less than 10% of this window."
         }
 
-        return "\(names) are getting less than 10% of reflected sessions."
+        return "\(names) are getting less than 10% of this window."
     }
 
     private func legendRow(_ slice: PracticeAreaFocusSlice) -> some View {
@@ -246,6 +261,46 @@ struct PracticeAreaFocusBreakdownDetailView: View {
     private func percentage(for slice: PracticeAreaFocusSlice) -> Int {
         guard totalCount > 0 else { return 0 }
         return Int(round((Double(slice.count) / Double(totalCount)) * 100))
+    }
+}
+
+private enum PracticeMixWindow: String, CaseIterable, Identifiable {
+    case sevenDays
+    case fourteenDays
+    case thirtyDays
+    case ninetyDays
+    case oneYear
+
+    var id: Self { self }
+
+    var label: String {
+        switch self {
+        case .sevenDays:
+            return "7D"
+        case .fourteenDays:
+            return "14D"
+        case .thirtyDays:
+            return "30D"
+        case .ninetyDays:
+            return "90D"
+        case .oneYear:
+            return "1Y"
+        }
+    }
+
+    var dayCount: Int {
+        switch self {
+        case .sevenDays:
+            return 7
+        case .fourteenDays:
+            return 14
+        case .thirtyDays:
+            return 30
+        case .ninetyDays:
+            return 90
+        case .oneYear:
+            return 365
+        }
     }
 }
 
@@ -394,6 +449,45 @@ private extension PracticeAreaFocusSlice {
 
                 return $0.count > $1.count
             }
+    }
+
+    static func slices(
+        from metrics: [PracticeAreaMetric],
+        inLast dayCount: Int
+    ) -> [PracticeAreaFocusSlice] {
+        metrics
+            .filter(\.isActive)
+            .compactMap { metric -> PracticeAreaFocusSlice? in
+                let count = ratedPracticeCount(for: metric, inLast: dayCount)
+                guard count > 0 else { return nil }
+                return PracticeAreaFocusSlice(
+                    id: metric.id,
+                    name: metric.areaName,
+                    count: count
+                )
+            }
+            .sorted {
+                if $0.count == $1.count {
+                    return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+                }
+
+                return $0.count > $1.count
+            }
+    }
+
+    static func ratedPracticeCount(
+        for metric: PracticeAreaMetric,
+        inLast dayCount: Int
+    ) -> Int {
+        let cutoff = Calendar.current.date(
+            byAdding: .day,
+            value: -(dayCount - 1),
+            to: Calendar.current.startOfDay(for: Date())
+        ) ?? Date()
+
+        return metric.scoreHistory.filter { point in
+            point.sessionType == .practice && point.date >= cutoff
+        }.count
     }
 
     static func compactDisplaySlices(from slices: [PracticeAreaFocusSlice]) -> [PracticeAreaFocusSlice] {
