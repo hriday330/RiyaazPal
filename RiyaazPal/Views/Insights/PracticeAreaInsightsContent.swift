@@ -185,6 +185,15 @@ private struct PracticeRhythmCard: View {
 
 struct PracticeRhythmDetailView: View {
     let metric: PracticeRhythmMetric
+    @State private var selectedWindow: PracticeRhythmWindow = .thirtyDays
+
+    private var selectedDays: [PracticeRhythmDay] {
+        Array(metric.days.suffix(selectedWindow.dayCount))
+    }
+
+    private var selectedStats: PracticeRhythmWindowStats {
+        PracticeRhythmWindowStats(days: selectedDays)
+    }
 
     var body: some View {
         ZStack {
@@ -199,7 +208,7 @@ struct PracticeRhythmDetailView: View {
                             .fontWeight(.semibold)
                             .foregroundStyle(Color("PrimaryText"))
 
-                        Text("Your practiced days and total minutes over the last 30 days.")
+                        Text("Your practiced days and total minutes over the selected window.")
                             .font(.subheadline)
                             .foregroundStyle(Color("SecondaryText"))
                     }
@@ -216,8 +225,15 @@ struct PracticeRhythmDetailView: View {
 
     private var fullHeatmapCard: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Picker("Rhythm window", selection: $selectedWindow) {
+                ForEach(PracticeRhythmWindow.allCases) { window in
+                    Text(window.label).tag(window)
+                }
+            }
+            .pickerStyle(.segmented)
+
             HStack(alignment: .firstTextBaseline) {
-                Text("\(metric.practicedDays)/30")
+                Text("\(selectedStats.practicedDays)/\(selectedWindow.dayCount)")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundStyle(Color("AccentColor"))
@@ -228,7 +244,7 @@ struct PracticeRhythmDetailView: View {
             }
 
             PracticeRhythmHeatmap(
-                days: metric.days,
+                days: selectedDays,
                 columnsCount: 7,
                 spacing: 5,
                 cornerRadius: 4,
@@ -248,13 +264,13 @@ struct PracticeRhythmDetailView: View {
                 .foregroundStyle(Color("PrimaryText"))
 
             HStack(spacing: 12) {
-                detailStat(value: "\(metric.currentStreak)", label: "Current streak")
-                detailStat(value: "\(metric.bestWeekPracticedDays)/7", label: "Best week")
+                detailStat(value: "\(selectedStats.currentStreak)", label: "Current streak")
+                detailStat(value: "\(selectedStats.bestWeekPracticedDays)/7", label: "Best week")
             }
 
             HStack(spacing: 12) {
                 detailStat(value: averageMinutesText, label: "Avg minutes")
-                detailStat(value: "\(metric.totalMinutes)", label: "Total minutes")
+                detailStat(value: "\(selectedStats.totalMinutes)", label: "Total minutes")
             }
 
             HStack(spacing: 12) {
@@ -267,16 +283,16 @@ struct PracticeRhythmDetailView: View {
     }
 
     private var averageMinutesText: String {
-        guard let average = metric.averageMinutesPerPracticedDay else { return "-" }
+        guard let average = selectedStats.averageMinutesPerPracticedDay else { return "-" }
         return "\(average)"
     }
 
     private var weeklyRhythmText: String {
-        metric.weeklyRhythm.formatted(.number.precision(.fractionLength(1)))
+        selectedStats.weeklyRhythm.formatted(.number.precision(.fractionLength(1)))
     }
 
     private var mostActiveDayText: String {
-        guard let mostActiveDay = metric.mostActiveDay else { return "-" }
+        guard let mostActiveDay = selectedStats.mostActiveDay else { return "-" }
 
         let weekday = mostActiveDay.date.formatted(.dateTime.weekday(.abbreviated))
         return "\(weekday), \(mostActiveDay.practiceMinutes)m"
@@ -296,6 +312,87 @@ struct PracticeRhythmDetailView: View {
                 .foregroundStyle(Color("SecondaryText"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private enum PracticeRhythmWindow: String, CaseIterable, Identifiable {
+    case sevenDays
+    case fourteenDays
+    case thirtyDays
+
+    var id: Self { self }
+
+    var label: String {
+        switch self {
+        case .sevenDays:
+            return "7D"
+        case .fourteenDays:
+            return "14D"
+        case .thirtyDays:
+            return "30D"
+        }
+    }
+
+    var dayCount: Int {
+        switch self {
+        case .sevenDays:
+            return 7
+        case .fourteenDays:
+            return 14
+        case .thirtyDays:
+            return 30
+        }
+    }
+}
+
+private struct PracticeRhythmWindowStats {
+    let days: [PracticeRhythmDay]
+
+    var practicedDays: Int {
+        days.filter(\.didPractice).count
+    }
+
+    var currentStreak: Int {
+        var streak = 0
+
+        for day in days.reversed() {
+            guard day.didPractice else { break }
+            streak += 1
+        }
+
+        return streak
+    }
+
+    var bestWeekPracticedDays: Int {
+        guard !days.isEmpty else { return 0 }
+
+        return days.indices.map { index in
+            let start = max(days.startIndex, index - 6)
+            return days[start...index].filter(\.didPractice).count
+        }
+        .max() ?? 0
+    }
+
+    var totalMinutes: Int {
+        days.map(\.practiceMinutes).reduce(0, +)
+    }
+
+    var averageMinutesPerPracticedDay: Int? {
+        guard practicedDays > 0 else { return nil }
+        return Int((Double(totalMinutes) / Double(practicedDays)).rounded())
+    }
+
+    var weeklyRhythm: Double {
+        guard !days.isEmpty else { return 0 }
+        return Double(practicedDays) / Double(days.count) * 7
+    }
+
+    var mostActiveDay: PracticeRhythmDay? {
+        days
+            .filter(\.didPractice)
+            .max { lhs, rhs in
+                lhs.practiceMinutes < rhs.practiceMinutes
+            }
     }
 }
 
