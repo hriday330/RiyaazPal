@@ -125,17 +125,6 @@ struct PracticeAreaFocusBreakdownDetailView: View {
 
     private var chartCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("\(totalCount)")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color("AccentColor"))
-
-                Text(totalCount == 1 ? "rated session" : "rated sessions")
-                    .font(.caption)
-                    .foregroundStyle(Color("SecondaryText"))
-            }
-
             if totalCount == 0 {
                 Text("Reflect on practice sessions to build your mix.")
                     .font(.subheadline)
@@ -146,8 +135,8 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                         slices: displaySlices,
                         totalCount: totalCount,
                         countLabel: countLabel,
-                        size: 260,
-                        showsCenterLabel: false
+                        size: 286,
+                        showsCenterLabel: true
                     )
 
                     VStack(spacing: 10) {
