@@ -217,7 +217,7 @@ private struct PracticeRhythmCard: View {
             opacity = 0.84
         }
 
-        return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(opacity)
+        return Color.green.opacity(opacity)
     }
 
     private func rhythmStat(value: String, label: String) -> some View {
@@ -261,13 +261,13 @@ private enum PracticeRhythmLegendBucket: CaseIterable, Identifiable {
         case .none:
             return Color("SecondaryText").opacity(0.10)
         case .short:
-            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.30)
+            return Color.green.opacity(0.30)
         case .medium:
-            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.48)
+            return Color.green.opacity(0.48)
         case .long:
-            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.66)
+            return Color.green.opacity(0.66)
         case .extended:
-            return Color(red: 0.32, green: 0.52, blue: 0.74).opacity(0.84)
+            return Color.green.opacity(0.84)
         }
     }
 
