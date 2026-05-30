@@ -145,10 +145,11 @@ private struct PracticeRhythmCard: View {
             }
 
             PracticeRhythmHeatmap(
-                days: Array(metric.days.suffix(14)),
+                days: metric.days,
                 columnsCount: 7,
-                spacing: 4,
-                cornerRadius: 3
+                spacing: 3,
+                cornerRadius: 2,
+                cellSize: 9
             )
 
             HStack(spacing: 12) {
@@ -230,7 +231,8 @@ struct PracticeRhythmDetailView: View {
                 days: metric.days,
                 columnsCount: 7,
                 spacing: 5,
-                cornerRadius: 4
+                cornerRadius: 4,
+                cellSize: nil
             )
 
             PracticeRhythmHeatmapLegend()
@@ -284,6 +286,7 @@ private struct PracticeRhythmHeatmap: View {
     let columnsCount: Int
     let spacing: CGFloat
     let cornerRadius: CGFloat
+    let cellSize: CGFloat?
 
     private var columns: [GridItem] {
         Array(
@@ -297,6 +300,7 @@ private struct PracticeRhythmHeatmap: View {
             ForEach(days) { day in
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .fill(PracticeRhythmColorScale.color(for: day))
+                    .frame(width: cellSize, height: cellSize)
                     .aspectRatio(1, contentMode: .fit)
                     .accessibilityLabel(accessibilityLabel(for: day))
             }
