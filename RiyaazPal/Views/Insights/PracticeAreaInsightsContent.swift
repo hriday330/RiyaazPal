@@ -13,6 +13,8 @@ struct PracticeAreaInsightRoute: Hashable {
 
 struct PracticeRhythmRoute: Hashable {}
 
+struct PracticeMixRoute: Hashable {}
+
 struct PracticeAreaInsightsContent: View {
     let metrics: [PracticeAreaMetric]
     let rhythmMetric: PracticeRhythmMetric
@@ -37,7 +39,7 @@ struct PracticeAreaInsightsContent: View {
 
         let activeMetrics = metrics.filter(\.isActive)
         self.activeMetrics = activeMetrics
-        self.ratedMetrics = metrics.filter { $0.practice.ratedSessionCount > 0 }
+        self.ratedMetrics = activeMetrics.filter { $0.practice.ratedSessionCount > 0 }
         self.attentionMetrics = activeMetrics
             .filter { metric in
                 metric.isNeglected
@@ -76,10 +78,13 @@ struct PracticeAreaInsightsContent: View {
                 }
                 .buttonStyle(.plain)
 
-                PracticeAreaFocusBreakdownCard(
-                    title: "Practice Mix",
-                    metrics: metrics
-                )
+                NavigationLink(value: PracticeMixRoute()) {
+                    PracticeAreaFocusBreakdownCard(
+                        title: "Practice Mix",
+                        metrics: activeMetrics
+                    )
+                }
+                .buttonStyle(.plain)
 
                 if !attentionMetrics.isEmpty || !improvingMetrics.isEmpty {
                     PracticeAreaHighlightsCard(
