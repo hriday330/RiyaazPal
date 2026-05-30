@@ -274,7 +274,7 @@ struct PracticeRhythmDetailView: View {
             }
 
             HStack(spacing: 12) {
-                detailStat(value: weeklyRhythmText, label: "Weekly rhythm")
+                detailStat(value: weeklyRhythmText, label: "Weekly days practiced")
                 detailStat(value: mostActiveDayText, label: "Most active day")
             }
         }
