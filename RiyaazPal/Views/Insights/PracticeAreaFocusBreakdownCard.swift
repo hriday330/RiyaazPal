@@ -115,6 +115,7 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                     }
 
                     chartCard
+                    mixSignalsCard
                 }
                 .padding()
             }
@@ -152,7 +153,81 @@ struct PracticeAreaFocusBreakdownDetailView: View {
         .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
     }
 
+    private var mixSignalsCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Mix Signals")
+                .font(.headline)
+                .foregroundStyle(Color("PrimaryText"))
+
+            if let topFocusSignal {
+                PracticeAreaFocusSignalRow(
+                    icon: "target",
+                    title: "Top focus",
+                    message: topFocusSignal,
+                    tint: Color("AccentColor")
+                )
+            }
+
+            PracticeAreaFocusSignalRow(
+                icon: "circle.dashed",
+                title: "Underrepresented",
+                message: underrepresentedSignal,
+                tint: .orange
+            )
+        }
+        .insightCard()
+        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
+    }
+
     private var countLabel: String { "session" }
+
+    private var topFocusSignal: String? {
+        guard
+            let topSlice = slices.first,
+            totalCount > 0
+        else { return nil }
+
+        return "\(topSlice.name) makes up \(percentage(for: topSlice))% of your reflected practice mix."
+    }
+
+    private var underrepresentedSignal: String {
+        let underrepresentedAreas = metrics
+            .filter(\.isActive)
+            .map { metric in
+                PracticeAreaFocusSlice(
+                    id: metric.id,
+                    name: metric.areaName,
+                    count: metric.practice.ratedSessionCount
+                )
+            }
+            .filter { slice in
+                slice.count == 0 || percentage(for: slice) < 10
+            }
+            .sorted {
+                if $0.count == $1.count {
+                    return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+                }
+
+                return $0.count < $1.count
+            }
+
+        guard !underrepresentedAreas.isEmpty else {
+            return "Your active areas are all represented in the current mix."
+        }
+
+        let names = underrepresentedAreas
+            .prefix(3)
+            .map(\.name)
+            .joined(separator: ", ")
+
+        let remainingCount = underrepresentedAreas.count - min(underrepresentedAreas.count, 3)
+
+        if remainingCount > 0 {
+            return "\(names), and \(remainingCount) more are getting less than 10% of reflected sessions."
+        }
+
+        return "\(names) are getting less than 10% of reflected sessions."
+    }
 
     private func legendRow(_ slice: PracticeAreaFocusSlice) -> some View {
         PracticeAreaFocusLegendRow(
@@ -164,6 +239,11 @@ struct PracticeAreaFocusBreakdownDetailView: View {
             ),
             showsCount: false
         )
+    }
+
+    private func percentage(for slice: PracticeAreaFocusSlice) -> Int {
+        guard totalCount > 0 else { return 0 }
+        return Int(round((Double(slice.count) / Double(totalCount)) * 100))
     }
 }
 
@@ -199,6 +279,45 @@ private struct PracticeAreaFocusDonutChart: View {
                 }
             }
         }
+    }
+}
+
+private struct PracticeAreaFocusSignalRow: View {
+    let icon: String
+    let title: String
+    let message: String
+    let tint: Color
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(tint)
+                .frame(width: 28, height: 28)
+                .background(
+                    Circle()
+                        .fill(tint.opacity(0.14))
+                )
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("PrimaryText"))
+
+                Text(message)
+                    .font(.caption)
+                    .foregroundStyle(Color("SecondaryText"))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(tint.opacity(0.08))
+        )
     }
 }
 
