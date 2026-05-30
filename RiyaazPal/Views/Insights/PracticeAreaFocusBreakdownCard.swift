@@ -44,16 +44,16 @@ struct PracticeAreaFocusBreakdownCard: View {
                     .foregroundStyle(Color("SecondaryText"))
             }
 
-            HStack(spacing: 14) {
+            HStack(spacing: 16) {
                 PracticeAreaFocusDonutChart(
                     slices: displaySlices,
                     totalCount: totalCount,
                     countLabel: countLabel,
-                    size: 82
+                    size: 116
                 )
 
-                VStack(spacing: 8) {
-                    ForEach(displaySlices.prefix(3)) { slice in
+                VStack(spacing: 9) {
+                    ForEach(displaySlices.prefix(4)) { slice in
                         legendRow(slice)
                     }
                 }
@@ -114,7 +114,6 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                     }
 
                     chartCard
-                    areaListCard
                 }
                 .padding()
             }
@@ -141,12 +140,12 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                     .font(.subheadline)
                     .foregroundStyle(Color("SecondaryText"))
             } else {
-                HStack(spacing: 18) {
+                VStack(spacing: 16) {
                     PracticeAreaFocusDonutChart(
                         slices: displaySlices,
                         totalCount: totalCount,
                         countLabel: countLabel,
-                        size: 144
+                        size: 220
                     )
 
                     VStack(spacing: 10) {
@@ -155,34 +154,6 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-        }
-        .insightCard()
-        .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
-    }
-
-    private var areaListCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Active Areas")
-                .font(.headline)
-                .foregroundStyle(Color("PrimaryText"))
-
-            if slices.isEmpty {
-                Text("No active practice areas have ratings yet.")
-                    .font(.subheadline)
-                    .foregroundStyle(Color("SecondaryText"))
-            } else {
-                ForEach(slices) { slice in
-                    PracticeAreaFocusLegendRow(
-                        slice: slice,
-                        totalCount: totalCount,
-                        color: PracticeAreaFocusPalette.color(
-                            for: slice,
-                            in: displaySlices
-                        ),
-                        showsCount: true
-                    )
                 }
             }
         }
