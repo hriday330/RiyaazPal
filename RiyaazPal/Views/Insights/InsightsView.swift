@@ -60,6 +60,22 @@ struct InsightsView: View {
 
         .navigationTitle("Insights")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(for: PracticeAreaInsightRoute.self) { route in
+            if let metric = insightsViewModel.practiceAreaMetrics.first(where: { $0.id == route.metricID }) {
+                PracticeAreaInsightDetailView(
+                    metric: metric,
+                    mode: .practice
+                )
+            }
+        }
+        .navigationDestination(for: ConcertPracticeAreaInsightRoute.self) { route in
+            if let metric = insightsViewModel.practiceAreaMetrics.first(where: { $0.id == route.metricID }) {
+                PracticeAreaInsightDetailView(
+                    metric: metric,
+                    mode: .concert
+                )
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
