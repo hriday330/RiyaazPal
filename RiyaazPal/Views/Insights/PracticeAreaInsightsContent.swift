@@ -243,7 +243,7 @@ struct PracticeRhythmDetailView: View {
 
     private var detailStatsCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Stats")
+            Text("Rhythm Details")
                 .font(.headline)
                 .foregroundStyle(Color("PrimaryText"))
 
@@ -256,6 +256,11 @@ struct PracticeRhythmDetailView: View {
                 detailStat(value: averageMinutesText, label: "Avg minutes")
                 detailStat(value: "\(metric.totalMinutes)", label: "Total minutes")
             }
+
+            HStack(spacing: 12) {
+                detailStat(value: weeklyRhythmText, label: "Weekly rhythm")
+                detailStat(value: mostActiveDayText, label: "Most active day")
+            }
         }
         .insightCard()
         .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
@@ -266,12 +271,25 @@ struct PracticeRhythmDetailView: View {
         return "\(average)"
     }
 
+    private var weeklyRhythmText: String {
+        metric.weeklyRhythm.formatted(.number.precision(.fractionLength(1)))
+    }
+
+    private var mostActiveDayText: String {
+        guard let mostActiveDay = metric.mostActiveDay else { return "-" }
+
+        let weekday = mostActiveDay.date.formatted(.dateTime.weekday(.abbreviated))
+        return "\(weekday), \(mostActiveDay.practiceMinutes)m"
+    }
+
     private func detailStat(value: String, label: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(value)
                 .font(.title3)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color("PrimaryText"))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
 
             Text(label)
                 .font(.caption)
