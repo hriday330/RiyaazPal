@@ -201,7 +201,7 @@ struct PracticeAreaFocusBreakdownDetailView: View {
             totalCount > 0
         else { return nil }
 
-        return "\(topSlice.name) makes up \(percentage(for: topSlice))% of your reflected practice mix."
+        return "\(topSlice.name) makes up \(percentageText(for: topSlice)) of your reflected practice mix."
     }
 
     private var underrepresentedSignal: String? {
@@ -261,6 +261,13 @@ struct PracticeAreaFocusBreakdownDetailView: View {
     private func percentage(for slice: PracticeAreaFocusSlice) -> Int {
         guard totalCount > 0 else { return 0 }
         return Int(round((Double(slice.count) / Double(totalCount)) * 100))
+    }
+
+    private func percentageText(for slice: PracticeAreaFocusSlice) -> String {
+        PracticeAreaFocusPercentageFormatter.text(
+            count: slice.count,
+            totalCount: totalCount
+        )
     }
 }
 
@@ -405,7 +412,7 @@ private struct PracticeAreaFocusLegendRow: View {
                     .lineLimit(1)
             }
 
-            Text("\(percentage)%")
+            Text(percentageText)
                 .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color("SecondaryText"))
@@ -420,6 +427,26 @@ private struct PracticeAreaFocusLegendRow: View {
     private var percentage: Int {
         guard totalCount > 0 else { return 0 }
         return Int(round((Double(slice.count) / Double(totalCount)) * 100))
+    }
+
+    private var percentageText: String {
+        PracticeAreaFocusPercentageFormatter.text(
+            count: slice.count,
+            totalCount: totalCount
+        )
+    }
+}
+
+private enum PracticeAreaFocusPercentageFormatter {
+    static func text(count: Int, totalCount: Int) -> String {
+        guard totalCount > 0 else { return "0%" }
+
+        let rawPercentage = (Double(count) / Double(totalCount)) * 100
+        if count > 0 && rawPercentage < 1 {
+            return "<1%"
+        }
+
+        return "\(Int(round(rawPercentage)))%"
     }
 }
 
