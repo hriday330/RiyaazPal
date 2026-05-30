@@ -155,7 +155,7 @@ struct PracticeAreaFocusBreakdownDetailView: View {
 
     private var mixSignalsCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Mix Signals")
+            Text("Focus Trends")
                 .font(.headline)
                 .foregroundStyle(Color("PrimaryText"))
 
