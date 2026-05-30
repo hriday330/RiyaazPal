@@ -168,12 +168,14 @@ struct PracticeAreaFocusBreakdownDetailView: View {
                 )
             }
 
-            PracticeAreaFocusSignalRow(
-                icon: "circle.dashed",
-                title: "Underrepresented",
-                message: underrepresentedSignal,
-                tint: .orange
-            )
+            if let underrepresentedSignal {
+                PracticeAreaFocusSignalRow(
+                    icon: "circle.dashed",
+                    title: "Underrepresented",
+                    message: underrepresentedSignal,
+                    tint: .orange
+                )
+            }
         }
         .insightCard()
         .shadow(color: .black.opacity(0.04), radius: 3, y: 2)
@@ -190,7 +192,7 @@ struct PracticeAreaFocusBreakdownDetailView: View {
         return "\(topSlice.name) makes up \(percentage(for: topSlice))% of your reflected practice mix."
     }
 
-    private var underrepresentedSignal: String {
+    private var underrepresentedSignal: String? {
         let underrepresentedAreas = metrics
             .filter(\.isActive)
             .map { metric in
@@ -212,7 +214,7 @@ struct PracticeAreaFocusBreakdownDetailView: View {
             }
 
         guard !underrepresentedAreas.isEmpty else {
-            return "Your active areas are all represented in the current mix."
+            return nil
         }
 
         let names = underrepresentedAreas
