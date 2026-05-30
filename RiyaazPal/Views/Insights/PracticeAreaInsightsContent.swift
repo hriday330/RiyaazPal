@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-private struct PracticeAreaInsightRoute: Hashable {
+struct PracticeAreaInsightRoute: Hashable {
     let metricID: String
 }
 
@@ -95,14 +95,6 @@ struct PracticeAreaInsightsContent: View {
                         .buttonStyle(.plain)
                     }
                 }
-            }
-        }
-        .navigationDestination(for: PracticeAreaInsightRoute.self) { route in
-            if let metric = metrics.first(where: { $0.id == route.metricID }) {
-                PracticeAreaInsightDetailView(
-                    metric: metric,
-                    mode: .practice
-                )
             }
         }
     }
