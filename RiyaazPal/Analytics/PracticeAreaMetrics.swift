@@ -120,6 +120,8 @@ struct PracticeRhythmMetric {
     let currentStreak: Int
     let bestWeekPracticedDays: Int
     let totalMinutes: Int
+    let weeklyRhythm: Double
+    let mostActiveDay: PracticeRhythmDay?
 
     var averageMinutesPerPracticedDay: Int? {
         guard practicedDays > 0 else { return nil }
@@ -575,7 +577,9 @@ enum PracticeRhythmCalculator {
             practicedDays: practicedDays,
             currentStreak: currentStreak(days: days),
             bestWeekPracticedDays: bestWeekPracticedDays(days: days),
-            totalMinutes: totalMinutes
+            totalMinutes: totalMinutes,
+            weeklyRhythm: weeklyRhythm(days: days),
+            mostActiveDay: mostActiveDay(days: days)
         )
     }
 }
@@ -600,5 +604,20 @@ private extension PracticeRhythmCalculator {
             return days[start...index].filter(\.didPractice).count
         }
         .max() ?? 0
+    }
+
+    static func weeklyRhythm(days: [PracticeRhythmDay]) -> Double {
+        guard !days.isEmpty else { return 0 }
+
+        let practicedDays = days.filter(\.didPractice).count
+        return Double(practicedDays) / Double(days.count) * 7
+    }
+
+    static func mostActiveDay(days: [PracticeRhythmDay]) -> PracticeRhythmDay? {
+        days
+            .filter(\.didPractice)
+            .max { lhs, rhs in
+                lhs.practiceMinutes < rhs.practiceMinutes
+            }
     }
 }

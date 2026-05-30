@@ -76,6 +76,9 @@ struct InsightsView: View {
                 )
             }
         }
+        .navigationDestination(for: PracticeRhythmRoute.self) { _ in
+            PracticeRhythmDetailView(metric: insightsViewModel.practiceRhythmMetric)
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
