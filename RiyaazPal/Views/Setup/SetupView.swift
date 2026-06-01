@@ -64,7 +64,7 @@ struct SetupView: View {
                 }
 
         case .notifications:
-            PracticeNudgeSettingsView()
+            PracticeNudgeOnboardingView()
                 .safeAreaInset(edge: .bottom) {
                     setupStepControls(
                         primaryTitle: "Continue",

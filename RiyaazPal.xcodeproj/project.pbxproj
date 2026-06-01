@@ -33,6 +33,7 @@
 		C0864B232FAE0000006E5F6A /* PracticeRecommendationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B222FAE0000006E5F6A /* PracticeRecommendationService.swift */; };
 		C0864B252FB0000006E5F6A /* PracticeRecommendationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B242FB0000006E5F6A /* PracticeRecommendationCard.swift */; };
 		C0864B272FB1000006E5F6A /* PracticeNudgeSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B262FB1000006E5F6A /* PracticeNudgeSettingsView.swift */; };
+		C0864B302FE0000006E5F6A /* PracticeNudgeOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B2F2FE0000006E5F6A /* PracticeNudgeOnboardingView.swift */; };
 		C0864B292FB2000006E5F6A /* PracticeNudgeNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B282FB2000006E5F6A /* PracticeNudgeNotificationService.swift */; };
 		C0864B2B2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B2A2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift */; };
 		C0864B2D2FB5000006E5F6A /* PracticeAreaFocusBreakdownCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B2C2FB5000006E5F6A /* PracticeAreaFocusBreakdownCard.swift */; };
@@ -100,6 +101,7 @@
 		C0864B222FAE0000006E5F6A /* PracticeRecommendationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeRecommendationService.swift; sourceTree = "<group>"; };
 		C0864B242FB0000006E5F6A /* PracticeRecommendationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeRecommendationCard.swift; sourceTree = "<group>"; };
 		C0864B262FB1000006E5F6A /* PracticeNudgeSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeNudgeSettingsView.swift; sourceTree = "<group>"; };
+		C0864B2F2FE0000006E5F6A /* PracticeNudgeOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeNudgeOnboardingView.swift; sourceTree = "<group>"; };
 		C0864B282FB2000006E5F6A /* PracticeNudgeNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeNudgeNotificationService.swift; sourceTree = "<group>"; };
 		C0864B2A2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeNudgeNotificationRouting.swift; sourceTree = "<group>"; };
 		C0864B2C2FB5000006E5F6A /* PracticeAreaFocusBreakdownCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaFocusBreakdownCard.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 				C0D82F162F249F4200B4E0E8 /* Preferences.swift */,
 				C04482E22F273BD700068D74 /* SetupWelcomeView.swift */,
 				C04482E42F273BE500068D74 /* SetupCompleteView.swift */,
+				C0864B2F2FE0000006E5F6A /* PracticeNudgeOnboardingView.swift */,
 			);
 			path = Setup;
 			sourceTree = "<group>";
@@ -466,6 +469,7 @@
 				C0864B232FAE0000006E5F6A /* PracticeRecommendationService.swift in Sources */,
 				C0864B252FB0000006E5F6A /* PracticeRecommendationCard.swift in Sources */,
 				C0864B272FB1000006E5F6A /* PracticeNudgeSettingsView.swift in Sources */,
+				C0864B302FE0000006E5F6A /* PracticeNudgeOnboardingView.swift in Sources */,
 				C0864B2F2FC0000006E5F6A /* ArchivedPracticeAreasView.swift in Sources */,
 				C0864B292FB2000006E5F6A /* PracticeNudgeNotificationService.swift in Sources */,
 				C0864B2B2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift in Sources */,

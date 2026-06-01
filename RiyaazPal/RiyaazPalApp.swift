@@ -151,14 +151,7 @@ struct RootTabView: View {
 }
 
 private struct PracticeNudgeRefreshTask: View {
-    @Query(sort: \PracticeSession.startTime, order: .reverse)
-    private var sessions: [PracticeSession]
-
-    @Query(sort: \PracticeAreaEntity.order)
-    private var practiceAreas: [PracticeAreaEntity]
-
-    @Query(sort: \PracticeAreaRatingEntity.createdAt)
-    private var practiceAreaRatings: [PracticeAreaRatingEntity]
+    @Environment(\.modelContext) private var modelContext
 
     @AppStorage("practiceNudgesEnabled")
     private var practiceNudgesEnabled = false
@@ -181,29 +174,45 @@ private struct PracticeNudgeRefreshTask: View {
 }
 
 private extension PracticeNudgeRefreshTask {
-    var practiceAreaMetrics: [PracticeAreaMetric] {
-        PracticeAreaMetricsCalculator.compute(
-            practiceAreas: practiceAreas,
-            ratings: practiceAreaRatings,
-            sessions: sessions
-        )
-    }
-
-    var rankedPracticeRecommendations: [PracticeSuggestionRecommendation] {
-        PracticeSuggestionRecommender.rankedRecommendations(
-            from: practiceAreaMetrics
-        )
-    }
-
     func refreshDailyNudgeOnce() async {
         guard !hasRefreshed else { return }
         hasRefreshed = true
 
+        guard practiceNudgesEnabled else { return }
+
         _ = await PracticeNudgeNotificationService.refreshDailyNudgeIfPossible(
             isEnabled: practiceNudgesEnabled,
-            recommendations: rankedPracticeRecommendations,
+            recommendations: rankedPracticeRecommendations(),
             hour: practiceNudgeHour,
             minute: practiceNudgeMinute
+        )
+    }
+
+    func rankedPracticeRecommendations() -> [PracticeSuggestionRecommendation] {
+        let sessions = (try? modelContext.fetch(
+            FetchDescriptor<PracticeSession>(
+                sortBy: [SortDescriptor(\.startTime, order: .reverse)]
+            )
+        )) ?? []
+        let practiceAreas = (try? modelContext.fetch(
+            FetchDescriptor<PracticeAreaEntity>(
+                sortBy: [SortDescriptor(\.order)]
+            )
+        )) ?? []
+        let practiceAreaRatings = (try? modelContext.fetch(
+            FetchDescriptor<PracticeAreaRatingEntity>(
+                sortBy: [SortDescriptor(\.createdAt)]
+            )
+        )) ?? []
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: practiceAreas,
+            ratings: practiceAreaRatings,
+            sessions: sessions
+        )
+
+        return PracticeSuggestionRecommender.rankedRecommendations(
+            from: metrics
         )
     }
 }
