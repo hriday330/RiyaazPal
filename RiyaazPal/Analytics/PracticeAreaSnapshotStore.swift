@@ -67,7 +67,7 @@ enum PracticeAreaSnapshotStore {
         }
 
         var didChangeLocalStore = false
-        let existingAreasByID = Dictionary(uniqueKeysWithValues: existingAreas.map { ($0.id, $0) })
+        let existingAreasByID = newestAreasByID(from: existingAreas)
 
         for snapshot in incomingSnapshots {
             if let area = existingAreasByID[snapshot.id] {
@@ -97,6 +97,22 @@ enum PracticeAreaSnapshotStore {
         }
 
         return didChangeLocalStore
+    }
+
+    @MainActor
+    private static func newestAreasByID(
+        from areas: [PracticeAreaEntity]
+    ) -> [UUID: PracticeAreaEntity] {
+        areas.reduce(into: [:]) { partialResult, area in
+            guard let existingArea = partialResult[area.id] else {
+                partialResult[area.id] = area
+                return
+            }
+
+            if area.lastModified > existingArea.lastModified {
+                partialResult[area.id] = area
+            }
+        }
     }
 }
 
