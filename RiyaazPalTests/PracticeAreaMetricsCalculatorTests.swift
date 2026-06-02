@@ -49,6 +49,105 @@ final class PracticeAreaMetricsCalculatorTests: XCTestCase {
         XCTAssertTrue(metric.isNeglected)
     }
 
+    func testDecliningTrendComparesSevenDayWindows() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(8, daysAgo: 10, areaID: areaID),
+                score(6, daysAgo: 2, areaID: areaID)
+            ]
+        )
+
+        XCTAssertEqual(try XCTUnwrap(metrics.first).trendDirection, .declining)
+    }
+
+    func testStableTrendWhenSevenDayDeltaIsBelowThreshold() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(7, daysAgo: 10, areaID: areaID),
+                score(7, daysAgo: 2, areaID: areaID)
+            ]
+        )
+
+        XCTAssertEqual(try XCTUnwrap(metrics.first).trendDirection, .stable)
+    }
+
+    func testTrendIsInsufficientWhenPreviousWindowIsEmpty() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(7, daysAgo: 2, areaID: areaID)
+            ]
+        )
+
+        XCTAssertEqual(try XCTUnwrap(metrics.first).trendDirection, .insufficientData)
+    }
+
+    func testActiveAreaWithNoRatingsAppearsAndIsNeglected() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [area(id: areaID, name: "Alap")],
+            ratings: [],
+            sessions: [],
+            now: now,
+            calendar: calendar
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertEqual(metric.areaName, "Alap")
+        XCTAssertTrue(metric.isActive)
+        XCTAssertTrue(metric.isNeglected)
+        XCTAssertNil(metric.latestScore)
+        XCTAssertEqual(metric.ratedSessionCount, 0)
+    }
+
+    func testInactiveAreaWithNoRatingsIsOmitted() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [area(id: areaID, name: "Archived Alap", isActive: false)],
+            ratings: [],
+            sessions: [],
+            now: now,
+            calendar: calendar
+        )
+
+        XCTAssertTrue(metrics.isEmpty)
+    }
+
+    func testExactlyFiveDaysSincePracticedIsNotNeglected() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(7, daysAgo: 5, areaID: areaID)
+            ]
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertEqual(metric.daysSincePracticed, 5)
+        XCTAssertFalse(metric.isNeglected)
+    }
+
     func testPerformanceTransferDetectsConcertDrop() throws {
         let areaID = UUID()
         let now = try date("2026-06-02T12:00:00Z")
@@ -72,6 +171,29 @@ final class PracticeAreaMetricsCalculatorTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(transfer.concertAverage), 6)
         XCTAssertEqual(try XCTUnwrap(transfer.delta), -2.5)
         XCTAssertEqual(transfer.status, .significantDrop)
+    }
+
+    func testPerformanceTransferDetectsConcertLift() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(5, daysAgo: 7, areaID: areaID),
+                score(5, daysAgo: 6, areaID: areaID),
+                score(6, daysAgo: 5, areaID: areaID),
+                score(6, daysAgo: 4, areaID: areaID),
+                score(8, daysAgo: 3, areaID: areaID, sessionType: .concert),
+                score(8, daysAgo: 2, areaID: areaID, sessionType: .concert),
+                score(8, daysAgo: 1, areaID: areaID, sessionType: .concert)
+            ]
+        )
+
+        let transfer = try XCTUnwrap(metrics.first?.performanceTransfer)
+        XCTAssertEqual(try XCTUnwrap(transfer.delta), 2.5)
+        XCTAssertEqual(transfer.status, .concertLift)
     }
 
     func testPerformanceTransferDetectsMaintainedConcertExecution() throws {
@@ -100,6 +222,87 @@ final class PracticeAreaMetricsCalculatorTests: XCTestCase {
             accuracy: 0.0001
         )
         XCTAssertEqual(transfer.status, .maintained)
+    }
+
+    func testPerformanceTransferIsInsufficientWithTooFewPracticeScores() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(8, daysAgo: 6, areaID: areaID),
+                score(8, daysAgo: 5, areaID: areaID),
+                score(8, daysAgo: 4, areaID: areaID),
+                score(6, daysAgo: 3, areaID: areaID, sessionType: .concert),
+                score(6, daysAgo: 2, areaID: areaID, sessionType: .concert),
+                score(6, daysAgo: 1, areaID: areaID, sessionType: .concert)
+            ]
+        )
+
+        let transfer = try XCTUnwrap(metrics.first?.performanceTransfer)
+        XCTAssertEqual(transfer.status, .insufficientData)
+        XCTAssertNil(transfer.delta)
+    }
+
+    func testPerformanceTransferIsInsufficientWithTooFewConcertScores() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(8, daysAgo: 6, areaID: areaID),
+                score(8, daysAgo: 5, areaID: areaID),
+                score(8, daysAgo: 4, areaID: areaID),
+                score(8, daysAgo: 3, areaID: areaID),
+                score(6, daysAgo: 2, areaID: areaID, sessionType: .concert),
+                score(6, daysAgo: 1, areaID: areaID, sessionType: .concert)
+            ]
+        )
+
+        let transfer = try XCTUnwrap(metrics.first?.performanceTransfer)
+        XCTAssertEqual(transfer.status, .insufficientData)
+        XCTAssertNil(transfer.delta)
+    }
+
+    func testPerformanceTransferIsMaintainedAtExactThresholds() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let dropBoundaryMetrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(8, daysAgo: 7, areaID: areaID),
+                score(8, daysAgo: 6, areaID: areaID),
+                score(9, daysAgo: 5, areaID: areaID),
+                score(9, daysAgo: 4, areaID: areaID),
+                score(7, daysAgo: 3, areaID: areaID, sessionType: .concert),
+                score(7, daysAgo: 2, areaID: areaID, sessionType: .concert),
+                score(7, daysAgo: 1, areaID: areaID, sessionType: .concert)
+            ]
+        )
+
+        XCTAssertEqual(try XCTUnwrap(dropBoundaryMetrics.first?.performanceTransfer.status), .maintained)
+
+        let liftBoundaryMetrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(6, daysAgo: 7, areaID: areaID),
+                score(6, daysAgo: 6, areaID: areaID),
+                score(7, daysAgo: 5, areaID: areaID),
+                score(7, daysAgo: 4, areaID: areaID),
+                score(8, daysAgo: 3, areaID: areaID, sessionType: .concert),
+                score(8, daysAgo: 2, areaID: areaID, sessionType: .concert),
+                score(8, daysAgo: 1, areaID: areaID, sessionType: .concert)
+            ]
+        )
+
+        XCTAssertEqual(try XCTUnwrap(liftBoundaryMetrics.first?.performanceTransfer.status), .maintained)
     }
 
     func testUsesNewestRatingWhenSessionHasDuplicateAreaRatings() throws {
@@ -142,6 +345,335 @@ final class PracticeAreaMetricsCalculatorTests: XCTestCase {
         XCTAssertEqual(metric.latestScore, 9)
         XCTAssertEqual(metric.ratedSessionCount, 1)
         XCTAssertEqual(metric.practice.averageScore, 9)
+    }
+
+    func testRatingsWithoutMatchingSessionAreIgnored() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [area(id: areaID, name: "Alap")],
+            ratings: [
+                rating(
+                    sessionID: UUID(),
+                    areaID: areaID,
+                    areaName: "Alap",
+                    score: 8,
+                    createdAt: now,
+                    lastModified: now
+                )
+            ],
+            sessions: [],
+            now: now,
+            calendar: calendar
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertNil(metric.latestScore)
+        XCTAssertEqual(metric.ratedSessionCount, 0)
+    }
+
+    func testDidNotPracticeAndNilScoreRatingsAreIgnored() throws {
+        let areaID = UUID()
+        let sessionID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [area(id: areaID, name: "Alap")],
+            ratings: [
+                rating(
+                    sessionID: sessionID,
+                    areaID: areaID,
+                    areaName: "Alap",
+                    didPractice: false,
+                    score: 8,
+                    createdAt: now,
+                    lastModified: now
+                ),
+                rating(
+                    sessionID: sessionID,
+                    areaID: areaID,
+                    areaName: "Alap",
+                    score: nil,
+                    createdAt: now,
+                    lastModified: now
+                )
+            ],
+            sessions: [
+                session(id: sessionID, startTime: now, sessionType: .practice)
+            ],
+            now: now,
+            calendar: calendar
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertNil(metric.latestScore)
+        XCTAssertEqual(metric.ratedSessionCount, 0)
+    }
+
+    func testScoresAreClampedBeforeMetricsAreCalculated() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(20, daysAgo: 2, areaID: areaID),
+                score(-4, daysAgo: 1, areaID: areaID)
+            ]
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertEqual(metric.latestScore, 1)
+        XCTAssertEqual(metric.sevenDayAverage, 5.5)
+    }
+
+    func testArchivedAreaWithOldRatingsProducesArchivedMetric() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [area(id: areaID, name: "Archived Alap", isActive: false)],
+            ratings: [
+                rating(
+                    sessionID: sessionID(0),
+                    areaID: areaID,
+                    areaName: "Old Alap",
+                    score: 8,
+                    createdAt: now,
+                    lastModified: now
+                )
+            ],
+            sessions: [
+                session(id: sessionID(0), startTime: now, sessionType: .practice)
+            ],
+            now: now,
+            calendar: calendar
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertEqual(metric.areaName, "Archived Alap")
+        XCTAssertFalse(metric.isActive)
+        XCTAssertFalse(metric.isNeglected)
+    }
+
+    func testRenamedActiveAreaUsesCurrentAreaName() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [area(id: areaID, name: "Alaap")],
+            ratings: [
+                rating(
+                    sessionID: sessionID(0),
+                    areaID: areaID,
+                    areaName: "Alap",
+                    score: 8,
+                    createdAt: now,
+                    lastModified: now
+                )
+            ],
+            sessions: [
+                session(id: sessionID(0), startTime: now, sessionType: .practice)
+            ],
+            now: now,
+            calendar: calendar
+        )
+
+        XCTAssertEqual(try XCTUnwrap(metrics.first).areaName, "Alaap")
+    }
+
+    func testUnknownAreaFallsBackToSavedRatingName() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [],
+            ratings: [
+                rating(
+                    sessionID: sessionID(0),
+                    areaID: areaID,
+                    areaName: "Snapshot Name",
+                    score: 8,
+                    createdAt: now,
+                    lastModified: now
+                )
+            ],
+            sessions: [
+                session(id: sessionID(0), startTime: now, sessionType: .practice)
+            ],
+            now: now,
+            calendar: calendar
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertEqual(metric.areaName, "Snapshot Name")
+        XCTAssertFalse(metric.isActive)
+    }
+
+    func testMultipleSessionsOnSameDayAreAllCounted() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+        let morning = try date("2026-06-02T09:00:00Z")
+        let lateMorning = try date("2026-06-02T11:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [area(id: areaID, name: "Alap")],
+            ratings: [
+                rating(sessionID: sessionID(0), areaID: areaID, areaName: "Alap", score: 6, createdAt: morning, lastModified: morning),
+                rating(sessionID: sessionID(1), areaID: areaID, areaName: "Alap", score: 8, createdAt: lateMorning, lastModified: lateMorning)
+            ],
+            sessions: [
+                session(id: sessionID(0), startTime: morning, sessionType: .practice),
+                session(id: sessionID(1), startTime: lateMorning, sessionType: .practice)
+            ],
+            now: now,
+            calendar: calendar
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertEqual(metric.ratedSessionCount, 2)
+        XCTAssertEqual(metric.sevenDayAverage, 7)
+    }
+
+    func testFutureDatedSessionDoesNotCreateNegativeDaysSincePracticed() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(8, daysAgo: -2, areaID: areaID)
+            ]
+        )
+
+        XCTAssertEqual(try XCTUnwrap(metrics.first).daysSincePracticed, 0)
+    }
+
+    func testScoreHistoryIsSortedOldestToNewest() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(8, daysAgo: 1, areaID: areaID),
+                score(6, daysAgo: 3, areaID: areaID),
+                score(7, daysAgo: 2, areaID: areaID)
+            ]
+        )
+
+        XCTAssertEqual(try XCTUnwrap(metrics.first).scoreHistory.map(\.score), [6, 7, 8])
+    }
+
+    func testLatestScoreUsesLatestSessionDateNotLatestModifiedRating() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+        let olderSessionDate = try date("2026-05-30T12:00:00Z")
+        let newerSessionDate = try date("2026-06-01T12:00:00Z")
+
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [area(id: areaID, name: "Alap")],
+            ratings: [
+                rating(
+                    sessionID: sessionID(0),
+                    areaID: areaID,
+                    areaName: "Alap",
+                    score: 10,
+                    createdAt: olderSessionDate,
+                    lastModified: try date("2026-06-02T11:00:00Z")
+                ),
+                rating(
+                    sessionID: sessionID(1),
+                    areaID: areaID,
+                    areaName: "Alap",
+                    score: 6,
+                    createdAt: newerSessionDate,
+                    lastModified: newerSessionDate
+                )
+            ],
+            sessions: [
+                session(id: sessionID(0), startTime: olderSessionDate, sessionType: .practice),
+                session(id: sessionID(1), startTime: newerSessionDate, sessionType: .practice)
+            ],
+            now: now,
+            calendar: calendar
+        )
+
+        XCTAssertEqual(try XCTUnwrap(metrics.first).latestScore, 6)
+    }
+
+    func testPracticeAndConcertContextLatestScoresAreSeparated() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(7, daysAgo: 4, areaID: areaID),
+                score(8, daysAgo: 3, areaID: areaID, sessionType: .concert),
+                score(9, daysAgo: 2, areaID: areaID),
+                score(6, daysAgo: 1, areaID: areaID, sessionType: .concert)
+            ]
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertEqual(metric.practice.latestScore, 9)
+        XCTAssertEqual(metric.concert.latestScore, 6)
+    }
+
+    func testVolatilityIsNilForOneScoreZeroForIdenticalScoresAndPositiveForMixedScores() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        XCTAssertNil(try XCTUnwrap(compute(areaID: areaID, now: now, scores: [
+            score(7, daysAgo: 1, areaID: areaID)
+        ]).first).volatility)
+
+        XCTAssertEqual(try XCTUnwrap(try XCTUnwrap(compute(areaID: areaID, now: now, scores: [
+            score(7, daysAgo: 2, areaID: areaID),
+            score(7, daysAgo: 1, areaID: areaID)
+        ]).first).volatility), 0)
+
+        XCTAssertEqual(try XCTUnwrap(try XCTUnwrap(compute(areaID: areaID, now: now, scores: [
+            score(6, daysAgo: 2, areaID: areaID),
+            score(8, daysAgo: 1, areaID: areaID)
+        ]).first).volatility), 1)
+    }
+
+    func testNoPracticeAreasAndNoRatingsReturnsNoMetrics() throws {
+        let metrics = PracticeAreaMetricsCalculator.compute(
+            practiceAreas: [] as [PracticeAreaMetricAreaInput],
+            ratings: [] as [PracticeAreaMetricRatingInput],
+            sessions: [] as [PracticeAreaMetricSessionInput],
+            now: try date("2026-06-02T12:00:00Z"),
+            calendar: calendar
+        )
+
+        XCTAssertTrue(metrics.isEmpty)
+    }
+
+    func testSevenDayAndPreviousWindowBoundaries() throws {
+        let areaID = UUID()
+        let now = try date("2026-06-02T12:00:00Z")
+
+        let metrics = compute(
+            areaID: areaID,
+            now: now,
+            scores: [
+                score(6, daysAgo: 14, areaID: areaID),
+                score(8, daysAgo: 7, areaID: areaID),
+                score(10, daysAgo: 0, areaID: areaID)
+            ]
+        )
+
+        let metric = try XCTUnwrap(metrics.first)
+        XCTAssertEqual(metric.previousSevenDayAverage, 6)
+        XCTAssertEqual(metric.sevenDayAverage, 9)
     }
 }
 
@@ -237,7 +769,8 @@ private extension PracticeAreaMetricsCalculatorTests {
         sessionID: UUID,
         areaID: UUID,
         areaName: String,
-        score: Int,
+        didPractice: Bool = true,
+        score: Int?,
         createdAt: Date,
         lastModified: Date
     ) -> PracticeAreaMetricRatingInput {
@@ -245,7 +778,7 @@ private extension PracticeAreaMetricsCalculatorTests {
             sessionID: sessionID,
             practiceAreaID: areaID,
             areaName: areaName,
-            didPractice: true,
+            didPractice: didPractice,
             score: score,
             createdAt: createdAt,
             lastModified: lastModified
