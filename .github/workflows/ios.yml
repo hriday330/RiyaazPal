@@ -19,11 +19,22 @@ jobs:
         with:
           xcode-version: "15.4"
 
-      - name: Build and run unit tests
+      - name: Build for testing
         run: |
           xcodebuild \
             -project RiyaazPal.xcodeproj \
             -scheme RiyaazPal \
             -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+            -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO \
-            clean test
+            clean build-for-testing
+
+      - name: Run unit tests
+        run: |
+          xcodebuild \
+            -project RiyaazPal.xcodeproj \
+            -scheme RiyaazPal \
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            test-without-building

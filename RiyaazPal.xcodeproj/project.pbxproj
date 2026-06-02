@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		C0DE01002FD1000000000001 /* PracticeAreaMetricsCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE01022FD1000000000001 /* PracticeAreaMetricsCalculatorTests.swift */; };
 		C0DE01012FD1000000000001 /* PracticeAreaFocusBreakdownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE01032FD1000000000001 /* PracticeAreaFocusBreakdownTests.swift */; };
+		C0DE01102FD1000000000001 /* PracticeAreaMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B182FA82300006E5F6A /* PracticeAreaMetrics.swift */; };
+		C0DE01112FD1000000000001 /* PracticeAreaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B102F9B1000006E5F6A /* PracticeAreaModel.swift */; };
+		C0DE01122FD1000000000001 /* PracticeSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430CE2F05993400C2401C /* PracticeSession.swift */; };
+		C0DE01132FD1000000000001 /* SessionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFBDE32F366DED00F84DFA /* SessionType.swift */; };
+		C0DE01142FD1000000000001 /* PracticeAreaFocusBreakdownCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B2C2FB5000006E5F6A /* PracticeAreaFocusBreakdownCard.swift */; };
 		C00066902F0EF8D500BC930C /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C000668F2F0EF8D500BC930C /* InsightsView.swift */; };
 		C00066932F0F101000BC930C /* PracticeScoreMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00066922F0F101000BC930C /* PracticeScoreMeter.swift */; };
 		C04482E32F273BD700068D74 /* SetupWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04482E22F273BD700068D74 /* SetupWelcomeView.swift */; };
@@ -503,6 +508,11 @@
 			files = (
 				C0DE01002FD1000000000001 /* PracticeAreaMetricsCalculatorTests.swift in Sources */,
 				C0DE01012FD1000000000001 /* PracticeAreaFocusBreakdownTests.swift in Sources */,
+				C0DE01102FD1000000000001 /* PracticeAreaMetrics.swift in Sources */,
+				C0DE01112FD1000000000001 /* PracticeAreaModel.swift in Sources */,
+				C0DE01122FD1000000000001 /* PracticeSession.swift in Sources */,
+				C0DE01132FD1000000000001 /* SessionType.swift in Sources */,
+				C0DE01142FD1000000000001 /* PracticeAreaFocusBreakdownCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,7 +600,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 65QCBL5R9T;
@@ -606,7 +615,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RiyaazPal.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RiyaazPal";
 			};
 			name = Debug;
 		};
@@ -614,7 +622,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 65QCBL5R9T;
@@ -630,7 +637,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RiyaazPal.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RiyaazPal";
 			};
 			name = Release;
 		};
