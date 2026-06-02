@@ -1,0 +1,111 @@
+//
+//  PracticeAreaFocusBreakdownTests.swift
+//  RiyaazPalTests
+//
+//  Created by Hriday Buddhdev on 2026-06-02.
+//
+
+import XCTest
+@testable import RiyaazPal
+
+final class PracticeAreaFocusBreakdownTests: XCTestCase {
+    func testSlicesIncludeOnlyActiveAreasWithPracticeRatings() {
+        let slices = PracticeAreaFocusSlice.slices(
+            from: [
+                metric(id: "alap", name: "Alap", isActive: true, practiceCount: 4),
+                metric(id: "taans", name: "Taans", isActive: true, practiceCount: 2),
+                metric(id: "archived", name: "Archived", isActive: false, practiceCount: 10),
+                metric(id: "empty", name: "Empty", isActive: true, practiceCount: 0)
+            ]
+        )
+
+        XCTAssertEqual(slices.map(\.name), ["Alap", "Taans"])
+        XCTAssertEqual(slices.map(\.count), [4, 2])
+    }
+
+    func testSlicesSortTiesByAreaName() {
+        let slices = PracticeAreaFocusSlice.slices(
+            from: [
+                metric(id: "layakari", name: "Layakari", practiceCount: 3),
+                metric(id: "alap", name: "Alap", practiceCount: 3),
+                metric(id: "taans", name: "Taans", practiceCount: 5)
+            ]
+        )
+
+        XCTAssertEqual(slices.map(\.name), ["Taans", "Alap", "Layakari"])
+    }
+
+    func testCompactDisplaySlicesKeepsTopFourAndGroupsTheRest() {
+        let slices = [
+            PracticeAreaFocusSlice(id: "one", name: "One", count: 9),
+            PracticeAreaFocusSlice(id: "two", name: "Two", count: 8),
+            PracticeAreaFocusSlice(id: "three", name: "Three", count: 7),
+            PracticeAreaFocusSlice(id: "four", name: "Four", count: 6),
+            PracticeAreaFocusSlice(id: "five", name: "Five", count: 5),
+            PracticeAreaFocusSlice(id: "six", name: "Six", count: 4)
+        ]
+
+        let compactSlices = PracticeAreaFocusSlice.compactDisplaySlices(from: slices)
+
+        XCTAssertEqual(compactSlices.map(\.name), ["One", "Two", "Three", "Four", "Other"])
+        XCTAssertEqual(compactSlices.last?.count, 9)
+    }
+
+    func testPercentageFormatterShowsLessThanOnePercentForTinyNonZeroSlices() {
+        XCTAssertEqual(
+            PracticeAreaFocusPercentageFormatter.text(count: 1, totalCount: 1_000),
+            "<1%"
+        )
+        XCTAssertEqual(
+            PracticeAreaFocusPercentageFormatter.text(count: 0, totalCount: 1_000),
+            "0%"
+        )
+        XCTAssertEqual(
+            PracticeAreaFocusPercentageFormatter.text(count: 6, totalCount: 10),
+            "60%"
+        )
+    }
+}
+
+private extension PracticeAreaFocusBreakdownTests {
+    func metric(
+        id: String,
+        name: String,
+        isActive: Bool = true,
+        practiceCount: Int
+    ) -> PracticeAreaMetric {
+        PracticeAreaMetric(
+            id: id,
+            areaID: UUID(),
+            areaName: name,
+            isActive: isActive,
+            latestScore: nil,
+            sevenDayAverage: nil,
+            previousSevenDayAverage: nil,
+            thirtyDayAverage: nil,
+            trendDirection: .insufficientData,
+            ratedSessionCount: practiceCount,
+            daysSincePracticed: nil,
+            isNeglected: false,
+            volatility: nil,
+            practice: PracticeAreaContextMetric(
+                latestScore: nil,
+                averageScore: nil,
+                ratedSessionCount: practiceCount,
+                volatility: nil
+            ),
+            concert: PracticeAreaContextMetric(
+                latestScore: nil,
+                averageScore: nil,
+                ratedSessionCount: 0,
+                volatility: nil
+            ),
+            performanceTransfer: PracticeAreaPerformanceTransfer(
+                practiceAverage: nil,
+                concertAverage: nil,
+                delta: nil,
+                status: .insufficientData
+            )
+        )
+    }
+}

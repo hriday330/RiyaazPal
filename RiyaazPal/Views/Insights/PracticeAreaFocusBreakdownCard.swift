@@ -437,7 +437,7 @@ private struct PracticeAreaFocusLegendRow: View {
     }
 }
 
-private enum PracticeAreaFocusPercentageFormatter {
+enum PracticeAreaFocusPercentageFormatter {
     static func text(count: Int, totalCount: Int) -> String {
         guard totalCount > 0 else { return "0%" }
 
@@ -450,13 +450,13 @@ private enum PracticeAreaFocusPercentageFormatter {
     }
 }
 
-private struct PracticeAreaFocusSlice: Identifiable {
+struct PracticeAreaFocusSlice: Identifiable {
     let id: String
     let name: String
     let count: Int
 }
 
-private extension PracticeAreaFocusSlice {
+extension PracticeAreaFocusSlice {
     static func slices(from metrics: [PracticeAreaMetric]) -> [PracticeAreaFocusSlice] {
         metrics
             .filter(\.isActive)
