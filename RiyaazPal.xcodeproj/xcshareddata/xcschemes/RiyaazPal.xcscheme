@@ -29,6 +29,28 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "C0A430B82F03494200C2401C"
+            BuildableName = "RiyaazPal.app"
+            BlueprintName = "RiyaazPal"
+            ReferencedContainer = "container:RiyaazPal.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "C0DE01062FD1000000000001"
+               BuildableName = "RiyaazPalTests.xctest"
+               BlueprintName = "RiyaazPalTests"
+               ReferencedContainer = "container:RiyaazPal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
