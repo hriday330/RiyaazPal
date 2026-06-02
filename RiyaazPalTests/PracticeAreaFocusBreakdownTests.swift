@@ -6,7 +6,6 @@
 //
 
 import XCTest
-@testable import RiyaazPal
 
 final class PracticeAreaFocusBreakdownTests: XCTestCase {
     func testSlicesIncludeOnlyActiveAreasWithPracticeRatings() {

@@ -6,7 +6,6 @@
 //
 
 import XCTest
-@testable import RiyaazPal
 
 final class PracticeAreaMetricsCalculatorTests: XCTestCase {
     private let calendar = Calendar(identifier: .gregorian)
