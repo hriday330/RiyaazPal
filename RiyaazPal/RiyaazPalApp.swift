@@ -27,7 +27,9 @@ struct RiyaazPalApp: App {
                 RootTabView()
                     .environmentObject(tabRouter)
             } else {
-                SetupView()
+                PracticeAreaRestoreGateView {
+                    SetupView()
+                }
             }
         }
         .modelContainer(RiyaazPalModelContainer.shared)
@@ -104,6 +106,8 @@ struct RootTabView: View {
                 if practiceNudgesEnabled {
                     PracticeNudgeRefreshTask()
                 }
+
+                PracticeAreaSnapshotSyncTask()
             }
 
             iCloudSyncStatusBanner
@@ -147,6 +151,135 @@ struct RootTabView: View {
             .transition(.move(edge: .top).combined(with: .opacity))
             .animation(.spring(response: 0.28, dampingFraction: 0.9), value: iCloudSyncStatusMonitor.isSyncing)
         }
+    }
+}
+
+private struct PracticeAreaRestoreGateView<Content: View>: View {
+    @Environment(\.modelContext) private var modelContext
+
+    @Query(sort: \PracticeAreaEntity.order)
+    private var practiceAreas: [PracticeAreaEntity]
+
+    @AppStorage("hasCompletedSetup")
+    private var hasCompletedSetup = false
+
+    @State private var isCheckingCloudMirror = true
+
+    let content: () -> Content
+
+    var body: some View {
+        Group {
+            if isCheckingCloudMirror {
+                VStack(spacing: 12) {
+                    ProgressView()
+
+                    Text("Checking iCloud")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Color("SecondaryText"))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color("AppBackground"))
+            } else {
+                content()
+            }
+        }
+        .task {
+            await restorePracticeAreasIfAvailable()
+        }
+    }
+}
+
+private extension PracticeAreaRestoreGateView {
+    @MainActor
+    func restorePracticeAreasIfAvailable() async {
+        guard isCheckingCloudMirror else { return }
+
+        if !practiceAreas.isEmpty {
+            PracticeAreaSnapshotStore.save(areas: practiceAreas)
+            hasCompletedSetup = true
+            return
+        }
+
+        if PracticeAreaSnapshotStore.restoreInto(
+            context: modelContext,
+            existingAreas: practiceAreas
+        ) {
+            hasCompletedSetup = true
+            return
+        }
+
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+
+        if !practiceAreas.isEmpty {
+            PracticeAreaSnapshotStore.save(areas: practiceAreas)
+            hasCompletedSetup = true
+            return
+        }
+
+        if PracticeAreaSnapshotStore.restoreInto(
+            context: modelContext,
+            existingAreas: practiceAreas
+        ) {
+            hasCompletedSetup = true
+            return
+        }
+
+        isCheckingCloudMirror = false
+    }
+}
+
+private struct PracticeAreaSnapshotSyncTask: View {
+    @Environment(\.modelContext) private var modelContext
+
+    @Query(sort: \PracticeAreaEntity.order)
+    private var practiceAreas: [PracticeAreaEntity]
+
+    @State private var lastMirroredSignature = ""
+
+    var body: some View {
+        Color.clear
+            .frame(width: 0, height: 0)
+            .task {
+                mirrorPracticeAreasIfNeeded()
+            }
+            .onChange(of: practiceAreasSignature) {
+                mirrorPracticeAreasIfNeeded()
+            }
+    }
+}
+
+private extension PracticeAreaSnapshotSyncTask {
+    var practiceAreasSignature: String {
+        practiceAreas
+            .map { area in
+                [
+                    area.id.uuidString,
+                    area.name,
+                    area.isActive.description,
+                    area.order.description,
+                    area.lastModified.timeIntervalSinceReferenceDate.description
+                ].joined(separator: "|")
+            }
+            .joined(separator: ";")
+    }
+
+    @MainActor
+    func mirrorPracticeAreasIfNeeded() {
+        guard !practiceAreas.isEmpty else { return }
+
+        let signature = practiceAreasSignature
+        guard signature != lastMirroredSignature else { return }
+
+        lastMirroredSignature = signature
+
+        if PracticeAreaSnapshotStore.restoreInto(
+            context: modelContext,
+            existingAreas: practiceAreas
+        ) {
+            return
+        }
+
+        PracticeAreaSnapshotStore.save(areas: practiceAreas)
     }
 }
 
