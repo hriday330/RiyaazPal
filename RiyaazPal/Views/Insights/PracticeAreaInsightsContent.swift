@@ -71,6 +71,13 @@ struct PracticeAreaInsightsContent: View {
                     onButtonTapped: onManagePracticeAreas
                 )
             } else {
+                if !attentionMetrics.isEmpty || !improvingMetrics.isEmpty {
+                    PracticeAreaHighlightsCard(
+                        attentionMetrics: Array(attentionMetrics.prefix(3)),
+                        improvingMetrics: Array(improvingMetrics.prefix(3))
+                    )
+                }
+
                 PracticeAreaOverviewCard(metrics: activeMetrics)
 
                 NavigationLink(value: PracticeRhythmRoute()) {
@@ -85,13 +92,6 @@ struct PracticeAreaInsightsContent: View {
                     )
                 }
                 .buttonStyle(.plain)
-
-                if !attentionMetrics.isEmpty || !improvingMetrics.isEmpty {
-                    PracticeAreaHighlightsCard(
-                        attentionMetrics: Array(attentionMetrics.prefix(3)),
-                        improvingMetrics: Array(improvingMetrics.prefix(3))
-                    )
-                }
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Practice Areas")
@@ -608,7 +608,7 @@ private struct PracticeAreaHighlightsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("What To Watch")
+            Text("What to Watch")
                 .font(.headline)
                 .foregroundStyle(Color("PrimaryText"))
 
