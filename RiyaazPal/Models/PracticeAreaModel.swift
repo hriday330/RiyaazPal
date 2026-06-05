@@ -17,22 +17,19 @@ final class PracticeAreaEntity {
     var createdAt: Date = Date.now
     var isActive: Bool = true
     var order: Int = 0
-    var lastModified: Date = Date.now
 
     init(
         id: UUID = UUID(),
         name: String,
         createdAt: Date = .now,
         isActive: Bool = true,
-        order: Int = 0,
-        lastModified: Date? = nil
+        order: Int = 0
     ) {
         self.id = id
         self.name = name
         self.createdAt = createdAt
         self.isActive = isActive
         self.order = order
-        self.lastModified = lastModified ?? createdAt
     }
 }
 

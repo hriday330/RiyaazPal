@@ -44,7 +44,6 @@
 		C0864B292FB2000006E5F6A /* PracticeNudgeNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B282FB2000006E5F6A /* PracticeNudgeNotificationService.swift */; };
 		C0864B2B2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B2A2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift */; };
 		C0864B2D2FB5000006E5F6A /* PracticeAreaFocusBreakdownCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B2C2FB5000006E5F6A /* PracticeAreaFocusBreakdownCard.swift */; };
-		C0864B332FC6000006E5F6A /* PracticeAreaSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0864B322FC6000006E5F6A /* PracticeAreaSnapshotStore.swift */; };
 		C091E6352F42580200271B6E /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6342F42580200271B6E /* FilterChip.swift */; };
 		C091E6372F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */; };
 		C0A430BD2F03494200C2401C /* RiyaazPalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A430BC2F03494200C2401C /* RiyaazPalApp.swift */; };
@@ -126,7 +125,6 @@
 		C0864B282FB2000006E5F6A /* PracticeNudgeNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeNudgeNotificationService.swift; sourceTree = "<group>"; };
 		C0864B2A2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeNudgeNotificationRouting.swift; sourceTree = "<group>"; };
 		C0864B2C2FB5000006E5F6A /* PracticeAreaFocusBreakdownCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaFocusBreakdownCard.swift; sourceTree = "<group>"; };
-		C0864B322FC6000006E5F6A /* PracticeAreaSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeAreaSnapshotStore.swift; sourceTree = "<group>"; };
 		C091E6342F42580200271B6E /* FilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChip.swift; sourceTree = "<group>"; };
 		C091E6362F425D1200271B6E /* PracticeTimelineTypeEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeTimelineTypeEmptyState.swift; sourceTree = "<group>"; };
 		C0A430B92F03494200C2401C /* RiyaazPal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RiyaazPal.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -202,7 +200,6 @@
 				C0864B222FAE0000006E5F6A /* PracticeRecommendationService.swift */,
 				C0864B282FB2000006E5F6A /* PracticeNudgeNotificationService.swift */,
 				C0864B2A2FB3000006E5F6A /* PracticeNudgeNotificationRouting.swift */,
-				C0864B322FC6000006E5F6A /* PracticeAreaSnapshotStore.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
@@ -532,7 +529,6 @@
 				C066A2922F0F3DF9005A5D44 /* InsightWindow.swift in Sources */,
 				C0E580482F1A493B00571C5E /* EditSessionDetailedNotesEditor.swift in Sources */,
 				C0A430E82F08A25C00C2401C /* TagChip.swift in Sources */,
-				C0864B332FC6000006E5F6A /* PracticeAreaSnapshotStore.swift in Sources */,
 				C0D82F152F249E2E00B4E0E8 /* SetupView.swift in Sources */,
 				C0D82F172F249F4200B4E0E8 /* Preferences.swift in Sources */,
 				C0A430DB2F059A0600C2401C /* DaySection.swift in Sources */,
