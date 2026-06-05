@@ -167,27 +167,36 @@ final class PracticeAreasViewModel: ObservableObject {
 
     @MainActor
     func permanentlyDeleteArchivedArea(_ area: PracticeAreaEntity) {
-        guard let context else { return }
-        guard !area.isActive else { return }
+        permanentlyDeleteArchivedAreas([area])
+    }
 
-        let areaID = area.id
-        let ratingsDescriptor = FetchDescriptor<PracticeAreaRatingEntity>(
-            predicate: #Predicate { rating in
-                rating.practiceAreaID == areaID
-            }
-        )
+    @MainActor
+    func permanentlyDeleteArchivedAreas(_ areas: [PracticeAreaEntity]) {
+        guard let context else { return }
+
+        let archivedAreas = areas.filter { !$0.isActive }
+        guard !archivedAreas.isEmpty else { return }
 
         do {
-            let ratings = try context.fetch(ratingsDescriptor)
+            for area in archivedAreas {
+                let areaID = area.id
+                let ratingsDescriptor = FetchDescriptor<PracticeAreaRatingEntity>(
+                    predicate: #Predicate { rating in
+                        rating.practiceAreaID == areaID
+                    }
+                )
+                let ratings = try context.fetch(ratingsDescriptor)
 
-            for rating in ratings {
-                context.delete(rating)
+                for rating in ratings {
+                    context.delete(rating)
+                }
+
+                context.delete(area)
             }
 
-            context.delete(area)
             try context.save()
         } catch {
-            print("PracticeAreasViewModel.permanentlyDeleteArchivedArea error:", error)
+            print("PracticeAreasViewModel.permanentlyDeleteArchivedAreas error:", error)
         }
     }
 

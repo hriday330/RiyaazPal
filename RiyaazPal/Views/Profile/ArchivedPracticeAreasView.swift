@@ -19,6 +19,7 @@ struct ArchivedPracticeAreasView: View {
 
     @State private var showInlineDuplicateMessage = false
     @State private var areaPendingDeletion: PracticeAreaEntity?
+    @State private var showDeleteAllConfirmation = false
 
     private var archivedAreas: [PracticeAreaEntity] {
         areas
@@ -62,6 +63,13 @@ struct ArchivedPracticeAreasView: View {
         .scrollContentBackground(.hidden)
         .navigationTitle("Archived Areas")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if !archivedAreas.isEmpty {
+                Button("Delete All", role: .destructive) {
+                    showDeleteAllConfirmation = true
+                }
+            }
+        }
         .confirmationDialog(
             "Delete this archived area permanently?",
             isPresented: Binding(
@@ -85,6 +93,19 @@ struct ArchivedPracticeAreasView: View {
             if let areaPendingDeletion {
                 Text("This removes \(areaPendingDeletion.name) and its saved ratings from old sessions. This cannot be undone.")
             }
+        }
+        .confirmationDialog(
+            "Delete all archived areas permanently?",
+            isPresented: $showDeleteAllConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete All Permanently", role: .destructive) {
+                permanentlyDeleteAll()
+            }
+
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes \(archivedAreas.count) archived areas and their saved ratings from old sessions. This cannot be undone.")
         }
         .onAppear {
             viewModel.attachContext(context)
@@ -123,6 +144,11 @@ private extension ArchivedPracticeAreasView {
     func permanentlyDelete(_ area: PracticeAreaEntity) {
         viewModel.permanentlyDeleteArchivedArea(area)
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
+
+    func permanentlyDeleteAll() {
+        viewModel.permanentlyDeleteArchivedAreas(archivedAreas)
+        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
     }
 
     func showDuplicateMessage() {
