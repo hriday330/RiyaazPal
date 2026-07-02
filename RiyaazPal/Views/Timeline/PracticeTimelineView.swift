@@ -159,6 +159,7 @@ private extension PracticeTimelineView {
                 context.insert(session)
                 do {
                     try context.save()
+                    selectedSession = session
                 } catch {
                     // TODO: alert if failed to save
                     print("Failed to save session: \(error.localizedDescription)")
