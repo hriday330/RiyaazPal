@@ -53,15 +53,12 @@ final class PracticeAreasViewModel: ObservableObject {
             named: trimmed,
             currentAreas: currentAreas
         ) {
-            let now = Date.now
             archivedArea.name = trimmed
             archivedArea.isActive = true
             archivedArea.order = nextOrder
-            archivedArea.lastModified = now
 
             do {
                 try context.save()
-                mirrorPracticeAreas()
                 return archivedArea
             } catch {
                 print("PracticeAreasViewModel.createArea reactivate error:", error)
@@ -78,7 +75,6 @@ final class PracticeAreasViewModel: ObservableObject {
 
         do {
             try context.save()
-            mirrorPracticeAreas()
             return area
         } catch {
             print("PracticeAreasViewModel.createArea error:", error)
@@ -111,11 +107,9 @@ final class PracticeAreasViewModel: ObservableObject {
         }
 
         area.name = trimmed
-        area.lastModified = Date.now
 
         do {
             try context.save()
-            mirrorPracticeAreas()
             return true
         } catch {
             print("PracticeAreasViewModel.renameArea error:", error)
@@ -128,11 +122,9 @@ final class PracticeAreasViewModel: ObservableObject {
         guard let context else { return }
 
         area.isActive = false
-        area.lastModified = Date.now
 
         do {
             try context.save()
-            mirrorPracticeAreas()
         } catch {
             print("PracticeAreasViewModel.deactivateArea error:", error)
         }
@@ -161,18 +153,50 @@ final class PracticeAreasViewModel: ObservableObject {
                 .max() ?? -1
         ) + 1
 
-        let now = Date.now
         area.isActive = true
         area.order = nextOrder
-        area.lastModified = now
 
         do {
             try context.save()
-            mirrorPracticeAreas()
             return true
         } catch {
             print("PracticeAreasViewModel.reactivateArea error:", error)
             return false
+        }
+    }
+
+    @MainActor
+    func permanentlyDeleteArchivedArea(_ area: PracticeAreaEntity) {
+        permanentlyDeleteArchivedAreas([area])
+    }
+
+    @MainActor
+    func permanentlyDeleteArchivedAreas(_ areas: [PracticeAreaEntity]) {
+        guard let context else { return }
+
+        let archivedAreas = areas.filter { !$0.isActive }
+        guard !archivedAreas.isEmpty else { return }
+
+        do {
+            for area in archivedAreas {
+                let areaID = area.id
+                let ratingsDescriptor = FetchDescriptor<PracticeAreaRatingEntity>(
+                    predicate: #Predicate { rating in
+                        rating.practiceAreaID == areaID
+                    }
+                )
+                let ratings = try context.fetch(ratingsDescriptor)
+
+                for rating in ratings {
+                    context.delete(rating)
+                }
+
+                context.delete(area)
+            }
+
+            try context.save()
+        } catch {
+            print("PracticeAreasViewModel.permanentlyDeleteArchivedAreas error:", error)
         }
     }
 
@@ -187,15 +211,12 @@ final class PracticeAreasViewModel: ObservableObject {
         var reordered = activeAreas
         reordered.move(fromOffsets: source, toOffset: destination)
 
-        let now = Date.now
         for (index, area) in reordered.enumerated() {
             area.order = index
-            area.lastModified = now
         }
 
         do {
             try context.save()
-            mirrorPracticeAreas()
         } catch {
             print("PracticeAreasViewModel.moveAreas error:", error)
         }
@@ -236,17 +257,5 @@ private extension PracticeAreasViewModel {
             area.id != id &&
             normalizedKey(area.name) == key
         }
-    }
-
-    @MainActor
-    func mirrorPracticeAreas() {
-        guard let context else { return }
-
-        let descriptor = FetchDescriptor<PracticeAreaEntity>(
-            sortBy: [SortDescriptor(\.order)]
-        )
-        let areas = (try? context.fetch(descriptor)) ?? []
-
-        PracticeAreaSnapshotStore.save(areas: areas)
     }
 }
